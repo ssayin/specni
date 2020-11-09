@@ -1,8 +1,9 @@
-CC := g++
+CC := clang++
 SRCEXT := cpp
 SRCDIR := src
 BUILDDIR := build
-TARGET := bin/astro
+TARGETDIR := bin
+TARGET := ${TARGETDIR}/astro
 
 CFLAGS := -g -Wall
 LIB := -lswe -pthread -L lib -ldl -lm 
@@ -12,6 +13,7 @@ SOURCES := $(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
 OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
 
 $(TARGET) : $(OBJECTS)
+	@mkdir -p $(TARGETDIR)
 	@echo " $(CC) $^ -o $(TARGET) $(LIB)"; $(CC) $^ -o $(TARGET) $(LIB)
 
 $(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
@@ -19,6 +21,6 @@ $(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
 	@echo " $(CC) $(CFLAGS) $(INC) -c -o $@ $<"; $(CC) $(CFLAGS) $(INC) -c -o $@ $<
 
 clean:
-	@echo " $(RM) -r $(BUILDDIR) $(TARGET)"; $(RM) -r $(BUILDDIR) $(TARGET)
+	@echo " $(RM) -r $(BUILDDIR) $(TARGETDIR)"; $(RM) -r $(BUILDDIR) $(TARGETDIR)
 
 .PHONY: clean
