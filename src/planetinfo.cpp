@@ -1,28 +1,11 @@
 #include "planetinfo.h"
 
 // clang-format off
-extern "C" {
 #include "swe/swephexp.h"
 #include "swe/sweph.h"
-}
 // clang-format on
 
-#include <cmath>
 #include <sstream>
-#include <tuple>
-
-const std::tuple<std::string, double> planet_info::get_sign() {
-  const char *signs[] = {
-      "Aries", "Taurus",  "Gemini",      "Cancer",    "Leo",      "Virgo",
-      "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces",
-  };
-
-  double pos = this->data.longitude;
-  int sign = pos / 30.0;
-  double deg = std::fmod(pos, 30.0);
-
-  return std::make_tuple(std::string(signs[sign]), deg);
-}
 
 void planet_info::set_ut(double ut) { this->ut = ut; }
 
@@ -31,7 +14,7 @@ double planet_info::get_ut() { return ut; }
 void planet_info::set_planetid(int id) { this->id = id; }
 
 void planet_info::calc() {
-  swe_calc_ut(ut, id, SEFLG_SWIEPH, (double *)&data, 0);
+  swe_calc_ut(ut, id, SEFLG_SWIEPH, reinterpret_cast<double *>(&data), 0);
 }
 
 const std::string planet_info::get_planet_name() {

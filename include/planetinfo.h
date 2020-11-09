@@ -7,11 +7,11 @@ public:
   planet_info() = default;
   virtual ~planet_info() = default;
 
-  const std::tuple<std::string, double> get_sign();
   void set_ut(double ut);
   double get_ut();
 
   void set_planetid(int id);
+  inline double get_longitude() { return data.longitude; }
 
   const std::string get_planet_name();
 
