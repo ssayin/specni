@@ -31,7 +31,7 @@ int main(int argc, char **argv) {
   swephpp::houses_ex(ut, swephpp::Tropical, 32.11, 31.22, swephpp::Equal, cusps,
                      ascmc);
 
-  std::cout << "Ascendant " << swephpp::get_sign_deg(ascmc.ascendant) << "\n";
+  std::cout << "Ascendant " << swephpp::get_sign_deg(ascmc.ac) << "\n";
 
   return 0;
 }

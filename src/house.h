@@ -9,6 +9,28 @@ enum HouseCuspFlag : int32_t { Tropical = 0, Sidereal, Radians };
 enum HouseSystem {
   Equal = 'A',
   Alcabitius,
+  Campanus,
+  EqualMC,
+  Carter = 'F',
+  Gauquelin,
+  Azimuth,
+  Sunshine,
+  SunshineAlt,
+  Koch,
+  PullenSDelta,
+  Morinus,
+  WholeSign,
+  Porphyry,
+  Placidus,
+  PullenSRatio,
+  Regiomontanus,
+  Sripati,
+  PolichPage,
+  KrusinskiPisaGoelzer,
+  EqualVehlow,
+  EqualWholeSign,
+  ARSMeridian,
+  APC
 };
 
 typedef struct {
@@ -16,7 +38,7 @@ typedef struct {
 } Houses;
 
 typedef struct {
-  double ascendant;
+  double ac;
   double mc;
   double armc;
   double vertex;
@@ -24,6 +46,8 @@ typedef struct {
   double coasc1; /* co-ascendant (W. Koch) */
   double coasc2; /* co-ascendant (M. Munkasey)*/
   double polasc; /* polar ascendant (M. Munkasey)*/
+  double sundec;
+  const char* serr;
 } AscMc;
 
 int houses_ex(double jd_ut, HouseCuspFlag flag, double geolat, double geolon,
