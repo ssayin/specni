@@ -1,6 +1,6 @@
 #include "house.h"
 #include "planetinfo.h"
-#include "swe/swephexp.h"
+#include "swephexp.h"
 #include "util.h"
 
 #include <iostream>

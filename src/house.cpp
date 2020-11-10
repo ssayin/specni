@@ -1,9 +1,9 @@
 #include "house.h"
 
 // clang-format off
-#include "swe/swephexp.h"
-#include "swe/swehouse.h"
-#include "swe/sweph.h"
+#include "swephexp.h"
+#include "swehouse.h"
+#include "sweph.h"
 // clang-format on
 
 #include <iostream>

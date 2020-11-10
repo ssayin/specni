@@ -1,8 +1,8 @@
 #include "planetinfo.h"
 
 // clang-format off
-#include "swe/swephexp.h"
-#include "swe/sweph.h"
+#include "swephexp.h"
+#include "sweph.h"
 // clang-format on
 
 #include <sstream>
