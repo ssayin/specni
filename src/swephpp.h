@@ -1,8 +1,13 @@
 #pragma once
 
 #include <array>
+#include <cstddef>
 #include <cstdint>
 #include <string>
+
+// clang-format off
+#include "swephexp.h"
+// clang-format on
 
 namespace swephpp {
 
@@ -109,5 +114,22 @@ int houses_ex(const HousesOpts &opts, HouseCusps &cusps, Angles &ascmc);
 const std::string house_name(HouseSystem sys);
 
 int calc(const CalcOpts &opts, PlanetEphData &data);
+
+inline int houses_ex(const HousesOpts &opts, swephpp::HouseCusps &cusps,
+                     Angles &ascmc) {
+  return swe_houses_ex(opts.jd_ut, static_cast<int32_t>(opts.flag), opts.geolat,
+                       opts.geolon, static_cast<char>(opts.hsys),
+                       reinterpret_cast<double *>(&cusps),
+                       reinterpret_cast<double *>(&ascmc));
+}
+
+inline const std::string house_name(HouseSystem sys) {
+  return swe_house_name(static_cast<char>(sys));
+}
+
+inline int calc(const CalcOpts &opts, PlanetEphData &data) {
+  return swe_calc_ut(opts.jd_ut, opts.id, static_cast<int32_t>(opts.flag),
+                     reinterpret_cast<double *>(&data), 0);
+}
 
 } // namespace swephpp
