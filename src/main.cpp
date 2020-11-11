@@ -1,7 +1,7 @@
-#include "house.h"
-#include "planetinfo.h"
 #include "swephexp.h"
 #include "util.h"
+
+#include "swephpp.h"
 
 #include <iostream>
 #include <utility>
@@ -14,24 +14,34 @@ std::ostream &operator<<(std::ostream &out,
 
 int main(int argc, char **argv) {
   double ut = swe_julday(2020, 11, 7, 10, 1);
+  //  swephpp::PlanetEphData data = {0};
+  //
+  //  for (int i = 0; i < 9; ++i) {
+  //    swephpp::CalcOpts opts = {
+  //        ut,
+  //        i,
+  //        swephpp::Flag::SwissEph,
+  //    };
+  //
+  //    swephpp::calc(opts, data);
+  //
+  //    std::cout << swephpp::get_sign_deg(data.lon) << "\n";
+  //  }
+  //
+  swephpp::HousesOpts house_opts = {ut, swephpp::HouseCuspFlag::Tropical, 32.11,
+                                    32.11, swephpp::HouseSystem::Equal};
 
-  planet_info *pi = new planet_info();
-  pi->set_ut(ut);
-  for (int i = 0; i < SE_TRUE_NODE + 1; ++i) {
-    pi->set_planetid(i);
-    pi->calc();
-    std::cout << swephpp::get_sign_deg(pi->get_longitude()) << "\n";
+  swephpp::HouseCusps cusps;
+  swephpp::Angles ascmc;
+
+  swephpp::houses_ex(house_opts, cusps, ascmc);
+
+  for (int i = 1; i < 13; ++i) {
+    std::cout << "House" << i << " " << swephpp::get_sign_deg(cusps[i]) << "\n";
   }
 
-  std::cout << "House system: " << swephpp::house_name(swephpp::Alcabitius)
-            << "\n";
-
-  swephpp::AscMc ascmc;
-  swephpp::Houses cusps;
-  swephpp::houses_ex(ut, swephpp::Tropical, 32.11, 31.22, swephpp::Equal, cusps,
-                     ascmc);
-
   std::cout << "Ascendant " << swephpp::get_sign_deg(ascmc.ac) << "\n";
+  std::cout << "Midheaven " << swephpp::get_sign_deg(ascmc.mc) << "\n";
 
   return 0;
 }

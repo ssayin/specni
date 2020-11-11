@@ -2,7 +2,7 @@
 SWISSEPHLIB = -lswe
 SWISSEPHINC = /usr/include/swisseph
 
-CFLAGS = -g -Wall
+CFLAGS = -g -Wall -fstack-protector-strong
 
 # includes and libs
 INC = -I${SWISSEPHINC}
