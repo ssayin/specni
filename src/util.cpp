@@ -2,7 +2,7 @@
 
 const std::pair<std::string, double>
 swephpp::get_sign_deg(/* longitude */ double lon) {
-  const char *signs[] = {
+  const static char *signs[] = {
       "Aries", "Taurus",  "Gemini",      "Cancer",    "Leo",      "Virgo",
       "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces",
   };

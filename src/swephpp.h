@@ -69,6 +69,51 @@ typedef struct {
   double spddist;
 } PlanetEphData;
 
+enum PlanetaryBody {
+  Sun,
+  Mercury,
+  Moon,
+  Venus,
+  Mars,
+  Jupiter,
+  Saturn,
+  Uranus,
+  Neptune,
+  Chiron,
+  Pluto,
+  MeanNode,
+  TrueNode
+};
+
+const std::string planetstr(PlanetaryBody body) {
+  switch (body) {
+  case Sun:
+    return "Sun";
+  case Mercury:
+    return "Mercury";
+  case Moon:
+    return "Moon";
+  case Venus:
+    return "Venus";
+  case Mars:
+    return "Mars";
+  case Jupiter:
+    return "Jupiter";
+  case Saturn:
+    return "Saturn";
+  case Uranus:
+    return "Uranus";
+  case Neptune:
+    return "Neptune";
+  case Chiron:
+    return "Chiron";
+  case Pluto:
+    return "Pluto";
+  default:
+    return "UNKNOWN";
+  }
+}
+
 enum class Flag : int32_t {
   JPLEph = 1,
   SwissEph = 2,
