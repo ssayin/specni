@@ -53,14 +53,6 @@ typedef struct {
 } Angles;
 
 typedef struct {
-  double jd_ut;
-  HouseCuspFlag flag;
-  double geolat;
-  double geolon;
-  HouseSystem hsys;
-} HouseOptions;
-
-typedef struct {
   double lon;
   double lat;
   double dist;
@@ -69,7 +61,7 @@ typedef struct {
   double spddist;
 } PlanetEphData;
 
-enum PlanetaryBody {
+enum PlanetaryBody : int32_t {
   Sun,
   Mercury,
   Moon,
@@ -85,33 +77,10 @@ enum PlanetaryBody {
   TrueNode
 };
 
-const std::string planetstr(PlanetaryBody body) {
-  switch (body) {
-  case Sun:
-    return "Sun";
-  case Mercury:
-    return "Mercury";
-  case Moon:
-    return "Moon";
-  case Venus:
-    return "Venus";
-  case Mars:
-    return "Mars";
-  case Jupiter:
-    return "Jupiter";
-  case Saturn:
-    return "Saturn";
-  case Uranus:
-    return "Uranus";
-  case Neptune:
-    return "Neptune";
-  case Chiron:
-    return "Chiron";
-  case Pluto:
-    return "Pluto";
-  default:
-    return "UNKNOWN";
-  }
+inline const std::string planet_name(PlanetaryBody body) {
+  char n[SE_MAX_STNAME];
+  swe_get_planet_name(body, n);
+  return std::string(n);
 }
 
 enum class Flag : int32_t {
@@ -142,7 +111,7 @@ enum class Flag : int32_t {
 
 typedef struct {
   double jd_ut;
-  int id;
+  int32_t id;
   Flag flag;
 } CalcOpts;
 
@@ -152,15 +121,15 @@ typedef struct {
   double geolat;
   double geolon;
   HouseSystem hsys;
-} HousesOpts;
+} HouseOpts;
 
-int houses_ex(const HousesOpts &opts, HouseCusps &cusps, Angles &ascmc);
+int houses_ex(const HouseOpts &opts, HouseCusps &cusps, Angles &ascmc);
 
 const std::string house_name(HouseSystem sys);
 
 int calc(const CalcOpts &opts, PlanetEphData &data);
 
-inline int houses_ex(const HousesOpts &opts, swephpp::HouseCusps &cusps,
+inline int houses_ex(const HouseOpts &opts, swephpp::HouseCusps &cusps,
                      Angles &ascmc) {
   return swe_houses_ex(opts.jd_ut, static_cast<int32_t>(opts.flag), opts.geolat,
                        opts.geolon, static_cast<char>(opts.hsys),
@@ -176,5 +145,4 @@ inline int calc(const CalcOpts &opts, PlanetEphData &data) {
   return swe_calc_ut(opts.jd_ut, opts.id, static_cast<int32_t>(opts.flag),
                      reinterpret_cast<double *>(&data), 0);
 }
-
 } // namespace swephpp

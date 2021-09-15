@@ -1,7 +1,7 @@
-#include "util.h"
+#include "util.hpp"
 
 const std::pair<std::string, double>
-swephpp::get_sign_deg(/* longitude */ double lon) {
+specni::util::get_sign_deg(/* longitude */ double lon) {
   const static char *signs[] = {
       "Aries", "Taurus",  "Gemini",      "Cancer",    "Leo",      "Virgo",
       "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces",

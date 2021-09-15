@@ -1,4 +1,4 @@
-#include "swephpp.h"
+#include "swephpp.hpp"
 #include <array>
 #include <unordered_map>
 #include <vector>
@@ -20,6 +20,11 @@ static const std::unordered_map<Aspect, int> aspects = {
     {Conjunction, 0}, {Sextile, 60},     {Square, 90},
     {Trine, 120},     {Opposition, 180},
 };
+
+static const std::array<swephpp::PlanetaryBody, 12> houseOrder /* domicile */ =
+    {swephpp::Mars,    swephpp::Venus,   swephpp::Mercury, swephpp::Moon,
+     swephpp::Sun,     swephpp::Mercury, swephpp::Venus,   swephpp::Mars,
+     swephpp::Jupiter, swephpp::Saturn,  swephpp::Saturn,  swephpp::Jupiter};
 
 static const std::unordered_map<swephpp::PlanetaryBody, double> exaltations = {
     {swephpp::Sun, 19.0},      // Aries 19
@@ -43,9 +48,20 @@ constexpr swephpp::PlanetaryBody face(double lon) {
 static const std::unordered_map<swephpp::PlanetaryBody, std::vector<double>>
     terms{
         {swephpp::Mercury,
-         {
-             21.0,
-         }},
+         {21.0,       26.0,       30 + 15.0,  30 + 22.0,  60 + 7.0,
+          60 + 14.0,  90 + 20.0,  90 + 27.0,  120 + 13.0, 120 + 19.0,
+          150 + 7.0,  150 + 13.0, 180 + 24.0, 180 + 30.0, 210 + 27.0,
+          210 + 30.0, 240 + 19.0, 240 + 25.0, 270 + 12.0, 270 + 19.0,
+          300 + 12.0, 300 + 20.0, 330 + 20.0, 330 + 26.0}},
+
+        {swephpp::Venus, {}},
+
+        {swephpp::Mars, {}},
+
+        {swephpp::Jupiter, {}},
+
+        {swephpp::Saturn, {}},
+
     };
 
 } // namespace specni

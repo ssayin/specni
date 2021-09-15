@@ -6,6 +6,6 @@ CFLAGS = -g -Wall -fstack-protector-strong
 
 # includes and libs
 INC = -I${SWISSEPHINC}
-LIB = ${SWISSEPHLIB} -pthread -L lib -ldl -lm
+LIB = ${SWISSEPHLIB} -pthread -ldl -lm -lglfw -lOpenGL
 
-CXX = clang++
+CXX = g++
