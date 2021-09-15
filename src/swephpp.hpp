@@ -50,6 +50,8 @@ typedef struct {
   double coasc1; /* co-ascendant (W. Koch) */
   double coasc2; /* co-ascendant (M. Munkasey)*/
   double polasc; /* polar ascendant (M. Munkasey)*/
+  double res1;
+  double res2;
 } Angles;
 
 typedef struct {

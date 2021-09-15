@@ -90,6 +90,9 @@ int main(int, char **) {
   ImGui_ImplGlfw_InitForOpenGL(window, true);
   ImGui_ImplOpenGL3_Init(glsl_version);
 
+  // Our state
+  bool show_demo_window = true;
+  ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
   // Load Fonts
   // - If no fonts are loaded, dear imgui will use the default font. You can
   // also load multiple fonts and use ImGui::PushFont()/PopFont() to select
@@ -117,10 +120,6 @@ int main(int, char **) {
   // NULL, io.Fonts->GetGlyphRangesJapanese()); IM_ASSERT(font != NULL);
   ChartSettings settings(zodiacs_font);
   ChartGfx gfx(settings);
-
-  // Our state
-  bool show_demo_window = true;
-  ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
   // Main loop
   while (!glfwWindowShouldClose(window)) {
