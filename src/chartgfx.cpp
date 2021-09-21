@@ -1,6 +1,15 @@
 #include "chartgfx.hpp"
 #include "imvecext.hpp"
 #include "util.hpp"
+#include <imgui.h>
+
+static const char *GetHouseSystemString() {
+  return "Equal\0Alcabitius\0Campanus\0EqualMC\0Carter\0Gauquelin\0Azimuth\0Sun"
+         "shine\0Suns"
+         "hineAlt\0Koch\0PullenSDelta\0Morinus\0WholeSign\0Porphyry\0Placidus\0"
+         "PullenSRatio\0Regiomontanus\0Sripati\0PolichPage\0KrusinskiPisaGoelze"
+         "r\0EqualVehlow\0EqualWholeSign\0ARSMeridian\0APC\0";
+}
 
 ChartGfx::ChartGfx(ChartSettings &settings) : settings(settings) {
   RecalculatePlanetPos();
@@ -9,15 +18,22 @@ ChartGfx::ChartGfx(ChartSettings &settings) : settings(settings) {
 
 void ChartGfx::RecalculateHouses() {
   vHouseCusps.clear();
-  swephpp::HouseOpts house_opts = {ut, swephpp::HouseCuspFlag::Tropical, 32.11,
-                                   32.11, swephpp::HouseSystem::WholeSign};
+  swephpp::HouseOpts house_opts = {
+      ut, swephpp::HouseCuspFlag::Tropical, geolat, geolon,
+      static_cast<swephpp::HouseSystem>(
+          (char)((houseSel > 3) ? (66 + houseSel) : (65 + houseSel)))};
 
-  swephpp::HouseCusps cusps;
+  if (house_opts.hsys != swephpp::HouseSystem::Gauquelin) {
+    swephpp::HouseCusps cusps;
+    swephpp::houses_ex(house_opts, cusps, ascmc);
+    for (int i = 1; i < cusps.max_size(); ++i)
+      vHouseCusps.push_back(cusps[i]);
 
-  swephpp::houses_ex(house_opts, cusps, ascmc);
-
-  for (int i = 1; i < 13; ++i) {
-    vHouseCusps.push_back(cusps[i]);
+  } else {
+    swephpp::GauquelinCusps cusps;
+    swephpp::houses_ex(house_opts, cusps, ascmc);
+    for (int i = 1; i < cusps.max_size(); ++i)
+      vHouseCusps.push_back(cusps[i]);
   }
 }
 
@@ -31,7 +47,7 @@ void ChartGfx::ChartWindow() {
     }
   };
 
-  ImGui::SetNextWindowSizeConstraints(ImVec2(200, 200), ImVec2(500, 500),
+  ImGui::SetNextWindowSizeConstraints(ImVec2(600, 600), ImVec2(800, 800),
                                       Constraint::Square);
 
   ImGui::Begin("Chart");
@@ -74,8 +90,8 @@ void ChartGfx::ChartWindow() {
 
     // ImVector<ImDrawVert> &buf = draw_list->VtxBuffer;
     // for (int i = 0; i < buf.Size; i++)
-    // buf[i].pos = ImRotate(buf[i].pos, 1, 1) - (window_center + ImRotate(mid,
-    // cos_b, sin_b)),
+    // buf[i].pos = ImRotate(buf[i].pos, 1, 1) - (window_center +
+    // ImRotate(mid, cos_b, sin_b)),
 
     ImVec2 sign = (inner + outer) / 2;
 
@@ -96,12 +112,24 @@ void ChartGfx::ChartWindow() {
   float cosac = cosf(DegToRad(ascmc.ac));
   float sinac = sinf(DegToRad(ascmc.ac));
 
+  float cosmc = cosf(DegToRad(ascmc.mc));
+  float sinmc = sinf(DegToRad(ascmc.mc));
+
   draw_list->AddLine(window_center + ImRotate(outer, cosac, sinac),
                      window_center + ImRotate(innermost, cosac, sinac),
                      settings.AscMcColor, settings.Thickness);
 
-  sprintf(f, "%c", 'j');
+  draw_list->AddLine(window_center + ImRotate(outer, cosmc, sinmc),
+                     window_center + ImRotate(innermost, cosmc, sinmc),
+                     settings.AscMcColor, settings.Thickness);
+
+  sprintf(f, "%c", 'K');
   draw_list->AddText(window_center + ImRotate(ascmcmid, cosac, sinac),
+                     settings.AscMcColor, f);
+
+  sprintf(f, "%c", 'L');
+
+  draw_list->AddText(window_center + ImRotate(ascmcmid, cosmc, sinmc),
                      settings.AscMcColor, f);
 
   ImGui::PopFont();
@@ -173,6 +201,17 @@ void ChartGfx::ControlsWindow() {
 
   ImGui::InputDouble("Hour", &h);
   changeFlag |= ImGui::IsItemEdited();
+
+  ImGui::InputDouble("Latitude", &geolat);
+  changeFlag |= ImGui::IsItemEdited();
+
+  ImGui::InputDouble("Longitude", &geolon);
+  changeFlag |= ImGui::IsItemEdited();
+
+  static int prev = 0;
+  ImGui::Combo("HouseSystem", &houseSel, ::GetHouseSystemString());
+  changeFlag |= (prev != houseSel);
+  prev = houseSel;
 
   ImGui::End();
   if (changeFlag) {

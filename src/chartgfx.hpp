@@ -12,10 +12,11 @@ public:
   ImColor SignColor = {};
   ImColor PlanetColor = {};
   ImColor AscMcColor = {};
-  float CircleInnerRatio = 0.40f;
-  float CircleOuterRatio = 0.45f;
-  float CuspTextRatio = 0.55f;
-  float CircleInnermostRatio = 0.25f;
+
+  const float CircleInnerRatio = 0.40f;
+  const float CircleOuterRatio = 0.45f;
+  const float CuspTextRatio = 0.50f;
+  const float CircleInnermostRatio = 0.25f;
 
   float Thickness = 1.0f;
   ImFont *font;
@@ -40,9 +41,12 @@ private:
   int d = 1;
   int y = 2020;
   double h = 11;
-  double ut = swe_julday(2020, 11, 7, 10, 1);
+  double ut = swe_julday(y, d, m, h, 1);
   std::vector<swephpp::PlanetEphData> vEph;
   std::vector<float> vHouseCusps;
   swephpp::Angles ascmc;
   ChartSettings settings;
+  double geolat = 33.33;
+  double geolon = 33.33;
+  int houseSel = 0;
 };

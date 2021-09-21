@@ -12,13 +12,13 @@
 namespace swephpp {
 
 enum class HouseCuspFlag : int32_t { Tropical = 0, Sidereal, Radians };
-enum class HouseSystem : int {
+enum class HouseSystem : char {
   Equal = 'A',
   Alcabitius,
   Campanus,
   EqualMC,
   Carter = 'F',
-  // Gauquelin,
+  Gauquelin,
   Azimuth = 'H',
   Sunshine,
   SunshineAlt,
@@ -40,6 +40,7 @@ enum class HouseSystem : int {
 };
 
 typedef std::array<double, 13> HouseCusps;
+typedef std::array<double, 37> GauquelinCusps;
 
 typedef struct {
   double ac;
@@ -125,14 +126,8 @@ typedef struct {
   HouseSystem hsys;
 } HouseOpts;
 
-int houses_ex(const HouseOpts &opts, HouseCusps &cusps, Angles &ascmc);
-
-const std::string house_name(HouseSystem sys);
-
-int calc(const CalcOpts &opts, PlanetEphData &data);
-
-inline int houses_ex(const HouseOpts &opts, swephpp::HouseCusps &cusps,
-                     Angles &ascmc) {
+template <typename T>
+inline int houses_ex(const HouseOpts &opts, T &cusps, Angles &ascmc) {
   return swe_houses_ex(opts.jd_ut, static_cast<int32_t>(opts.flag), opts.geolat,
                        opts.geolon, static_cast<char>(opts.hsys),
                        reinterpret_cast<double *>(&cusps),
