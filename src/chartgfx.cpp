@@ -28,7 +28,7 @@ void ChartGfx::RecalculateHouses() {
   if (house_opts.hsys != swephpp::HouseSystem::Gauquelin) {
     swephpp::HouseCusps cusps;
     swephpp::houses_ex(house_opts, cusps, ascmc);
-    for (swephpp::HouseCusps::size_type i; i < cusps.max_size(); ++i)
+    for (swephpp::HouseCusps::size_type i = 1; i < cusps.max_size(); ++i)
       vHouseCusps.push_back(cusps[i]);
 
   } else {
@@ -108,7 +108,7 @@ void ChartGfx::ChartWindow() {
   ImVec2 mid2 = ImVec2(0, window_size.y * 0.32f);
   for (std::vector<swephpp::PlanetEphData>::size_type i = 0; i < vEph.size();
        ++i) {
-    sprintf(f, "%lu", 'A' + i);
+    sprintf(f, "%c", static_cast<char>('A' + i));
     float cos_p = cosf(DegToRad(vEph.at(i).lon));
     float sin_p = sinf(DegToRad(vEph.at(i).lon));
     draw_list->AddText(window_center + ImRotate(mid2, cos_p, sin_p),
@@ -159,14 +159,14 @@ void ChartGfx::ChartWindow() {
 
   for (std::vector<ImVec2>::size_type i = 1; i < vMidpoints.size(); ++i) {
     ImVec2 houseNumberPos = (vMidpoints.at(i) + vMidpoints.at(i - 1)) / 2.0;
-    sprintf(f, "%lu", i);
+    sprintf(f, "%d", static_cast<int>(i));
     draw_list->AddText(houseNumberPos, settings.AscMcColor, f);
   }
 
   if (!vMidpoints.empty()) {
     ImVec2 houseNumberPos =
         (vMidpoints.at(vMidpoints.size() - 1) + vMidpoints.at(0)) / 2.0;
-    sprintf(f, "%lu", vMidpoints.size());
+    sprintf(f, "%d", static_cast<int>(vMidpoints.size()));
     draw_list->AddText(houseNumberPos, settings.AscMcColor, f);
   }
 
