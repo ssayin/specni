@@ -3,6 +3,8 @@
 #include "util.hpp"
 #include <imgui.h>
 
+namespace specni {
+
 static const char *GetHouseSystemString() {
   return "Equal\0Alcabitius\0Campanus\0EqualMC\0Carter\0Gauquelin\0Azimuth\0Sun"
          "shine\0Suns"
@@ -26,13 +28,13 @@ void ChartGfx::RecalculateHouses() {
   if (house_opts.hsys != swephpp::HouseSystem::Gauquelin) {
     swephpp::HouseCusps cusps;
     swephpp::houses_ex(house_opts, cusps, ascmc);
-    for (int i = 1; i < cusps.max_size(); ++i)
+    for (swephpp::HouseCusps::size_type i; i < cusps.max_size(); ++i)
       vHouseCusps.push_back(cusps[i]);
 
   } else {
     swephpp::GauquelinCusps cusps;
     swephpp::houses_ex(house_opts, cusps, ascmc);
-    for (int i = 1; i < cusps.max_size(); ++i)
+    for (swephpp::GauquelinCusps::size_type i = 1; i < cusps.max_size(); ++i)
       vHouseCusps.push_back(cusps[i]);
   }
 }
@@ -62,22 +64,25 @@ void ChartGfx::ChartWindow() {
   ImVec2 outer = ImVec2(0, window_size.y * settings.CircleOuterRatio);
   ImVec2 inner = ImVec2(0, window_size.y * settings.CircleInnerRatio);
   ImVec2 innermost = ImVec2(0, window_size.y * settings.CircleInnermostRatio);
+  ImVec2 housenumber = ImVec2(0, window_size.y * settings.CircleHouseNumbers);
 
   ImVec2 ascmcmid = (outertext + outer) / 2;
 
-  draw_list->AddCircle(window_center, window_size.y * settings.CircleOuterRatio,
-                       settings.BaseColor, 0, settings.Thickness);
+  draw_list->AddCircle(window_center, outer.y, settings.BaseColor, 0,
+                       settings.Thickness);
 
-  draw_list->AddCircle(window_center, window_size.y * settings.CircleInnerRatio,
-                       settings.BaseColor, 0, settings.Thickness);
+  draw_list->AddCircle(window_center, inner.y, settings.BaseColor, 0,
+                       settings.Thickness);
 
-  draw_list->AddCircle(window_center,
-                       window_size.y * settings.CircleInnermostRatio,
-                       settings.BaseColor, 0, settings.Thickness);
+  draw_list->AddCircle(window_center, innermost.y, settings.BaseColor, 0,
+                       settings.Thickness);
+
+  draw_list->AddCircle(window_center, housenumber.y, settings.BaseColor, 0,
+                       settings.Thickness);
 
   ImGui::PushFont(settings.font);
 
-  char f[2];
+  char f[3];
   for (int i = 0; i < 12; i++) {
     float cos_a = cosf(DegToRad(i * 30));
     float sin_a = sinf(DegToRad(i * 30));
@@ -101,8 +106,9 @@ void ChartGfx::ChartWindow() {
   }
 
   ImVec2 mid2 = ImVec2(0, window_size.y * 0.32f);
-  for (int i = 0; i < vEph.size(); ++i) {
-    sprintf(f, "%c", 'A' + i);
+  for (std::vector<swephpp::PlanetEphData>::size_type i = 0; i < vEph.size();
+       ++i) {
+    sprintf(f, "%lu", 'A' + i);
     float cos_p = cosf(DegToRad(vEph.at(i).lon));
     float sin_p = sinf(DegToRad(vEph.at(i).lon));
     draw_list->AddText(window_center + ImRotate(mid2, cos_p, sin_p),
@@ -133,14 +139,35 @@ void ChartGfx::ChartWindow() {
                      settings.AscMcColor, f);
 
   ImGui::PopFont();
+  std::vector<ImVec2> vMidpoints;
 
-  for (int i = 0; i < vHouseCusps.size(); ++i) {
+  for (std::vector<float>::size_type i = 0; i < vHouseCusps.size(); ++i) {
+
     float cosxd = cosf(DegToRad(vHouseCusps.at(i)));
     float sinxd = sinf(DegToRad(vHouseCusps.at(i)));
 
-    draw_list->AddLine(window_center + ImRotate(innermost, cosxd, sinxd),
-                       window_center + ImRotate(inner, cosxd, sinxd),
+    ImVec2 EdgeA = window_center + ImRotate(innermost, cosxd, sinxd);
+
+    ImVec2 Mid =
+        (EdgeA + (window_center + ImRotate(housenumber, cosxd, sinxd))) / 2.0;
+
+    vMidpoints.push_back(Mid);
+
+    draw_list->AddLine(EdgeA, window_center + ImRotate(inner, cosxd, sinxd),
                        settings.BaseColor, settings.Thickness);
+  }
+
+  for (std::vector<ImVec2>::size_type i = 1; i < vMidpoints.size(); ++i) {
+    ImVec2 houseNumberPos = (vMidpoints.at(i) + vMidpoints.at(i - 1)) / 2.0;
+    sprintf(f, "%lu", i);
+    draw_list->AddText(houseNumberPos, settings.AscMcColor, f);
+  }
+
+  if (!vMidpoints.empty()) {
+    ImVec2 houseNumberPos =
+        (vMidpoints.at(vMidpoints.size() - 1) + vMidpoints.at(0)) / 2.0;
+    sprintf(f, "%lu", vMidpoints.size());
+    draw_list->AddText(houseNumberPos, settings.AscMcColor, f);
   }
 
   ImGui::End();
@@ -152,7 +179,8 @@ void ChartGfx::PlanetsWindow() {
                         ImGuiTableFlags_Resizable |
                             ImGuiTableFlags_NoSavedSettings |
                             ImGuiTableFlags_Borders)) {
-    for (int i = 0; i < vEph.size(); i++) {
+    for (std::vector<swephpp::PlanetEphData>::size_type i = 0; i < vEph.size();
+         i++) {
       auto &d = specni::util::get_sign_deg(vEph.at(i).lon);
       ImGui::TableNextRow();
       ImGui::TableNextColumn();
@@ -209,7 +237,7 @@ void ChartGfx::ControlsWindow() {
   changeFlag |= ImGui::IsItemEdited();
 
   static int prev = 0;
-  ImGui::Combo("HouseSystem", &houseSel, ::GetHouseSystemString());
+  ImGui::Combo("HouseSystem", &houseSel, GetHouseSystemString());
   changeFlag |= (prev != houseSel);
   prev = houseSel;
 
@@ -220,3 +248,4 @@ void ChartGfx::ControlsWindow() {
     RecalculateHouses();
   }
 }
+}; // namespace specni

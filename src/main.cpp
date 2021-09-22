@@ -118,8 +118,8 @@ int main(int, char **) {
   // ImFont* font =
   // io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f,
   // NULL, io.Fonts->GetGlyphRangesJapanese()); IM_ASSERT(font != NULL);
-  ChartSettings settings(zodiacs_font);
-  ChartGfx gfx(settings);
+  specni::ChartSettings settings(zodiacs_font);
+  specni::ChartGfx gfx(settings);
 
   // Main loop
   while (!glfwWindowShouldClose(window)) {

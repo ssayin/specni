@@ -1,3 +1,5 @@
+#pragma once
+
 #include "swephpp.hpp"
 #include <array>
 #include <unordered_map>
