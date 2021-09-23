@@ -5,41 +5,10 @@
 
 namespace specni {
 
-static const char *GetHouseSystemString() {
-  return "Equal\0Alcabitius\0Campanus\0EqualMC\0Carter\0Gauquelin\0Azimuth\0Sun"
-         "shine\0Suns"
-         "hineAlt\0Koch\0PullenSDelta\0Morinus\0WholeSign\0Porphyry\0Placidus\0"
-         "PullenSRatio\0Regiomontanus\0Sripati\0PolichPage\0KrusinskiPisaGoelze"
-         "r\0EqualVehlow\0EqualWholeSign\0ARSMeridian\0APC\0";
-}
+ChartWidget::ChartWidget(ChartSettings &settings, ChartModel *model)
+    : settings(settings), model(model) {}
 
-ChartGfx::ChartGfx(ChartSettings &settings) : settings(settings) {
-  RecalculatePlanetPos();
-  RecalculateHouses();
-}
-
-void ChartGfx::RecalculateHouses() {
-  vHouseCusps.clear();
-  swephpp::HouseOpts house_opts = {
-      ut, swephpp::HouseCuspFlag::Tropical, geolat, geolon,
-      static_cast<swephpp::HouseSystem>(
-          (char)((houseSel > 3) ? (66 + houseSel) : (65 + houseSel)))};
-
-  if (house_opts.hsys != swephpp::HouseSystem::Gauquelin) {
-    swephpp::HouseCusps cusps;
-    swephpp::houses_ex(house_opts, cusps, ascmc);
-    for (swephpp::HouseCusps::size_type i = 1; i < cusps.max_size(); ++i)
-      vHouseCusps.push_back(cusps[i]);
-
-  } else {
-    swephpp::GauquelinCusps cusps;
-    swephpp::houses_ex(house_opts, cusps, ascmc);
-    for (swephpp::GauquelinCusps::size_type i = 1; i < cusps.max_size(); ++i)
-      vHouseCusps.push_back(cusps[i]);
-  }
-}
-
-void ChartGfx::ChartWindow() {
+void ChartWidget::Show() const {
   struct Constraint {
 
     static void Square(ImGuiSizeCallbackData *data) {
@@ -106,20 +75,20 @@ void ChartGfx::ChartWindow() {
   }
 
   ImVec2 mid2 = ImVec2(0, window_size.y * 0.32f);
-  for (std::vector<swephpp::PlanetEphData>::size_type i = 0; i < vEph.size();
-       ++i) {
+  for (std::vector<swephpp::PlanetEphData>::size_type i = 0;
+       i < model->vEph.size(); ++i) {
     sprintf(f, "%c", static_cast<char>('A' + i));
-    float cos_p = cosf(DegToRad(vEph.at(i).lon));
-    float sin_p = sinf(DegToRad(vEph.at(i).lon));
+    float cos_p = cosf(DegToRad(model->vEph.at(i).lon));
+    float sin_p = sinf(DegToRad(model->vEph.at(i).lon));
     draw_list->AddText(window_center + ImRotate(mid2, cos_p, sin_p),
                        settings.PlanetColor, f);
   }
 
-  float cosac = cosf(DegToRad(ascmc.ac));
-  float sinac = sinf(DegToRad(ascmc.ac));
+  float cosac = cosf(DegToRad(model->ascmc.ac));
+  float sinac = sinf(DegToRad(model->ascmc.ac));
 
-  float cosmc = cosf(DegToRad(ascmc.mc));
-  float sinmc = sinf(DegToRad(ascmc.mc));
+  float cosmc = cosf(DegToRad(model->ascmc.mc));
+  float sinmc = sinf(DegToRad(model->ascmc.mc));
 
   draw_list->AddLine(window_center + ImRotate(outer, cosac, sinac),
                      window_center + ImRotate(innermost, cosac, sinac),
@@ -141,10 +110,11 @@ void ChartGfx::ChartWindow() {
   ImGui::PopFont();
   std::vector<ImVec2> vMidpoints;
 
-  for (std::vector<float>::size_type i = 0; i < vHouseCusps.size(); ++i) {
+  for (std::vector<float>::size_type i = 0; i < model->vHouseCusps.size();
+       ++i) {
 
-    float cosxd = cosf(DegToRad(vHouseCusps.at(i)));
-    float sinxd = sinf(DegToRad(vHouseCusps.at(i)));
+    float cosxd = cosf(DegToRad(model->vHouseCusps.at(i)));
+    float sinxd = sinf(DegToRad(model->vHouseCusps.at(i)));
 
     ImVec2 EdgeA = window_center + ImRotate(innermost, cosxd, sinxd);
 
@@ -173,79 +143,4 @@ void ChartGfx::ChartWindow() {
   ImGui::End();
 }
 
-void ChartGfx::PlanetsWindow() {
-  ImGui::Begin("Planets");
-  if (ImGui::BeginTable("split2", 3,
-                        ImGuiTableFlags_Resizable |
-                            ImGuiTableFlags_NoSavedSettings |
-                            ImGuiTableFlags_Borders)) {
-    for (std::vector<swephpp::PlanetEphData>::size_type i = 0; i < vEph.size();
-         i++) {
-      auto &d = specni::util::get_sign_deg(vEph.at(i).lon);
-      ImGui::TableNextRow();
-      ImGui::TableNextColumn();
-      ImGui::Text(
-          "%s",
-          swephpp::planet_name(static_cast<swephpp::PlanetaryBody>(i)).c_str());
-      ImGui::TableNextColumn();
-      ImGui::Text("%s", std::get<0>(d).c_str());
-      ImGui::TableNextColumn();
-      ImGui::Text("%f", std::get<1>(d));
-    }
-    ImGui::EndTable();
-  }
-
-  ImGui::End();
-}
-
-void ChartGfx::RecalculatePlanetPos() {
-  swephpp::PlanetEphData data = {0};
-  vEph.clear();
-  for (int i = 0; i < 9; ++i) {
-    swephpp::CalcOpts opts = {
-        ut,
-        i,
-        swephpp::Flag::SwissEph,
-    };
-
-    swephpp::calc(opts, data);
-    vEph.push_back(data);
-  }
-}
-
-void ChartGfx::ControlsWindow() {
-  ImGui::Begin("Controls");
-
-  bool changeFlag = false;
-
-  ImGui::InputInt("Month", &m);
-  changeFlag |= ImGui::IsItemEdited();
-
-  ImGui::InputInt("Day", &d);
-  changeFlag |= ImGui::IsItemEdited();
-
-  ImGui::InputInt("Year", &y);
-  changeFlag |= ImGui::IsItemEdited();
-
-  ImGui::InputDouble("Hour", &h);
-  changeFlag |= ImGui::IsItemEdited();
-
-  ImGui::InputDouble("Latitude", &geolat);
-  changeFlag |= ImGui::IsItemEdited();
-
-  ImGui::InputDouble("Longitude", &geolon);
-  changeFlag |= ImGui::IsItemEdited();
-
-  static int prev = 0;
-  ImGui::Combo("HouseSystem", &houseSel, GetHouseSystemString());
-  changeFlag |= (prev != houseSel);
-  prev = houseSel;
-
-  ImGui::End();
-  if (changeFlag) {
-    ut = swe_julday(y, m, d, h, 1);
-    RecalculatePlanetPos();
-    RecalculateHouses();
-  }
-}
 }; // namespace specni

@@ -27,7 +27,10 @@
 #endif
 
 #include "chartgfx.hpp"
+#include "chartsettings.hpp"
+#include "controlswidget.hpp"
 #include "imvecext.hpp"
+#include "planetswidget.hpp"
 #include "swephpp.hpp"
 #include "util.hpp"
 #include <vector>
@@ -119,7 +122,10 @@ int main(int, char **) {
   // io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f,
   // NULL, io.Fonts->GetGlyphRangesJapanese()); IM_ASSERT(font != NULL);
   specni::ChartSettings settings(zodiacs_font);
-  specni::ChartGfx gfx(settings);
+  specni::ChartModel model;
+  specni::ControlsWidget controls(&model);
+  specni::PlanetsWidget planets(&model);
+  specni::ChartWidget chart(settings, &model);
 
   // Main loop
   while (!glfwWindowShouldClose(window)) {
@@ -139,10 +145,9 @@ int main(int, char **) {
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    gfx.ControlsWindow();
-    gfx.PlanetsWindow();
-    gfx.ChartWindow();
-
+    controls.Show();
+    planets.Show();
+    chart.Show();
     // 1. Show the big demo window (Most of the sample code is in
     // ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear
     // ImGui!).
