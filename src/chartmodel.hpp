@@ -28,47 +28,17 @@ public:
 
   void SetHouseSystem(swephpp::HouseSystem sys) { hsys = sys; }
 
+  void RecalculateAspects();
+
+  void RecalculatePlanetPos();
+
+  void RecalculateHouses();
+
   std::vector<swephpp::PlanetEphData> vEph;
   std::vector<float> vHouseCusps;
   AspectMatrix vAspects;
   swephpp::Angles ascmc;
   swephpp::HouseSystem hsys;
-
-  void RecalculateAspects();
-
-  void RecalculatePlanetPos() {
-    swephpp::PlanetEphData data = {0};
-    vEph.clear();
-    for (int i = 0; i < 9; ++i) {
-      swephpp::CalcOpts opts = {
-          ut,
-          i,
-          swephpp::Flag::SwissEph,
-      };
-
-      swephpp::calc(opts, data);
-      vEph.push_back(data);
-    }
-  }
-
-  void RecalculateHouses() {
-    vHouseCusps.clear();
-    swephpp::HouseOpts house_opts = {ut, swephpp::HouseCuspFlag::Tropical,
-                                     geolat, geolon, hsys};
-
-    if (house_opts.hsys != swephpp::HouseSystem::Gauquelin) {
-      swephpp::HouseCusps cusps;
-      swephpp::houses_ex(house_opts, cusps, ascmc);
-      for (swephpp::HouseCusps::size_type i = 1; i < cusps.max_size(); ++i)
-        vHouseCusps.push_back(cusps[i]);
-
-    } else {
-      swephpp::GauquelinCusps cusps;
-      swephpp::houses_ex(house_opts, cusps, ascmc);
-      for (swephpp::GauquelinCusps::size_type i = 1; i < cusps.max_size(); ++i)
-        vHouseCusps.push_back(cusps[i]);
-    }
-  }
 
 private:
   double ut;
