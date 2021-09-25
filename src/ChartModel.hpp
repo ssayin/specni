@@ -18,7 +18,7 @@ public:
   }
 
   void SetDateGregorian(int year, int month, int day, double hour) {
-    this->ut = swe_julday(year, day, month, hour, 1);
+    this->ut = swe_julday(year, month, day, hour, 1);
   }
 
   void SetCoordinates(double latitude, double longitude) {
