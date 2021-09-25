@@ -1,5 +1,6 @@
 #pragma once
 
+#include "aspects.hpp"
 #include "swephpp.hpp"
 #include <vector>
 
@@ -13,6 +14,7 @@ public:
     SetHouseSystem(swephpp::HouseSystem::Placidus);
     RecalculatePlanetPos();
     RecalculateHouses();
+    RecalculateAspects();
   }
 
   void SetDateGregorian(int year, int month, int day, double hour) {
@@ -28,8 +30,11 @@ public:
 
   std::vector<swephpp::PlanetEphData> vEph;
   std::vector<float> vHouseCusps;
+  AspectMatrix vAspects;
   swephpp::Angles ascmc;
   swephpp::HouseSystem hsys;
+
+  void RecalculateAspects();
 
   void RecalculatePlanetPos() {
     swephpp::PlanetEphData data = {0};

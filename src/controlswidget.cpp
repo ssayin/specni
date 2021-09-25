@@ -1,6 +1,7 @@
 #include "controlswidget.hpp"
 
 #include "imgui.h"
+#include "swephpp.hpp"
 
 static const char *GetHouseSystemString() {
   return "Equal\0Alcabitius\0Campanus\0EqualMC\0Carter\0Gauquelin\0Azimuth\0Sun"
@@ -10,7 +11,7 @@ static const char *GetHouseSystemString() {
          "r\0EqualVehlow\0EqualWholeSign\0ARSMeridian\0APC\0";
 }
 
-void specni::ControlsWidget::Show() {
+void specni::ControlsWidget::Show() const {
   ImGui::Begin("Controls");
 
   bool changeFlag = false;
@@ -53,5 +54,6 @@ void specni::ControlsWidget::Show() {
     model->SetCoordinates(lat, lon);
     model->RecalculatePlanetPos();
     model->RecalculateHouses();
+    model->RecalculateAspects();
   }
 }

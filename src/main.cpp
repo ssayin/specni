@@ -26,6 +26,7 @@
 #pragma comment(lib, "legacy_stdio_definitions")
 #endif
 
+#include "aspectswidget.hpp"
 #include "chartgfx.hpp"
 #include "chartsettings.hpp"
 #include "controlswidget.hpp"
@@ -126,6 +127,7 @@ int main(int, char **) {
   specni::ControlsWidget controls(&model);
   specni::PlanetsWidget planets(&model);
   specni::ChartWidget chart(settings, &model);
+  specni::AspectsWidget aspects(&model);
 
   // Main loop
   while (!glfwWindowShouldClose(window)) {
@@ -148,6 +150,7 @@ int main(int, char **) {
     controls.Show();
     planets.Show();
     chart.Show();
+    aspects.Show();
     // 1. Show the big demo window (Most of the sample code is in
     // ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear
     // ImGui!).

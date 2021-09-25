@@ -7,22 +7,6 @@
 
 namespace specni {
 
-/*
- * Only major aspects for now
- */
-enum Aspect {
-  Conjunction,
-  Sextile,
-  Square,
-  Trine,
-  Opposition,
-};
-
-static const std::unordered_map<Aspect, int> aspects = {
-    {Conjunction, 0}, {Sextile, 60},     {Square, 90},
-    {Trine, 120},     {Opposition, 180},
-};
-
 static const std::array<swephpp::PlanetaryBody, 12> houseOrder /* domicile */ =
     {swephpp::Mars,    swephpp::Venus,   swephpp::Mercury, swephpp::Moon,
      swephpp::Sun,     swephpp::Mercury, swephpp::Venus,   swephpp::Mars,
