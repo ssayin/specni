@@ -1,4 +1,4 @@
-#include "chartgfx.hpp"
+#include "ChartWidget.hpp"
 #include "imvecext.hpp"
 #include "util.hpp"
 #include <imgui.h>

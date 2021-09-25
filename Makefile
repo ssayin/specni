@@ -3,6 +3,7 @@ include config.mk
 SRCEXT := cpp
 SRCDIR := src
 BUILDDIR := build
+IMGUIBUILDDIR := build/lib/imgui
 TARGETDIR := bin
 TARGET := ${TARGETDIR}/astro
 
@@ -15,6 +16,7 @@ $(TARGET) : $(OBJ)
 
 $(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
 	@mkdir -p $(BUILDDIR)
+	@mkdir -p $(IMGUIBUILDDIR)
 	@echo " $(CXX) $(CFLAGS) $(INC) -c -o $@ $<"; $(CXX) $(CFLAGS) $(INC) -c -o $@ $<
 
 clean:

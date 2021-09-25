@@ -1,4 +1,4 @@
-#include "aspectswidget.hpp"
+#include "AspectsWidget.hpp"
 #include "swephpp.hpp"
 #include <array>
 #include <cmath>

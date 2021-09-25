@@ -1,6 +1,6 @@
 #pragma once
 
-#include "aspects.hpp"
+#include "Aspects.hpp"
 #include "swephpp.hpp"
 #include <vector>
 

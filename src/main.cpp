@@ -7,8 +7,8 @@
 // https://github.com/ocornut/imgui/tree/master/docs
 
 #include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
+#include "lib/imgui/imgui_impl_glfw.h"
+#include "lib/imgui/imgui_impl_opengl3.h"
 #include <stdio.h>
 #if defined(IMGUI_IMPL_OPENGL_ES2)
 #include <GLES2/gl2.h>
@@ -26,12 +26,12 @@
 #pragma comment(lib, "legacy_stdio_definitions")
 #endif
 
-#include "aspectswidget.hpp"
-#include "chartgfx.hpp"
-#include "chartsettings.hpp"
-#include "controlswidget.hpp"
+#include "AspectsWidget.hpp"
+#include "ChartSettings.hpp"
+#include "ChartWidget.hpp"
+#include "ControlsWidget.hpp"
+#include "PlanetsWidget.hpp"
 #include "imvecext.hpp"
-#include "planetswidget.hpp"
 #include "swephpp.hpp"
 #include "util.hpp"
 #include <vector>

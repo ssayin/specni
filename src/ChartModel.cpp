@@ -1,5 +1,5 @@
-#include "chartmodel.hpp"
-#include "aspects.hpp"
+#include "ChartModel.hpp"
+#include "Aspects.hpp"
 #include "cyclic.hpp"
 #include "swephpp.hpp"
 

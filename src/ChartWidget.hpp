@@ -4,8 +4,8 @@
 #include "swephpp.hpp"
 #include <vector>
 
-#include "chartmodel.hpp"
-#include "chartsettings.hpp"
+#include "ChartModel.hpp"
+#include "ChartSettings.hpp"
 
 namespace specni {
 

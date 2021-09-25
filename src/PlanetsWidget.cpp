@@ -1,4 +1,4 @@
-#include "planetswidget.hpp"
+#include "PlanetsWidget.hpp"
 
 #include "imgui.h"
 #include "util.hpp"
