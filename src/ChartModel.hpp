@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Aspects.hpp"
+#include "Planet.hpp"
 #include "swephpp.hpp"
 #include <vector>
 
@@ -9,13 +10,8 @@ namespace specni {
 struct ChartModel {
 
 public:
-  ChartModel() {
-    SetDateGregorian(2021, 9, 23, 3.41);
-    SetHouseSystem(swephpp::HouseSystem::Placidus);
-    RecalculatePlanetPos();
-    RecalculateHouses();
-    RecalculateAspects();
-  }
+  ChartModel() = default;
+  ~ChartModel() = default;
 
   void SetDateGregorian(int year, int month, int day, double hour) {
     this->ut = swe_julday(year, month, day, hour, 1);
@@ -34,7 +30,7 @@ public:
 
   void RecalculateHouses();
 
-  std::vector<swephpp::PlanetEphData> vEph;
+  std::vector<Planet> vEph;
   std::vector<float> vHouseCusps;
   AspectMatrix vAspects;
   swephpp::Angles ascmc;

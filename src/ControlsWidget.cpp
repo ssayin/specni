@@ -11,36 +11,51 @@ static const char *GetHouseSystemString() {
          "r\0EqualVehlow\0EqualWholeSign\0ARSMeridian\0APC\0";
 }
 
-void specni::ControlsWidget::Show() const {
+specni::ControlsWidget::ControlsWidget(specni::ChartModel *model)
+    : model(model) {
+  month = 9;
+  day = 26;
+  year = 2021;
+  hour = 14.50;
+  latitude = 45;
+  longitude = 45;
+  houseSel = 0;
+  UpdateModel();
+}
+
+void specni::ControlsWidget::UpdateModel() {
+  model->SetHouseSystem(static_cast<swephpp::HouseSystem>(
+      (char)((houseSel > 3) ? (66 + houseSel) : (65 + houseSel))));
+  model->SetDateGregorian(year, month, day, hour);
+  model->SetCoordinates(latitude, longitude);
+  model->RecalculatePlanetPos();
+  model->RecalculateHouses();
+  model->RecalculateAspects();
+}
+
+void specni::ControlsWidget::Show() {
   ImGui::Begin("Controls");
 
   bool changeFlag = false;
 
-  static int month = 11;
   ImGui::InputInt("Month", &month);
   changeFlag |= ImGui::IsItemEdited();
 
-  static int day = 22;
   ImGui::InputInt("Day", &day);
   changeFlag |= ImGui::IsItemEdited();
 
-  static int year = 2021;
   ImGui::InputInt("Year", &year);
   changeFlag |= ImGui::IsItemEdited();
 
-  static double hour = 13.12;
   ImGui::InputDouble("Hour", &hour);
   changeFlag |= ImGui::IsItemEdited();
 
-  static double lat = 33.33;
-  ImGui::InputDouble("Latitude", &lat);
+  ImGui::InputDouble("Latitude", &latitude);
   changeFlag |= ImGui::IsItemEdited();
 
-  static double lon = 33.33;
-  ImGui::InputDouble("Longitude", &lon);
+  ImGui::InputDouble("Longitude", &longitude);
   changeFlag |= ImGui::IsItemEdited();
 
-  static int houseSel = 0;
   static int prev = 0;
   ImGui::Combo("HouseSystem", &houseSel, ::GetHouseSystemString());
   changeFlag |= (prev != houseSel);
@@ -48,12 +63,6 @@ void specni::ControlsWidget::Show() const {
 
   ImGui::End();
   if (changeFlag) {
-    model->SetHouseSystem(static_cast<swephpp::HouseSystem>(
-        (char)((houseSel > 3) ? (66 + houseSel) : (65 + houseSel))));
-    model->SetDateGregorian(year, month, day, hour);
-    model->SetCoordinates(lat, lon);
-    model->RecalculatePlanetPos();
-    model->RecalculateHouses();
-    model->RecalculateAspects();
+    UpdateModel();
   }
 }

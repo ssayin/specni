@@ -3,13 +3,17 @@
 #include <cmath>
 #include <functional>
 #include <iostream>
+#include <ostream>
+
+#include <cmath>
+#include <string>
 
 namespace specni {
 template <typename T, int MIN, int MAX> class cyclic {
 public:
   cyclic() = default;
   virtual ~cyclic() = default;
-  cyclic(const double &o) { this->m = o; }
+  cyclic(const double o) { this->m = o; }
   cyclic(const cyclic &o) { *this = o; }
 
   cyclic &operator+=(const cyclic &rhs);
@@ -38,8 +42,18 @@ public:
     return !(lhs < rhs);
   }
 
+  // DMS
   friend std::ostream &operator<<(std::ostream &os, const cyclic &obj) {
-    os << obj.m;
+    /*int sec = static_cast<int>(std::round(obj.m * 3600));
+    int deg = sec / 3600;
+    sec = std::abs(sec % 3600);
+    int min = sec / 60;
+    sec %= 60;
+
+    os << deg << "°" << min << "'" << sec << "\"";
+    os.flush();
+*/
+    os << std::to_string(obj.m);
     return os;
   }
 
@@ -69,4 +83,5 @@ cyclic<T, MIN, MAX> &cyclic<T, MIN, MAX>::operator-=(const cyclic &rhs) {
 
 typedef cyclic<double, -90, 90> latitude;
 typedef cyclic<double, 0, 360> longitude;
+
 }; // namespace specni

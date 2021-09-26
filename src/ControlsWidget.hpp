@@ -6,10 +6,19 @@ namespace specni {
 
 class ControlsWidget {
 public:
-  ControlsWidget(ChartModel *model) : model(model) {}
-  void Show() const;
+  ControlsWidget(ChartModel *model);
+  void Show();
+
+  void UpdateModel();
 
 private:
   ChartModel *model;
+  int month;
+  int day;
+  int year;
+  double hour;
+  double latitude;
+  double longitude;
+  int houseSel;
 };
 } // namespace specni

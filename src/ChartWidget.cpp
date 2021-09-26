@@ -77,9 +77,9 @@ void ChartWidget::Show() const {
   ImVec2 mid2 = ImVec2(0, window_size.y * 0.32f);
   for (std::vector<swephpp::PlanetEphData>::size_type i = 0;
        i < model->vEph.size(); ++i) {
-    sprintf(f, "%c", static_cast<char>('A' + i));
-    float cos_p = cosf(DegToRad(model->vEph.at(i).lon));
-    float sin_p = sinf(DegToRad(model->vEph.at(i).lon));
+    sprintf(f, "%c", static_cast<char>('A' + model->vEph.at(i).Id));
+    float cos_p = cosf(DegToRad(model->vEph.at(i).Data.lon));
+    float sin_p = sinf(DegToRad(model->vEph.at(i).Data.lon));
     draw_list->AddText(window_center + ImRotate(mid2, cos_p, sin_p),
                        settings.PlanetColor, f);
   }

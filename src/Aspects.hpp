@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Planet.hpp"
+#include "cyclic.hpp"
 #include "swephpp.hpp"
 #include <algorithm>
 #include <cassert>
@@ -30,36 +32,78 @@ const std::unordered_map<Aspect, int> Aspects = {
     {Trine, 120},     {Opposition, 180},
 };
 
+struct OrbConfig {
+  static constexpr int Get(swephpp::PlanetaryBody body) {
+    switch (body) {
+    case swephpp::Sun:
+      return 7;
+    case swephpp::Moon:
+      return 6;
+    case swephpp::Mercury:
+    case swephpp::Venus:
+      return 3;
+    case swephpp::Mars:
+      return 4;
+    case swephpp::Jupiter:
+    case swephpp::Saturn:
+      return 5;
+    case swephpp::Uranus:
+    case swephpp::Neptune:
+    case swephpp::Chiron:
+    case swephpp::Pluto:
+    case swephpp::MeanNode:
+    case swephpp::TrueNode:
+      return 2;
+    }
+  }
+};
+
 typedef std::vector<
     std::tuple<swephpp::PlanetaryBody, swephpp::PlanetaryBody, Aspect>>
     AspectMatrix;
 
 template <class Func>
-AspectMatrix CalculateAspects(std::vector<swephpp::PlanetEphData> V, Func f) {
+AspectMatrix CalculateAspects(std::vector<Planet> V, Func f) {
+  AspectMatrix ret;
+
+  if (V.size() < 2)
+    return ret;
+
   std::string bitmask(2, 1);
   const auto N = V.size();
   bitmask.resize(N, 0);
 
-  AspectMatrix ret;
-
   do {
-    std::vector<std::pair<swephpp::PlanetEphData, int>> accum;
-    for (int i = 0; i < N; ++i) {
+    std::vector<Planet> accum;
+    for (std::vector<Planet>::size_type i = 0; i < N; ++i) {
       if (bitmask[i])
-        accum.push_back({V[i], i});
+        accum.push_back(V[i]);
     }
     assert(accum.size() == 2);
-    swephpp::PlanetEphData &first = std::get<0>(accum[0]);
-    swephpp::PlanetEphData &second = std::get<0>(accum[1]);
+    Planet &first = accum[0];
+    Planet &second = accum[1];
 
     Aspect asp = f(first, second);
     if (asp != Aspect::None) {
-      ret.push_back({static_cast<swephpp::PlanetaryBody>(std::get<1>(accum[0])),
-                     static_cast<swephpp::PlanetaryBody>(std::get<1>(accum[1])),
-                     f(first, second)});
+      ret.push_back({first.Id, second.Id, f(first, second)});
     }
   } while (std::prev_permutation(bitmask.begin(), bitmask.end()));
   return ret;
 }
+
+template <class Config = OrbConfig>
+auto AspectFunc = [](const Planet &p1, const Planet &p2) -> Aspect {
+  auto a = longitude(p1.Data.lon);
+  auto b = longitude(p2.Data.lon);
+  for (auto &p : Aspects) {
+    auto left = b + p.second;
+    auto right = b - p.second;
+    int maxOrb = std::max(Config::Get(p1.Id), Config::Get(p2.Id));
+    if (a.within(left, maxOrb) || a.within(right, maxOrb)) {
+      return p.first;
+    }
+  }
+  return Aspect::None;
+};
 
 }; // namespace specni

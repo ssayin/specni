@@ -1,7 +1,10 @@
 #include "util.hpp"
 
-const std::pair<std::string, double>
-specni::util::get_sign_deg(/* longitude */ double lon) {
+#include "cyclic.hpp"
+#include <ostream>
+#include <sstream>
+
+const std::string specni::util::get_sign_deg(/* longitude */ double lon) {
   const static char *signs[] = {
       "Aries", "Taurus",  "Gemini",      "Cancer",    "Leo",      "Virgo",
       "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces",
@@ -10,5 +13,9 @@ specni::util::get_sign_deg(/* longitude */ double lon) {
   int sign = lon / 30.0;
   double deg = std::fmod(lon, 30.0);
 
-  return std::make_pair(std::string(signs[sign]), deg);
+  std::stringstream ss;
+  ss << signs[sign] << " " << longitude(deg);
+  ss.flush();
+
+  return ss.str();
 }
