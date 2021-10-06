@@ -17,10 +17,9 @@
 
 #include <gui/AspectsWidget.hpp>
 #include <gui/ChartModel.hpp>
-#include <gui/ChartSettings.hpp>
-#include <gui/ChartWidget.hpp>
 #include <gui/ControlsWidget.hpp>
 #include <gui/PlanetsWidget.hpp>
+#include <gui/RadixChartWidget.hpp>
 
 // Main code
 int main(int, char **) {
@@ -120,9 +119,9 @@ int main(int, char **) {
   specni::ChartModel model;
   specni::ControlsWidget controls(&model);
   specni::AspectsWidget aspects(&model);
-  specni::PlanetsWidget planets(&model);
-  specni::ChartSettings settings(font);
-  specni::ChartWidget chart(settings, &model);
+  specni::PlanetsWidget planets(&model, font);
+  specni::RadixChartWidget::ChartSettings settings(font);
+  specni::RadixChartWidget chart(settings, &model);
 
   // Our state
   ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);

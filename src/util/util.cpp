@@ -1,6 +1,6 @@
 #include "util.hpp"
 
-#include <include/cyclic.hpp>
+#include <include/Cyclic.hpp>
 #include <ostream>
 #include <sstream>
 
@@ -14,7 +14,7 @@ const std::string specni::util::get_sign_deg(/* longitude */ double lon) {
   double deg = std::fmod(lon, 30.0);
 
   std::stringstream ss;
-  ss << signs[sign] << " " << longitude(deg);
+  ss << signs[sign] << " " << Longitude(deg);
   ss.flush();
 
   return ss.str();

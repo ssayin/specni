@@ -1,14 +1,15 @@
-#include "ChartWidget.hpp"
+#include "RadixChartWidget.hpp"
 #include <imgui.h>
-#include <include/imvecext.hpp>
+#include <include/ImVecEx.hpp>
+#include <include/ZodiacsFont.hpp>
 #include <util/util.hpp>
 
 namespace specni {
 
-ChartWidget::ChartWidget(ChartSettings &settings, ChartModel *model)
+RadixChartWidget::RadixChartWidget(ChartSettings &settings, ChartModel *model)
     : settings(settings), model(model) {}
 
-void ChartWidget::Show() const {
+void RadixChartWidget::Show() const {
   struct Constraint {
 
     static void Square(ImGuiSizeCallbackData *data) {
@@ -77,25 +78,28 @@ void ChartWidget::Show() const {
   ImVec2 mid2 = ImVec2(0, window_size.y * 0.32f);
   for (std::vector<swephpp::PlanetEphData>::size_type i = 0;
        i < model->vEph.size(); ++i) {
-    sprintf(f, "%c", static_cast<char>('A' + model->vEph.at(i).Id));
-    float cos_p = cosf(util::DegToRad(model->vEph.at(i).Data.lon));
-    float sin_p = sinf(util::DegToRad(model->vEph.at(i).Data.lon));
-    draw_list->AddText(window_center + ImRotate(mid2, cos_p, sin_p),
-                       settings.PlanetColor, f);
+    auto find = PlanetCharMap.find(model->vEph.at(i).Id);
+    if (find != PlanetCharMap.end()) {
+      sprintf(f, "%c", find->second);
+      float cos_p = cosf(util::DegToRad(model->vEph.at(i).Data.lon));
+      float sin_p = sinf(util::DegToRad(model->vEph.at(i).Data.lon));
+      draw_list->AddText(window_center + ImRotate(mid2, cos_p, sin_p),
+                         settings.PlanetColor, f);
+    }
   }
 
   float cosac = cosf(util::DegToRad(model->ascmc.ac));
   float sinac = sinf(util::DegToRad(model->ascmc.ac));
 
-  float cosmc = cosf(util::DegToRad(model->ascmc.mc));
-  float sinmc = sinf(util::DegToRad(model->ascmc.mc));
-
   draw_list->AddLine(window_center + ImRotate(outer, cosac, sinac),
                      window_center + ImRotate(innermost, cosac, sinac),
                      settings.AscMcColor, settings.Thickness);
 
-  draw_list->AddLine(window_center + ImRotate(outer, cosmc, sinmc),
-                     window_center + ImRotate(innermost, cosmc, sinmc),
+  cosac = cosf(util::DegToRad(model->ascmc.mc));
+  sinac = sinf(util::DegToRad(model->ascmc.mc));
+
+  draw_list->AddLine(window_center + ImRotate(outer, cosac, sinac),
+                     window_center + ImRotate(innermost, cosac, sinac),
                      settings.AscMcColor, settings.Thickness);
 
   sprintf(f, "%c", 'K');
@@ -104,7 +108,7 @@ void ChartWidget::Show() const {
 
   sprintf(f, "%c", 'L');
 
-  draw_list->AddText(window_center + ImRotate(ascmcmid, cosmc, sinmc),
+  draw_list->AddText(window_center + ImRotate(ascmcmid, cosac, sinac),
                      settings.AscMcColor, f);
 
   ImGui::PopFont();

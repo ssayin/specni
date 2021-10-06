@@ -1,7 +1,7 @@
 #pragma once
 
+#include "Cyclic.hpp"
 #include "Planet.hpp"
-#include "cyclic.hpp"
 #include "swephpp.hpp"
 #include <algorithm>
 #include <cassert>
@@ -47,12 +47,7 @@ struct OrbConfig {
     case swephpp::Jupiter:
     case swephpp::Saturn:
       return 5;
-    case swephpp::Uranus:
-    case swephpp::Neptune:
-    case swephpp::Chiron:
-    case swephpp::Pluto:
-    case swephpp::MeanNode:
-    case swephpp::TrueNode:
+    default:
       return 2;
     }
   }
@@ -93,8 +88,8 @@ AspectMatrix CalculateAspects(std::vector<Planet> V, Func f) {
 
 template <class Config = OrbConfig>
 auto AspectFunc = [](const Planet &p1, const Planet &p2) -> Aspect {
-  auto a = longitude(p1.Data.lon);
-  auto b = longitude(p2.Data.lon);
+  auto a = Longitude(p1.Data.lon);
+  auto b = Longitude(p2.Data.lon);
   for (auto &p : Aspects) {
     auto left = b + p.second;
     auto right = b - p.second;

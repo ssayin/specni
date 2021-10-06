@@ -8,7 +8,7 @@ add_executable(
   gui/ChartModel.cpp
   gui/MoonPhase.cpp
   gui/AspectsWidget.cpp
-  gui/ChartWidget.cpp
+  gui/RadixChartWidget.cpp
   main.cpp)
 
 target_link_libraries(specni ${SDL2_LIBRARIES} IMGUI OpenGL::GL dl ${swisseph_LIBRARIES})

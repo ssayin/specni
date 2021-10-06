@@ -12,7 +12,7 @@ void ChartModel::RecalculateAspects() {
 void ChartModel::RecalculatePlanetPos() {
   swephpp::PlanetEphData data = {0};
   vEph.clear();
-  for (int i = 0; i < 10; ++i) {
+  for (int i = 0; i < 22; ++i) {
     swephpp::CalcOpts opts = {
         ut,
         i,
