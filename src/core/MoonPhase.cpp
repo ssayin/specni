@@ -1,7 +1,7 @@
 #include "MoonPhase.hpp"
 
 #include <cmath>
-#include <util/util.hpp>
+#include <util/Util.hpp>
 
 namespace specni {
 /*

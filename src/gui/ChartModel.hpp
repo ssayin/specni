@@ -1,11 +1,11 @@
 #pragma once
 
-#include "MoonPhase.hpp"
-#include <include/Aspects.hpp>
-#include <include/Planet.hpp>
-#include <include/swephpp.hpp>
+#include <core/Aspects.hpp>
+#include <core/MoonPhase.hpp>
+#include <core/Planet.hpp>
+#include <core/swephpp.hpp>
 #include <string>
-#include <util/util.hpp>
+#include <util/Util.hpp>
 #include <vector>
 
 namespace specni {

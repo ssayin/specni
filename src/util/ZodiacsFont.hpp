@@ -1,6 +1,6 @@
 #pragma once
 
-#include "swephpp.hpp"
+#include <core/swephpp.hpp>
 #include <unordered_map>
 
 static const std::unordered_map<swephpp::PlanetaryBody, char> PlanetCharMap = {

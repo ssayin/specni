@@ -1,6 +1,6 @@
-#include "util.hpp"
+#include "Util.hpp"
 
-#include <include/Cyclic.hpp>
+#include <core/Cyclic.hpp>
 #include <ostream>
 #include <sstream>
 

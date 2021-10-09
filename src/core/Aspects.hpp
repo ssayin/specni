@@ -35,17 +35,17 @@ const std::unordered_map<Aspect, int> Aspects = {
 struct OrbConfig {
   static constexpr int Get(swephpp::PlanetaryBody body) {
     switch (body) {
-    case swephpp::Sun:
+    case swephpp::PlanetaryBody::Sun:
       return 7;
-    case swephpp::Moon:
+    case swephpp::PlanetaryBody::Moon:
       return 6;
-    case swephpp::Mercury:
-    case swephpp::Venus:
+    case swephpp::PlanetaryBody::Mercury:
+    case swephpp::PlanetaryBody::Venus:
       return 3;
-    case swephpp::Mars:
+    case swephpp::PlanetaryBody::Mars:
       return 4;
-    case swephpp::Jupiter:
-    case swephpp::Saturn:
+    case swephpp::PlanetaryBody::Jupiter:
+    case swephpp::PlanetaryBody::Saturn:
       return 5;
     default:
       return 2;
@@ -88,14 +88,12 @@ AspectMatrix CalculateAspects(std::vector<Planet> V, Func f) {
 
 template <class Config = OrbConfig>
 auto AspectFunc = [](const Planet &p1, const Planet &p2) -> Aspect {
-  auto a = Longitude(p1.Data.lon);
-  auto b = Longitude(p2.Data.lon);
-  for (auto &p : Aspects) {
-    auto left = b + p.second;
-    auto right = b - p.second;
+  Longitude a(p1.Data.lon);
+  Longitude b(p2.Data.lon);
+  for (auto &asp : Aspects) {
     int maxOrb = std::max(Config::Get(p1.Id), Config::Get(p2.Id));
-    if (a.within(left, maxOrb) || a.within(right, maxOrb)) {
-      return p.first;
+    if (a.within(b + asp.second, maxOrb) || a.within(b - asp.second, maxOrb)) {
+      return asp.first;
     }
   }
   return Aspect::None;

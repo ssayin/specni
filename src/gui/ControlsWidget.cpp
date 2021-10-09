@@ -1,7 +1,7 @@
 #include "ControlsWidget.hpp"
 
+#include <core/swephpp.hpp>
 #include <imgui.h>
-#include <include/swephpp.hpp>
 
 static const char *GetHouseSystemString() {
   return "Equal\0Alcabitius\0Campanus\0EqualMC\0Carter\0Gauquelin\0Azimuth\0Sun"

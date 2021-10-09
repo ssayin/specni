@@ -64,7 +64,7 @@ typedef struct {
   double spddist;
 } PlanetEphData;
 
-enum PlanetaryBody : int32_t {
+enum class PlanetaryBody : int32_t {
   Sun,
   Mercury,
   Moon,
@@ -110,12 +110,6 @@ enum PlanetaryBody : int32_t {
   Waldemath,
 };
 
-inline const std::string planet_name(PlanetaryBody body) {
-  char n[SE_MAX_STNAME];
-  swe_get_planet_name(body, n);
-  return std::string(n);
-}
-
 enum class Flag : int32_t {
   JPLEph = 1,
   SwissEph = 2,
@@ -141,6 +135,11 @@ enum class Flag : int32_t {
   JPLHorizons = DPSIDEPS1980,
   JPLHorizonsApprox = 512 * 1024
 };
+
+inline constexpr Flag operator|(const Flag &lhs, const Flag &rhs) {
+  return static_cast<Flag>(static_cast<int32_t>(lhs) |
+                           static_cast<int32_t>(rhs));
+}
 
 typedef struct {
   double jd_ut;
@@ -172,4 +171,11 @@ inline int calc(const CalcOpts &opts, PlanetEphData &data) {
   return swe_calc_ut(opts.jd_ut, opts.id, static_cast<int32_t>(opts.flag),
                      reinterpret_cast<double *>(&data), 0);
 }
+
+inline const std::string planet_name(PlanetaryBody body) {
+  char n[SE_MAX_STNAME];
+  swe_get_planet_name(static_cast<int>(body), n);
+  return std::string(n);
+}
+
 } // namespace swephpp

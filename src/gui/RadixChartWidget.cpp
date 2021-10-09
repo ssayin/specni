@@ -1,8 +1,8 @@
 #include "RadixChartWidget.hpp"
+#include <gui/ImVecEx.hpp>
 #include <imgui.h>
-#include <include/ImVecEx.hpp>
-#include <include/ZodiacsFont.hpp>
-#include <util/util.hpp>
+#include <util/Util.hpp>
+#include <util/ZodiacsFont.hpp>
 
 namespace specni {
 

@@ -1,16 +1,20 @@
 #include "PlanetsWidget.hpp"
+#include <core/AccidentalStates.hpp>
 
+#include <gui/Config.hpp>
 #include <imgui.h>
-#include <include/Config.hpp>
-#include <include/ZodiacsFont.hpp>
-#include <util/util.hpp>
+#include <util/Util.hpp>
+#include <util/ZodiacsFont.hpp>
 
 void specni::PlanetsWidget::Show() const {
   ImGui::Begin("Planets");
-  if (ImGui::BeginTable("split2", 3, PlanetWidgetTableFlags)) {
-    ImGui::TableSetupColumn("Object");
+  if (ImGui::BeginTable("split2", 6, PlanetWidgetTableFlags)) {
+    ImGui::TableSetupColumn("Body");
     ImGui::TableSetupColumn("Symbol");
-    ImGui::TableSetupColumn("Sign/DMS");
+    ImGui::TableSetupColumn("Ret");
+    ImGui::TableSetupColumn("Location");
+    ImGui::TableSetupColumn("Velocity");
+    ImGui::TableSetupColumn("House");
     ImGui::TableHeadersRow();
     for (std::vector<swephpp::PlanetEphData>::size_type i = 0;
          i < model->vEph.size(); i++) {
@@ -27,8 +31,18 @@ void specni::PlanetsWidget::Show() const {
         ImGui::Text("%c", ' ');
       }
       ImGui::TableNextColumn();
+      ImGui::Text("%c", IsRetrograde(model->vEph[i]) ? 'R' : '-');
+      ImGui::TableNextColumn();
       ImGui::Text(
           "%s", specni::util::get_sign_deg(model->vEph.at(i).Data.lon).c_str());
+      ImGui::TableNextColumn();
+      ImGui::Text("%s%f%s", model->vEph[i].Data.spdlon >= 0 ? "+" : "",
+                  model->vEph[i].Data.spdlon,
+                  IsSwift(model->vEph[i]) ? " (Fast)" : "");
+      ImGui::TableNextColumn();
+
+      ImGui::Text("%d", specni::GetHouseNum(model->vEph.at(i),
+                                            model->vHouseCusps, model->hsys));
     }
     ImGui::EndTable();
   }

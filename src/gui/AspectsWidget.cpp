@@ -1,14 +1,16 @@
-#include "AspectsWidget.hpp"
 #include <array>
 #include <cmath>
+#include <core/AccidentalStates.hpp>
+#include <core/Aspects.hpp>
 #include <functional>
+#include <gui/AspectsWidget.hpp>
 #include <imgui.h>
-#include <include/AccidentalStates.hpp>
-#include <include/Aspects.hpp>
+#include <ostream>
 #include <sstream>
 #include <unordered_map>
 
-#include <util/util.hpp>
+#include <gui/Config.hpp>
+#include <util/Util.hpp>
 
 namespace specni {
 
@@ -29,14 +31,36 @@ void AspectsWidget::Show() const {
 
   ImGui::End();
 
-  std::stringstream ss2;
-  for (auto &p : model->vEph) {
-    ss2 << swephpp::planet_name(p.Id) << " "
-        << GetHouseNum(p, model->vHouseCusps, model->hsys) << std::endl;
-  }
-
   ImGui::Begin("Houses");
-  ImGui::Text("%s", ss2.str().c_str());
+
+  if (ImGui::BeginTable("houses_table", 2, PlanetWidgetTableFlags)) {
+    ImGui::TableSetupColumn("House");
+    ImGui::TableSetupColumn("Sign/DMS");
+    ImGui::TableHeadersRow();
+    for (int i = 0; i < model->vHouseCusps.size(); ++i) {
+
+      ImGui::TableNextRow();
+      ImGui::TableNextColumn();
+      ImGui::Text("House %d", (i + 1));
+      ImGui::TableNextColumn();
+      ImGui::Text("%s", util::get_sign_deg(model->vHouseCusps[i]).c_str());
+    }
+
+    ImGui::TableNextRow();
+    ImGui::TableNextColumn();
+    ImGui::Text("Asc");
+    ImGui::TableNextColumn();
+
+    ImGui::Text("%s", util::get_sign_deg(model->ascmc.ac).c_str());
+
+    ImGui::TableNextRow();
+    ImGui::TableNextColumn();
+    ImGui::Text("Mc");
+    ImGui::TableNextColumn();
+    ImGui::Text("%s", util::get_sign_deg(model->ascmc.mc).c_str());
+
+    ImGui::EndTable();
+  }
   ImGui::End();
 }
 }; // namespace specni

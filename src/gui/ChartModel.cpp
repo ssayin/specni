@@ -1,7 +1,7 @@
-#include "ChartModel.hpp"
-#include <include/Aspects.hpp>
-#include <include/cyclic.hpp>
-#include <include/swephpp.hpp>
+#include <core/Aspects.hpp>
+#include <core/Cyclic.hpp>
+#include <core/swephpp.hpp>
+#include <gui/ChartModel.hpp>
 
 namespace specni {
 
@@ -12,18 +12,15 @@ void ChartModel::RecalculateAspects() {
 void ChartModel::RecalculatePlanetPos() {
   swephpp::PlanetEphData data = {0};
   vEph.clear();
-  for (int i = 0; i < 22; ++i) {
+  for (int i = 0; i < 10; ++i) {
     swephpp::CalcOpts opts = {
         ut,
         i,
-        swephpp::Flag::SwissEph,
+        swephpp::Flag::SwissEph | swephpp::Flag::Speed,
     };
 
     swephpp::calc(opts, data);
-    Planet p;
-    p.Data = data;
-    p.Id = static_cast<swephpp::PlanetaryBody>(i);
-    vEph.push_back(p);
+    vEph.push_back(Planet{static_cast<swephpp::PlanetaryBody>(i), data});
   }
 }
 

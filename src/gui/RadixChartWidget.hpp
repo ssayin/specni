@@ -1,7 +1,6 @@
 #pragma once
 
 #include <imgui.h>
-#include <include/swephpp.hpp>
 #include <vector>
 
 #include "ChartModel.hpp"

@@ -29,18 +29,7 @@ public:
     return lhs;
   }
 
-  friend inline bool operator<(const Cyclic &lhs, const Cyclic &rhs) {
-    return lhs.m < rhs.m;
-  }
-  friend inline bool operator>(const Cyclic &lhs, const Cyclic &rhs) {
-    return rhs < lhs;
-  }
-  friend inline bool operator<=(const Cyclic &lhs, const Cyclic &rhs) {
-    return !(lhs > rhs);
-  }
-  friend inline bool operator>=(const Cyclic &lhs, const Cyclic &rhs) {
-    return !(lhs < rhs);
-  }
+  auto operator<=>(const Cyclic &) const = default;
 
   // DMS
   friend std::ostream &operator<<(std::ostream &os, const Cyclic &obj) {
@@ -57,7 +46,7 @@ public:
     return os;
   }
 
-  bool within(Cyclic &a, int orb) {
+  bool within(const Cyclic &a, int orb) {
     return ((a + *this) <= orb) || ((a - *this) <= orb) || ((*this - a) <= orb);
   }
 
