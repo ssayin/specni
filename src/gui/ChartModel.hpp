@@ -18,7 +18,6 @@ public:
 
   void SetDateGregorian(int year, int month, int day, double hour) {
     this->ut = swe_julday(year, month, day, hour, 1);
-    GetMoonPhase(year, month, this->ut);
   }
 
   void SetCoordinates(double latitude, double longitude) {

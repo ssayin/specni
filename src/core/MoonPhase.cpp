@@ -3,12 +3,18 @@
 #include <cmath>
 #include <util/Util.hpp>
 
+// clang-format off
+#include "swephexp.h"
+// clang-format on
+
 namespace specni {
 /*
  based on Ben Danglish's Trig2
  http://www.ben-daglish.net/moon.shtml
 */
-int DaysSinceNewMoon(int y, int m, double ut) {
+int DaysSinceNewMoon(double ut) {
+  int y, m;
+  swe_jdut1_to_utc(ut, 0, &y, &m, 0, 0, 0, 0);
   double n = std::floor(12.37 * (y - 1900 + ((1.0 * m - 0.5) / 12.0)));
   double t = n / 1236.85;
   double t2 = t * t;
@@ -22,8 +28,8 @@ int DaysSinceNewMoon(int y, int m, double ut) {
   return std::fmod((ut - jd + 30), 30);
 }
 
-MoonPhase GetMoonPhase(int y, int m, double ut) {
-  int phase = DaysSinceNewMoon(y, m, ut);
+MoonPhase GetMoonPhase(double ut) {
+  int phase = DaysSinceNewMoon(ut);
   switch (phase) {
   case 0:
   case 1:

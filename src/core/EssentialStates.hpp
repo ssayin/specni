@@ -120,11 +120,6 @@ inline bool IsInOwnFace(const Planet &p) { return (p.Id == face(p.Data.lon)); }
 
 inline bool IsInOwnTerm(const Planet &p) { return true; }
 
-// when a planet lacks any essential dignity, it is peregrine
-inline bool IsPeregrine(const Planet &p) { return true; }
-
-// if none of the previous functions return true, then IsPeregrine(...) returns
-// true, sequential coupling to prevent mistakes
 const std::unordered_map<EssentialState, std::function<bool(const Planet &)>>
     EssentialStateFunctions = {
         {EssentialState::Domicile, IsDomicile},
@@ -132,22 +127,8 @@ const std::unordered_map<EssentialState, std::function<bool(const Planet &)>>
         {EssentialState::Fallen, IsFallen},
         {EssentialState::InOwnTriplicity, IsInOwnTriplicity},
         {EssentialState::InOwnFace, IsInOwnFace},
-        {EssentialState::InOwnTerm, IsInOwnTerm},
-        {EssentialState::Peregrine, IsPeregrine}};
+        {EssentialState::InOwnTerm, IsInOwnTerm}};
 
-inline const std::unordered_map<Planet, std::vector<EssentialState>>
-GetPlanetEssentialStates(std::vector<Planet> &planets) {
-  std::unordered_map<Planet, std::vector<EssentialState>> ret;
-
-  for (auto &p : planets) {
-    ret.insert({p, std::vector<EssentialState>()});
-    for (auto &ef : EssentialStateFunctions) {
-      if (ef.second(p))
-        ret.at(p).push_back(ef.first);
-    }
-  }
-
-  return ret;
-}
-
+const std::unordered_map<Planet, std::vector<EssentialState>>
+GetPlanetEssentialStates(std::vector<Planet> &planets);
 } // namespace specni

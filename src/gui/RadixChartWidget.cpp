@@ -38,6 +38,7 @@ void RadixChartWidget::Show() const {
 
   ImVec2 ascmcmid = (outertext + outer) / 2;
 
+  // Draw circles
   draw_list->AddCircle(window_center, outer.y, settings.BaseColor, 0,
                        settings.Thickness);
 
@@ -52,21 +53,17 @@ void RadixChartWidget::Show() const {
 
   ImGui::PushFont(settings.font);
 
+  // Draw sign glyphs
   char f[3];
   for (int i = 0; i < 12; i++) {
-    float cos_a = cosf(util::DegToRad(i * 30));
-    float sin_a = sinf(util::DegToRad(i * 30));
+    float cos_a = cosf(util::DegToRad(-i * 30));
+    float sin_a = sinf(util::DegToRad(-i * 30));
 
-    float cos_b = cosf(util::DegToRad(i * 30 + 14));
-    float sin_b = sinf(util::DegToRad(i * 30 + 14));
+    float cos_b = cosf(util::DegToRad(-i * 30 + 15));
+    float sin_b = sinf(util::DegToRad(-i * 30 + 15));
     draw_list->AddLine(window_center + ImRotate(inner, cos_a, sin_a),
                        window_center + ImRotate(outer, cos_a, sin_a),
                        settings.BaseColor, settings.Thickness);
-
-    // ImVector<ImDrawVert> &buf = draw_list->VtxBuffer;
-    // for (int i = 0; i < buf.Size; i++)
-    // buf[i].pos = ImRotate(buf[i].pos, 1, 1) - (window_center +
-    // ImRotate(mid, cos_b, sin_b)),
 
     ImVec2 sign = (inner + outer) / 2;
 
@@ -75,28 +72,29 @@ void RadixChartWidget::Show() const {
                        settings.SignColor, f);
   }
 
+  // Draw planet glyphs
   ImVec2 mid2 = ImVec2(0, window_size.y * 0.32f);
   for (std::vector<swephpp::PlanetEphData>::size_type i = 0;
        i < model->vEph.size(); ++i) {
     auto find = PlanetCharMap.find(model->vEph.at(i).Id);
     if (find != PlanetCharMap.end()) {
       sprintf(f, "%c", find->second);
-      float cos_p = cosf(util::DegToRad(model->vEph.at(i).Data.lon));
-      float sin_p = sinf(util::DegToRad(model->vEph.at(i).Data.lon));
+      float cos_p = cosf(-util::DegToRad(model->vEph.at(i).Data.lon));
+      float sin_p = sinf(-util::DegToRad(model->vEph.at(i).Data.lon));
       draw_list->AddText(window_center + ImRotate(mid2, cos_p, sin_p),
                          settings.PlanetColor, f);
     }
   }
 
-  float cosac = cosf(util::DegToRad(model->ascmc.ac));
-  float sinac = sinf(util::DegToRad(model->ascmc.ac));
+  float cosac = cosf(-util::DegToRad(model->ascmc.ac));
+  float sinac = sinf(-util::DegToRad(model->ascmc.ac));
 
   draw_list->AddLine(window_center + ImRotate(outer, cosac, sinac),
                      window_center + ImRotate(innermost, cosac, sinac),
                      settings.AscMcColor, settings.Thickness);
 
-  cosac = cosf(util::DegToRad(model->ascmc.mc));
-  sinac = sinf(util::DegToRad(model->ascmc.mc));
+  cosac = cosf(-util::DegToRad(model->ascmc.mc));
+  sinac = sinf(-util::DegToRad(model->ascmc.mc));
 
   draw_list->AddLine(window_center + ImRotate(outer, cosac, sinac),
                      window_center + ImRotate(innermost, cosac, sinac),
@@ -111,14 +109,14 @@ void RadixChartWidget::Show() const {
   draw_list->AddText(window_center + ImRotate(ascmcmid, cosac, sinac),
                      settings.AscMcColor, f);
 
-  ImGui::PopFont();
   std::vector<ImVec2> vMidpoints;
 
+  // Draw house cusps
   for (std::vector<float>::size_type i = 0; i < model->vHouseCusps.size();
        ++i) {
 
-    float cosxd = cosf(util::DegToRad(model->vHouseCusps.at(i)));
-    float sinxd = sinf(util::DegToRad(model->vHouseCusps.at(i)));
+    float cosxd = cosf(-util::DegToRad(model->vHouseCusps.at(i)));
+    float sinxd = sinf(-util::DegToRad(model->vHouseCusps.at(i)));
 
     ImVec2 EdgeA = window_center + ImRotate(innermost, cosxd, sinxd);
 
@@ -143,6 +141,8 @@ void RadixChartWidget::Show() const {
     sprintf(f, "%d", static_cast<int>(vMidpoints.size()));
     draw_list->AddText(houseNumberPos, settings.AscMcColor, f);
   }
+
+  ImGui::PopFont();
 
   ImGui::End();
 }

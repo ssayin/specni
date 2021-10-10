@@ -2,16 +2,6 @@
 
 namespace specni {
 
-float MinDifference(float deg1, float deg2) {
-  float r;
-
-  r = deg2 - deg1;
-  if (fabs(r) < 180.0)
-    return r;
-
-  return r >= 0 ? r - 360.0 : r + 360.0;
-}
-
 /*
 FIXME: Gauquelin not working
 Adapted from Pullen's placalc
