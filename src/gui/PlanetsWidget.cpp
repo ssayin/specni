@@ -8,9 +8,8 @@
 
 void specni::PlanetsWidget::Show() const {
   ImGui::Begin("Planets");
-  if (ImGui::BeginTable("split2", 6, PlanetWidgetTableFlags)) {
+  if (ImGui::BeginTable("split2", 5, PlanetWidgetTableFlags)) {
     ImGui::TableSetupColumn("Body");
-    ImGui::TableSetupColumn("Symbol");
     ImGui::TableSetupColumn("Ret");
     ImGui::TableSetupColumn("Location");
     ImGui::TableSetupColumn("Velocity");
@@ -20,16 +19,18 @@ void specni::PlanetsWidget::Show() const {
          i < model->vEph.size(); i++) {
       ImGui::TableNextRow();
       ImGui::TableNextColumn();
-      ImGui::Text("%s", swephpp::planet_name(model->vEph.at(i).Id).c_str());
-      ImGui::TableNextColumn();
       auto it = PlanetCharMap.find(model->vEph.at(i).Id);
       if (it != PlanetCharMap.end()) {
         ImGui::PushFont(this->font);
-        ImGui::Text("%c", it->second);
+        ImGui::TextColored(it->second.second, "%c", it->second.first);
+
         ImGui::PopFont();
       } else {
         ImGui::Text("%c", ' ');
       }
+
+      ImGui::SameLine();
+      ImGui::Text("%s", swephpp::planet_name(model->vEph.at(i).Id).c_str());
       ImGui::TableNextColumn();
       ImGui::Text("%c", IsRetrograde(model->vEph[i]) ? 'R' : '-');
       ImGui::TableNextColumn();

@@ -106,13 +106,21 @@ int main(int, char **) {
   // - Read 'docs/FONTS.md' for more instructions and details.
   // - Remember that in C/C++ if you want to include a backslash \ in a string
   // literal you need to write a double backslash \\ !
+
   io.Fonts->AddFontDefault();
+
   ImFontConfig cfg;
-  // cfg.MergeMode = true;
+  cfg.GlyphMinAdvanceX = 13.0f;
+  ImFont *monospace_zodiac =
+      io.Fonts->AddFontFromFileTTF("../misc/fonts/zodiac_s.ttf", 13.0f, &cfg);
+
+  cfg = {};
   cfg.GlyphOffset.x = -(16.0f / 2.0);
   cfg.GlyphOffset.y = -(16.0f / 2.0);
   ImFont *font =
       io.Fonts->AddFontFromFileTTF("../misc/fonts/zodiac_s.ttf", 16.0f, &cfg);
+
+  io.Fonts->Build();
   // io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf", 15.0f);
   // io.Fonts->AddFontFromFileTTF("../../misc/fonts/DroidSans.ttf", 16.0f);
   // io.Fonts->AddFontFromFileTTF("../../misc/fonts/ProggyTiny.ttf", 10.0f);
@@ -123,7 +131,7 @@ int main(int, char **) {
   specni::ChartModel model;
   specni::ControlsWidget controls(&model);
   specni::AspectsWidget aspects(&model);
-  specni::PlanetsWidget planets(&model, font);
+  specni::PlanetsWidget planets(&model, monospace_zodiac);
   specni::RadixChartWidget::ChartSettings settings(font);
   specni::RadixChartWidget chart(settings, &model);
 

@@ -59,8 +59,8 @@ void RadixChartWidget::Show() const {
     float cos_a = cosf(util::DegToRad(-i * 30));
     float sin_a = sinf(util::DegToRad(-i * 30));
 
-    float cos_b = cosf(util::DegToRad(-i * 30 + 15));
-    float sin_b = sinf(util::DegToRad(-i * 30 + 15));
+    float cos_b = cosf(util::DegToRad(-i * 30 - 15));
+    float sin_b = sinf(util::DegToRad(-i * 30 - 15));
     draw_list->AddLine(window_center + ImRotate(inner, cos_a, sin_a),
                        window_center + ImRotate(outer, cos_a, sin_a),
                        settings.BaseColor, settings.Thickness);
@@ -78,11 +78,11 @@ void RadixChartWidget::Show() const {
        i < model->vEph.size(); ++i) {
     auto find = PlanetCharMap.find(model->vEph.at(i).Id);
     if (find != PlanetCharMap.end()) {
-      sprintf(f, "%c", find->second);
+      sprintf(f, "%c", find->second.first);
       float cos_p = cosf(-util::DegToRad(model->vEph.at(i).Data.lon));
       float sin_p = sinf(-util::DegToRad(model->vEph.at(i).Data.lon));
       draw_list->AddText(window_center + ImRotate(mid2, cos_p, sin_p),
-                         settings.PlanetColor, f);
+                         ImColor(find->second.second), f);
     }
   }
 
