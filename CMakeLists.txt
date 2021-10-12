@@ -1,10 +1,10 @@
-cmake_minimum_required(VERSION 3.11)
+cmake_minimum_required(VERSION 3.21)
 
 project(
   specni
   VERSION 0.1
   DESCRIPTION "An astrology app"
-  LANGUAGES CXX)
+  LANGUAGES C CXX)
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
@@ -28,7 +28,6 @@ endif()
 
 find_package(SDL2 REQUIRED)
 find_package(OpenGL REQUIRED)
-find_package(swisseph REQUIRED)
 include_directories(${SDL2_INCLUDE_DIRS})
 
 add_subdirectory(deps)
