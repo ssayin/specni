@@ -1,3 +1,4 @@
+#include "core/swephpp.hpp"
 #include <array>
 #include <cmath>
 #include <core/AccidentalStates.hpp>
@@ -61,6 +62,15 @@ void AspectsWidget::Show() const {
 
     ImGui::EndTable();
   }
+
+  for (auto &d : model->eStates) {
+    ImGui::Text("%s", swephpp::planet_name(d.first.Id).c_str());
+    for (auto &e : d.second) {
+      ImGui::SameLine();
+      ImGui::Text("%s", util::EssentialStateToString(e).c_str());
+    }
+  }
+
   ImGui::End();
 }
 }; // namespace specni

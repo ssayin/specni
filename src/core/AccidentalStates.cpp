@@ -1,4 +1,6 @@
 #include "AccidentalStates.hpp"
+#include "core/MoonPhase.hpp"
+#include "core/swephpp.hpp"
 
 namespace specni {
 
@@ -64,5 +66,24 @@ bool IsSlow(const Planet &p) {
     return false;
   }
 }
+
+bool IsOriental(const Planet &p, MoonPhase phase) {
+  if (p.Id == swephpp::PlanetaryBody::Moon) {
+    if (phase == MoonPhase::NewMoon || phase == MoonPhase::WaxingCrescent ||
+        phase == MoonPhase::FirstQuarter || phase == MoonPhase::WaxingGibbous ||
+        phase == MoonPhase::FullMoon) {
+      return true;
+    }
+  }
+
+  if (p.Id == swephpp::PlanetaryBody::Sun) {
+  }
+}
+/*
+bool IsOccidental(const Planet &);
+bool IsUnderSunBeams(const Planet &);
+bool IsCombust(const Planet &);
+bool IsCazimi(const Planet &);
+*/
 
 }; // namespace specni

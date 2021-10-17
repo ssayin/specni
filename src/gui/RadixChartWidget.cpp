@@ -31,47 +31,58 @@ void RadixChartWidget::Show() const {
   ImVec2 window_center = ImVec2(window_pos.x + window_size.x * 0.5f,
                                 window_pos.y + window_size.y * 0.5f);
 
-  ImVec2 outertext = ImVec2(0, window_size.y * settings.CuspTextRatio);
-  ImVec2 sign_outer = ImVec2(0, window_size.y * settings.SignOuterRatio);
-  ImVec2 sign_inner = ImVec2(0, window_size.y * settings.SignInnerRatio);
-  ImVec2 housenumber = ImVec2(0, window_size.y * settings.CircleHouseNumbers);
-  ImVec2 innermost = ImVec2(0, window_size.y * settings.InnermostRatio);
+  std::array<ImVec2, ChartSettings::Count> RPoints;
 
-  ImVec2 ascmcmid = (outertext + sign_outer) / 2;
-  ImVec2 housenumbermid = (innermost + housenumber) / 2;
-  ImVec2 sign = (sign_inner + sign_outer) / 2;
+  for (int i = 0; i < ChartSettings::Count; ++i) {
+    RPoints[i] = ImVec2(0, window_size.y * settings.Ratios[i]);
+  }
+
+  ImVec2 RAscMc =
+      (RPoints[ChartSettings::CuspText] + RPoints[ChartSettings::SignOuter]) /
+      2;
+  ImVec2 RHouseNumber = (RPoints[ChartSettings::Innermost] +
+                         RPoints[ChartSettings::CircleHouseNumbers]) /
+                        2;
+  ImVec2 RSign =
+      (RPoints[ChartSettings::SignInner] + RPoints[ChartSettings::SignOuter]) /
+      2;
 
   // Draw circles
-  draw_list->AddCircle(window_center, sign_outer.y, settings.BaseColor, 0,
-                       settings.Thickness);
+  draw_list->AddCircle(window_center, RPoints[ChartSettings::SignOuter].y,
+                       settings.BaseColor, 0, settings.Thickness);
 
-  draw_list->AddCircle(window_center, sign_inner.y, settings.BaseColor, 0,
-                       settings.Thickness);
+  draw_list->AddCircle(window_center, RPoints[ChartSettings::SignInner].y,
+                       settings.BaseColor, 0, settings.Thickness);
 
-  draw_list->AddCircle(window_center, innermost.y, settings.BaseColor, 0,
-                       settings.Thickness);
+  draw_list->AddCircle(window_center, RPoints[ChartSettings::Innermost].y,
+                       settings.BaseColor, 0, settings.Thickness);
 
-  draw_list->AddCircle(window_center, housenumber.y, settings.BaseColor, 0,
-                       settings.Thickness);
+  draw_list->AddCircle(window_center,
+                       RPoints[ChartSettings::CircleHouseNumbers].y,
+                       settings.BaseColor, 0, settings.Thickness);
 
   ImGui::PushFont(settings.font);
 
   // Draw sign glyphs
   char f[3];
-  for (int i = 0; i < 12; i++) {
+  const int SignCount = 12;
+  for (int i = 0; i < SignCount; i++) {
     float cos_a = cosf(util::DegToRad(-i * 30));
     float sin_a = sinf(util::DegToRad(-i * 30));
 
-    draw_list->AddLine(window_center + ImRotate(sign_inner, cos_a, sin_a),
-                       window_center + ImRotate(sign_outer, cos_a, sin_a),
-                       settings.BaseColor, settings.Thickness);
+    draw_list->AddLine(
+        window_center +
+            ImRotate(RPoints[ChartSettings::SignInner], cos_a, sin_a),
+        window_center +
+            ImRotate(RPoints[ChartSettings::SignOuter], cos_a, sin_a),
+        settings.BaseColor, settings.Thickness);
 
     float cos_b = cosf(util::DegToRad(-i * 30 - 15));
     float sin_b = sinf(util::DegToRad(-i * 30 - 15));
 
     sprintf(f, "%c", 'a' + i);
 
-    draw_list->AddText(window_center + ImRotate(sign, cos_b, sin_b),
+    draw_list->AddText(window_center + ImRotate(RSign, cos_b, sin_b),
                        settings.SignColor, f);
   }
 
@@ -92,24 +103,26 @@ void RadixChartWidget::Show() const {
   float cosac = cosf(-util::DegToRad(model->ascmc.ac));
   float sinac = sinf(-util::DegToRad(model->ascmc.ac));
 
-  draw_list->AddLine(window_center + ImRotate(sign_outer, cosac, sinac),
-                     window_center + ImRotate(innermost, cosac, sinac),
-                     settings.AscMcColor, settings.Thickness);
+  draw_list->AddLine(
+      window_center + ImRotate(RPoints[ChartSettings::SignOuter], cosac, sinac),
+      window_center + ImRotate(RPoints[ChartSettings::Innermost], cosac, sinac),
+      settings.AscMcColor, settings.Thickness);
 
   cosac = cosf(-util::DegToRad(model->ascmc.mc));
   sinac = sinf(-util::DegToRad(model->ascmc.mc));
 
-  draw_list->AddLine(window_center + ImRotate(sign_outer, cosac, sinac),
-                     window_center + ImRotate(innermost, cosac, sinac),
-                     settings.AscMcColor, settings.Thickness);
+  draw_list->AddLine(
+      window_center + ImRotate(RPoints[ChartSettings::SignOuter], cosac, sinac),
+      window_center + ImRotate(RPoints[ChartSettings::Innermost], cosac, sinac),
+      settings.AscMcColor, settings.Thickness);
 
   sprintf(f, "%c", 'K');
-  draw_list->AddText(window_center + ImRotate(ascmcmid, cosac, sinac),
+  draw_list->AddText(window_center + ImRotate(RAscMc, cosac, sinac),
                      settings.AscMcColor, f);
 
   sprintf(f, "%c", 'L');
 
-  draw_list->AddText(window_center + ImRotate(ascmcmid, cosac, sinac),
+  draw_list->AddText(window_center + ImRotate(RAscMc, cosac, sinac),
                      settings.AscMcColor, f);
 
   std::vector<ImVec2> vMidpoints;
@@ -121,12 +134,14 @@ void RadixChartWidget::Show() const {
     float cosxd = cosf(-util::DegToRad(model->vHouseCusps.at(i)));
     float sinxd = sinf(-util::DegToRad(model->vHouseCusps.at(i)));
 
-    draw_list->AddLine(window_center + ImRotate(innermost, cosxd, sinxd),
-                       window_center + ImRotate(sign_inner, cosxd, sinxd),
-                       settings.BaseColor, settings.Thickness);
+    draw_list->AddLine(
+        window_center +
+            ImRotate(RPoints[ChartSettings::Innermost], cosxd, sinxd),
+        window_center +
+            ImRotate(RPoints[ChartSettings::SignInner], cosxd, sinxd),
+        settings.BaseColor, settings.Thickness);
 
-    vMidpoints.push_back(window_center +
-                         ImRotate(housenumbermid, cosxd, sinxd));
+    vMidpoints.push_back(window_center + ImRotate(RHouseNumber, cosxd, sinxd));
   }
 
   for (std::vector<ImVec2>::size_type i = 1; i < vMidpoints.size(); ++i) {

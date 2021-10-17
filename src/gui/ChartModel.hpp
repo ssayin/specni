@@ -1,6 +1,7 @@
 #pragma once
 
 #include <core/Aspects.hpp>
+#include <core/EssentialStates.hpp>
 #include <core/MoonPhase.hpp>
 #include <core/Planet.hpp>
 #include <core/PlanetPairs.hpp>
@@ -40,6 +41,7 @@ public:
   swephpp::Angles ascmc;
   swephpp::HouseSystem hsys;
   PlanetPairs pairs;
+  std::unordered_map<Planet, std::vector<EssentialState>> eStates;
 
 private:
   double ut;

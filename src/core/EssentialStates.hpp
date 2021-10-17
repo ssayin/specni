@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Planet.hpp"
+#include "core/PlanetPairs.hpp"
 #include "swephpp.hpp"
 #include <array>
 #include <core/Cyclic.hpp>
@@ -54,8 +55,10 @@ inline bool IsMutualReceptionExalted(const Planet &p1, const Planet &p2) {
 
 enum class EssentialState {
   Domicile,
+  MutualDomicile,
   InDetriment,
   Exalted,
+  MutualExalted,
   Fallen,
   InOwnTriplicity,
   InOwnFace,
@@ -73,5 +76,5 @@ inline bool IsInOwnFace(const Planet &p) { return (p.Id == face(p.Data.lon)); }
 inline bool IsInOwnTerm(const Planet &p) { return true; }
 
 const std::unordered_map<Planet, std::vector<EssentialState>>
-GetPlanetEssentialStates(std::vector<Planet> &planets);
+GetPlanetEssentialStates(std::vector<Planet> &planets, PlanetPairs &pairs);
 } // namespace specni

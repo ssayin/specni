@@ -3,6 +3,7 @@ add_executable(
   core/swephpp.hpp
   core/MoonPhase.cpp
   core/AccidentalStates.cpp
+  core/EssentialStates.cpp
   core/PlanetPairs.cpp
   core/Aspects.cpp
   util/Util.cpp

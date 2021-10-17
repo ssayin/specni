@@ -1,3 +1,4 @@
+#include "core/EssentialStates.hpp"
 #include "core/PlanetPairs.hpp"
 #include <core/Aspects.hpp>
 #include <core/Cyclic.hpp>
@@ -25,6 +26,7 @@ void ChartModel::RecalculatePlanetPos() {
   }
 
   pairs = GetPlanetCombPairs(vEph);
+  eStates = GetPlanetEssentialStates(vEph, pairs);
 }
 
 void ChartModel::RecalculateHouses() {

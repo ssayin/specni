@@ -15,11 +15,16 @@ public:
     ImColor PlanetColor = {};
     ImColor AscMcColor = {};
 
-    const float InnermostRatio = 0.25f;
-    const float SignInnerRatio = 0.40f;
-    const float SignOuterRatio = 0.45f;
-    const float CuspTextRatio = 0.50f;
-    const float CircleHouseNumbers = 0.28f;
+    enum Ratio {
+      Innermost,
+      SignInner,
+      SignOuter,
+      CuspText,
+      CircleHouseNumbers,
+      Count
+    };
+
+    const std::array<float, Count> Ratios = {0.25f, 0.40f, 0.45f, 0.50f, 0.28f};
 
     float Thickness = 1.0f;
     ImFont *font;
