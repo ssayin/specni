@@ -15,10 +15,10 @@ public:
     ImColor PlanetColor = {};
     ImColor AscMcColor = {};
 
-    const float CircleInnerRatio = 0.40f;
-    const float CircleOuterRatio = 0.45f;
+    const float InnermostRatio = 0.25f;
+    const float SignInnerRatio = 0.40f;
+    const float SignOuterRatio = 0.45f;
     const float CuspTextRatio = 0.50f;
-    const float CircleInnermostRatio = 0.25f;
     const float CircleHouseNumbers = 0.28f;
 
     float Thickness = 1.0f;

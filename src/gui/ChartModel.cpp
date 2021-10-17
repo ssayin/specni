@@ -1,3 +1,4 @@
+#include "core/PlanetPairs.hpp"
 #include <core/Aspects.hpp>
 #include <core/Cyclic.hpp>
 #include <core/swephpp.hpp>
@@ -6,7 +7,7 @@
 namespace specni {
 
 void ChartModel::RecalculateAspects() {
-  vAspects = CalculateAspects(vEph, AspectFunc<>);
+  vAspects = CalculateAspects(pairs, AspectFunc<>);
 }
 
 void ChartModel::RecalculatePlanetPos() {
@@ -22,6 +23,8 @@ void ChartModel::RecalculatePlanetPos() {
     swephpp::calc(opts, data);
     vEph.push_back(Planet{static_cast<swephpp::PlanetaryBody>(i), data});
   }
+
+  pairs = GetPlanetCombPairs(vEph);
 }
 
 void ChartModel::RecalculateHouses() {

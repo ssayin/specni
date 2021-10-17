@@ -1,4 +1,6 @@
 #include "EssentialStates.hpp"
+#include <core/PlanetPairs.hpp>
+
 namespace specni {
 
 static const std::unordered_map<swephpp::PlanetaryBody, double> exaltations = {
@@ -64,11 +66,24 @@ bool IsFallen(const Planet &p) {
 }
 
 const std::unordered_map<Planet, std::vector<EssentialState>>
-GetPlanetEssentialStates(std::vector<Planet> &planets) {
+GetPlanetEssentialStates(std::vector<Planet> &planets, PlanetPairs &pairs) {
   std::unordered_map<Planet, std::vector<EssentialState>> ret;
 
+  for (std::pair<Planet, Planet> p : pairs) {
+
+    if (IsMutualReceptionExalted(p.first, p.second)) {
+      ret[p.first].push_back(EssentialState::Exalted);
+      ret[p.second].push_back(EssentialState::Exalted);
+    }
+
+    if (IsInMutualReceptionDomicile(p.first, p.second)) {
+      ret[p.first].push_back(EssentialState::Domicile);
+      ret[p.second].push_back(EssentialState::Domicile);
+    }
+  }
+
   for (auto &p : planets) {
-    ret.insert({p, std::vector<EssentialState>()});
+    // ret.insert({p, std::vector<EssentialState>()});
     for (auto &ef : EssentialStateFunctions) {
       if (ef.second(p))
         ret.at(p).push_back(ef.first);

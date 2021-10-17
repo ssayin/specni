@@ -5,12 +5,14 @@
 #include "swephpp.hpp"
 #include <algorithm>
 #include <cassert>
+#include <core/PlanetPairs.hpp>
 #include <cstddef>
 #include <functional>
 #include <iostream>
 #include <string>
 #include <tuple>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 namespace specni {
@@ -57,34 +59,9 @@ typedef std::vector<
     std::tuple<swephpp::PlanetaryBody, swephpp::PlanetaryBody, Aspect>>
     AspectMatrix;
 
-template <class Func>
-AspectMatrix CalculateAspects(std::vector<Planet> V, Func f) {
-  AspectMatrix ret;
-
-  if (V.size() < 2)
-    return ret;
-
-  std::string bitmask(2, 1);
-  const auto N = V.size();
-  bitmask.resize(N, 0);
-
-  do {
-    std::vector<Planet> accum;
-    for (std::vector<Planet>::size_type i = 0; i < N; ++i) {
-      if (bitmask[i])
-        accum.push_back(V[i]);
-    }
-    assert(accum.size() == 2);
-    Planet &first = accum[0];
-    Planet &second = accum[1];
-
-    Aspect asp = f(first, second);
-    if (asp != Aspect::None) {
-      ret.push_back({first.Id, second.Id, f(first, second)});
-    }
-  } while (std::prev_permutation(bitmask.begin(), bitmask.end()));
-  return ret;
-}
+AspectMatrix
+CalculateAspects(PlanetPairs &pairs,
+                 std::function<Aspect(const Planet &, const Planet &)> f);
 
 template <class Config = OrbConfig>
 auto AspectFunc = [](const Planet &p1, const Planet &p2) -> Aspect {
@@ -98,5 +75,4 @@ auto AspectFunc = [](const Planet &p1, const Planet &p2) -> Aspect {
   }
   return Aspect::None;
 };
-
 }; // namespace specni

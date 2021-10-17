@@ -3,6 +3,7 @@
 #include <core/Aspects.hpp>
 #include <core/MoonPhase.hpp>
 #include <core/Planet.hpp>
+#include <core/PlanetPairs.hpp>
 #include <core/swephpp.hpp>
 #include <string>
 #include <util/Util.hpp>
@@ -38,6 +39,7 @@ public:
   AspectMatrix vAspects;
   swephpp::Angles ascmc;
   swephpp::HouseSystem hsys;
+  PlanetPairs pairs;
 
 private:
   double ut;
