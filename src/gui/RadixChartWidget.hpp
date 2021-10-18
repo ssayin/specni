@@ -24,7 +24,7 @@ public:
       Count
     };
 
-    const std::array<float, Count> Ratios = {0.25f, 0.40f, 0.45f, 0.50f, 0.28f};
+    const std::array<float, Count> Ratios = {0.25f, 0.40f, 0.45f, 0.40f, 0.28f};
 
     float Thickness = 1.0f;
     ImFont *font;

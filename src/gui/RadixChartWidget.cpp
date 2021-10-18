@@ -63,12 +63,15 @@ void RadixChartWidget::Show() const {
 
   ImGui::PushFont(settings.font);
 
+  // Set ASC at -90 degrees
+  float rotate = 90 + model->ascmc.ac;
+
   // Draw sign glyphs
   char f[3];
   const int SignCount = 12;
   for (int i = 0; i < SignCount; i++) {
-    float cos_a = cosf(util::DegToRad(-i * 30));
-    float sin_a = sinf(util::DegToRad(-i * 30));
+    float cos_a = cosf(util::DegToRad(-i * 30 - rotate));
+    float sin_a = sinf(util::DegToRad(-i * 30 - rotate));
 
     draw_list->AddLine(
         window_center +
@@ -77,8 +80,8 @@ void RadixChartWidget::Show() const {
             ImRotate(RPoints[ChartSettings::SignOuter], cos_a, sin_a),
         settings.BaseColor, settings.Thickness);
 
-    float cos_b = cosf(util::DegToRad(-i * 30 - 15));
-    float sin_b = sinf(util::DegToRad(-i * 30 - 15));
+    float cos_b = cosf(util::DegToRad(-i * 30 - 15 - rotate));
+    float sin_b = sinf(util::DegToRad(-i * 30 - 15 - rotate));
 
     sprintf(f, "%c", 'a' + i);
 
@@ -93,23 +96,15 @@ void RadixChartWidget::Show() const {
     auto find = PlanetCharMap.find(model->vEph.at(i).Id);
     if (find != PlanetCharMap.end()) {
       sprintf(f, "%c", find->second.first);
-      float cos_p = cosf(-util::DegToRad(model->vEph.at(i).Data.lon));
-      float sin_p = sinf(-util::DegToRad(model->vEph.at(i).Data.lon));
+      float cos_p = cosf(-util::DegToRad(model->vEph.at(i).Data.lon - rotate));
+      float sin_p = sinf(-util::DegToRad(model->vEph.at(i).Data.lon - rotate));
       draw_list->AddText(window_center + ImRotate(mid2, cos_p, sin_p),
                          ImColor(find->second.second), f);
     }
   }
 
-  float cosac = cosf(-util::DegToRad(model->ascmc.ac));
-  float sinac = sinf(-util::DegToRad(model->ascmc.ac));
-
-  draw_list->AddLine(
-      window_center + ImRotate(RPoints[ChartSettings::SignOuter], cosac, sinac),
-      window_center + ImRotate(RPoints[ChartSettings::Innermost], cosac, sinac),
-      settings.AscMcColor, settings.Thickness);
-
-  cosac = cosf(-util::DegToRad(model->ascmc.mc));
-  sinac = sinf(-util::DegToRad(model->ascmc.mc));
+  float cosac = cosf(-util::DegToRad(model->ascmc.ac - rotate));
+  float sinac = sinf(-util::DegToRad(model->ascmc.ac - rotate));
 
   draw_list->AddLine(
       window_center + ImRotate(RPoints[ChartSettings::SignOuter], cosac, sinac),
@@ -119,6 +114,14 @@ void RadixChartWidget::Show() const {
   sprintf(f, "%c", 'K');
   draw_list->AddText(window_center + ImRotate(RAscMc, cosac, sinac),
                      settings.AscMcColor, f);
+
+  cosac = cosf(-util::DegToRad(model->ascmc.mc - rotate));
+  sinac = sinf(-util::DegToRad(model->ascmc.mc - rotate));
+
+  draw_list->AddLine(
+      window_center + ImRotate(RPoints[ChartSettings::SignOuter], cosac, sinac),
+      window_center + ImRotate(RPoints[ChartSettings::Innermost], cosac, sinac),
+      settings.AscMcColor, settings.Thickness);
 
   sprintf(f, "%c", 'L');
 
@@ -131,8 +134,8 @@ void RadixChartWidget::Show() const {
   for (std::vector<float>::size_type i = 0; i < model->vHouseCusps.size();
        ++i) {
 
-    float cosxd = cosf(-util::DegToRad(model->vHouseCusps.at(i)));
-    float sinxd = sinf(-util::DegToRad(model->vHouseCusps.at(i)));
+    float cosxd = cosf(-util::DegToRad(model->vHouseCusps.at(i) - rotate));
+    float sinxd = sinf(-util::DegToRad(model->vHouseCusps.at(i) - rotate));
 
     draw_list->AddLine(
         window_center +
