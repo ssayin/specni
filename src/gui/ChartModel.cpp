@@ -13,7 +13,7 @@ void ChartModel::RecalculateAspects() {
 
 void ChartModel::RecalculatePlanetPos() {
   swephpp::PlanetEphData data = {0};
-  vEph.clear();
+  Eph.clear();
   for (int i = 0; i < 10; ++i) {
     swephpp::CalcOpts opts = {
         ut,
@@ -22,11 +22,19 @@ void ChartModel::RecalculatePlanetPos() {
     };
 
     swephpp::calc(opts, data);
-    vEph.push_back(Planet{static_cast<swephpp::PlanetaryBody>(i), data});
+    Eph.insert({static_cast<swephpp::PlanetaryBody>(i),
+                Planet{static_cast<swephpp::PlanetaryBody>(i), data}});
   }
 
-  pairs = GetPlanetCombPairs(vEph);
-  eStates = GetPlanetEssentialStates(vEph, pairs);
+  std::vector<Planet> vPlanet;
+  for (std::unordered_map<swephpp::PlanetaryBody, Planet>::iterator it =
+           Eph.begin();
+       it != Eph.end(); ++it) {
+    vPlanet.push_back(it->second);
+  }
+
+  pairs = GetPlanetCombPairs(vPlanet);
+  eStates = GetPlanetEssentialStates(vPlanet, pairs);
 }
 
 void ChartModel::RecalculateHouses() {

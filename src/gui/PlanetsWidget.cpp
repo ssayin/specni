@@ -15,11 +15,10 @@ void specni::PlanetsWidget::Show() const {
     ImGui::TableSetupColumn("Velocity");
     ImGui::TableSetupColumn("House");
     ImGui::TableHeadersRow();
-    for (std::vector<swephpp::PlanetEphData>::size_type i = 0;
-         i < model->vEph.size(); i++) {
+    for (auto &x : model->Eph) {
       ImGui::TableNextRow();
       ImGui::TableNextColumn();
-      auto it = PlanetCharMap.find(model->vEph.at(i).Id);
+      auto it = PlanetCharMap.find(x.first);
       if (it != PlanetCharMap.end()) {
         ImGui::PushFont(this->font);
         ImGui::TextColored(it->second.second, "%c", it->second.first);
@@ -30,23 +29,22 @@ void specni::PlanetsWidget::Show() const {
       }
 
       ImGui::SameLine();
-      ImGui::Text("%s", swephpp::planet_name(model->vEph.at(i).Id).c_str());
+      ImGui::Text("%s", swephpp::planet_name(x.first).c_str());
       ImGui::TableNextColumn();
-      ImGui::Text("%c", IsRetrograde(model->vEph[i]) ? 'R' : '-');
+      ImGui::Text("%c", IsRetrograde(x.second) ? 'R' : '-');
       ImGui::TableNextColumn();
-      ImGui::Text(
-          "%s", specni::util::get_sign_deg(model->vEph.at(i).Data.lon).c_str());
+      ImGui::Text("%s", specni::util::get_sign_deg(x.second.Data.lon).c_str());
       ImGui::TableNextColumn();
-      ImGui::Text("%s%f%s", model->vEph[i].Data.spdlon >= 0 ? "+" : "",
-                  model->vEph[i].Data.spdlon,
-                  IsSwift(model->vEph[i]) ? " (Fast)" : "");
+      ImGui::Text("%s%f%s", x.second.Data.spdlon >= 0 ? "+" : "",
+                  x.second.Data.spdlon, IsSwift(x.second) ? " (Fast)" : "");
       ImGui::TableNextColumn();
 
-      ImGui::Text("%d", specni::GetHouseNum(model->vEph.at(i),
-                                            model->vHouseCusps, model->hsys));
+      ImGui::Text(
+          "%d", specni::GetHouseNum(x.second, model->vHouseCusps, model->hsys));
     }
-    ImGui::EndTable();
   }
+
+  ImGui::EndTable();
 
   ImGui::End();
 }

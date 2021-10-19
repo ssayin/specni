@@ -68,10 +68,14 @@ void RadixChartWidget::Show() const {
 
   // Draw sign glyphs
   char f[3];
+
   const int SignCount = 12;
+  const int SignSpanDegrees = 30;
+  const int HalfSignSpanDegrees = SignSpanDegrees / 2;
+
   for (int i = 0; i < SignCount; i++) {
-    float cos_a = cosf(util::DegToRad(-i * 30 - rotate));
-    float sin_a = sinf(util::DegToRad(-i * 30 - rotate));
+    float cos_a = cosf(util::DegToRad(-i * SignSpanDegrees - rotate));
+    float sin_a = sinf(util::DegToRad(-i * SignSpanDegrees - rotate));
 
     draw_list->AddLine(
         window_center +
@@ -80,8 +84,10 @@ void RadixChartWidget::Show() const {
             ImRotate(RPoints[ChartSettings::SignOuter], cos_a, sin_a),
         settings.BaseColor, settings.Thickness);
 
-    float cos_b = cosf(util::DegToRad(-i * 30 - 15 - rotate));
-    float sin_b = sinf(util::DegToRad(-i * 30 - 15 - rotate));
+    float cos_b = cosf(
+        util::DegToRad(-i * SignSpanDegrees - HalfSignSpanDegrees - rotate));
+    float sin_b = sinf(
+        util::DegToRad(-i * SignSpanDegrees - HalfSignSpanDegrees - rotate));
 
     sprintf(f, "%c", 'a' + i);
 
@@ -91,13 +97,12 @@ void RadixChartWidget::Show() const {
 
   // Draw planet glyphs
   ImVec2 mid2 = ImVec2(0, window_size.y * 0.32f);
-  for (std::vector<swephpp::PlanetEphData>::size_type i = 0;
-       i < model->vEph.size(); ++i) {
-    auto find = PlanetCharMap.find(model->vEph.at(i).Id);
+  for (auto &p : model->Eph) {
+    auto find = PlanetCharMap.find(p.first);
     if (find != PlanetCharMap.end()) {
       sprintf(f, "%c", find->second.first);
-      float cos_p = cosf(-util::DegToRad(model->vEph.at(i).Data.lon - rotate));
-      float sin_p = sinf(-util::DegToRad(model->vEph.at(i).Data.lon - rotate));
+      float cos_p = cosf(-util::DegToRad(p.second.Data.lon - rotate));
+      float sin_p = sinf(-util::DegToRad(p.second.Data.lon - rotate));
       draw_list->AddText(window_center + ImRotate(mid2, cos_p, sin_p),
                          ImColor(find->second.second), f);
     }
@@ -161,6 +166,25 @@ void RadixChartWidget::Show() const {
   }
 
   ImGui::PopFont();
+
+  for (std::tuple<swephpp::PlanetaryBody, swephpp::PlanetaryBody, Aspect> &x :
+       model->vAspects) {
+    Planet p1 = model->Eph[std::get<0>(x)];
+    Planet p2 = model->Eph[std::get<1>(x)];
+
+    float cos_p = cosf(-util::DegToRad(p1.Data.lon - rotate));
+    float sin_p = sinf(-util::DegToRad(p1.Data.lon - rotate));
+
+    float cos_2p = cosf(-util::DegToRad(p2.Data.lon - rotate));
+    float sin_2p = sinf(-util::DegToRad(p2.Data.lon - rotate));
+
+    draw_list->AddLine(
+        window_center +
+            ImRotate(RPoints[ChartSettings::Innermost], cos_p, sin_p),
+        window_center +
+            ImRotate(RPoints[ChartSettings::Innermost], cos_2p, sin_2p),
+        ImColor(ImVec4(0.5, 0.5, 0.5, 1.0)));
+  }
 
   ImGui::End();
 }

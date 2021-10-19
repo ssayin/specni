@@ -35,7 +35,7 @@ public:
 
   void RecalculateHouses();
 
-  std::vector<Planet> vEph;
+  std::unordered_map<swephpp::PlanetaryBody, Planet> Eph;
   std::vector<float> vHouseCusps;
   AspectMatrix vAspects;
   swephpp::Angles ascmc;
