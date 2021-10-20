@@ -57,9 +57,9 @@ struct OrbConfig {
 
 typedef std::vector<
     std::tuple<swephpp::PlanetaryBody, swephpp::PlanetaryBody, Aspect>>
-    AspectMatrix;
+    AspectTuple;
 
-AspectMatrix
+AspectTuple
 CalculateAspects(PlanetPairs &pairs,
                  std::function<Aspect(const Planet &, const Planet &)> f);
 

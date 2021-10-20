@@ -2,10 +2,10 @@
 
 namespace specni {
 
-AspectMatrix
+AspectTuple
 CalculateAspects(PlanetPairs &pairs,
                  std::function<Aspect(const Planet &, const Planet &)> f) {
-  AspectMatrix ret;
+  AspectTuple ret;
 
   for (std::pair<Planet, Planet> &p : pairs) {
     Aspect asp = f(p.first, p.second);

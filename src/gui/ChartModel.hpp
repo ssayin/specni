@@ -37,7 +37,7 @@ public:
 
   std::unordered_map<swephpp::PlanetaryBody, Planet> Eph;
   std::vector<float> vHouseCusps;
-  AspectMatrix vAspects;
+  AspectTuple vAspects;
   swephpp::Angles ascmc;
   swephpp::HouseSystem hsys;
   PlanetPairs pairs;

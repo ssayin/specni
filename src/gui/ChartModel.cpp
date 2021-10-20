@@ -37,23 +37,24 @@ void ChartModel::RecalculatePlanetPos() {
   eStates = GetPlanetEssentialStates(vPlanet, pairs);
 }
 
+template <class CuspArray>
+static std::vector<float> GetHouseCusps(const swephpp::HouseOpts &opts,
+                                        swephpp::Angles &ascmc) {
+  CuspArray tmpCusps;
+  std::vector<float> cusps;
+  swephpp::houses_ex(opts, tmpCusps, ascmc);
+  for (typename CuspArray::size_type i = 1; i < tmpCusps.max_size(); ++i)
+    cusps.push_back(tmpCusps[i]);
+
+  return cusps;
+}
+
 void ChartModel::RecalculateHouses() {
-  vHouseCusps.clear();
   swephpp::HouseOpts house_opts = {ut, swephpp::HouseCuspFlag::Tropical, geolat,
                                    geolon, hsys};
 
-  if (house_opts.hsys != swephpp::HouseSystem::Gauquelin) {
-    swephpp::HouseCusps cusps;
-    swephpp::houses_ex(house_opts, cusps, ascmc);
-    for (swephpp::HouseCusps::size_type i = 1; i < cusps.max_size(); ++i)
-      vHouseCusps.push_back(cusps[i]);
-
-  } else {
-    swephpp::GauquelinCusps cusps;
-    swephpp::houses_ex(house_opts, cusps, ascmc);
-    for (swephpp::GauquelinCusps::size_type i = 1; i < cusps.max_size(); ++i)
-      vHouseCusps.push_back(cusps[i]);
-  }
+  vHouseCusps = ((house_opts.hsys == swephpp::HouseSystem::Gauquelin)
+                     ? GetHouseCusps<swephpp::GauquelinCusps>(house_opts, ascmc)
+                     : GetHouseCusps<swephpp::HouseCusps>(house_opts, ascmc));
 }
-
 }; // namespace specni
