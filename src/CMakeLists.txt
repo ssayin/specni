@@ -6,7 +6,6 @@ add_executable(
   core/EssentialStates.cpp
   core/PlanetPairs.cpp
   core/Aspects.cpp
-  util/Util.cpp
   gui/AspectsWidget.cpp
   gui/PlanetsWidget.cpp
   gui/ControlsWidget.cpp

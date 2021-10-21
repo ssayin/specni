@@ -2,6 +2,8 @@
 
 #include <cmath>
 #include <core/Aspects.hpp>
+#include <iomanip>
+#include <sstream>
 #include <string>
 #include <utility>
 
@@ -10,9 +12,43 @@
 namespace specni {
 namespace util {
 
+enum class Sign {
+  Aries,
+  Taurus,
+  Gemini,
+  Cancer,
+  Leo,
+  Virgo,
+  Libra,
+  Scorpio,
+  Sagittarius,
+  Capricorn,
+  Aquarius,
+  Pisces
+};
+
+inline const char *SignToString(Sign sign) {
+  static char signs[][4]{"Ari", "Tau", "Gem", "Can", "Leo", "Vir",
+                         "Lib", "Sco", "Sag", "Cap", "Aqu", "Pis"};
+  return signs[static_cast<int>(sign)];
+}
+
 inline constexpr float DegToRad(float deg) { return (M_PI * deg) / 180; }
 
-const std::string get_sign_deg(/* longitude */ double lon);
+inline const std::string get_sign_deg(/* longitude */ double lon) {
+  std::stringstream ss;
+  int sec = static_cast<int>(std::round(std::fmod(lon, 30.0) * 3600));
+  int deg = sec / 3600;
+  sec = std::abs(sec % 3600);
+  int min = sec / 60;
+  sec %= 60;
+
+  ss.fill('0');
+  ss << deg << "° " << std::setw(2) << SignToString(static_cast<Sign>(lon / 30))
+     << ' ' << std::setw(2) << min << '\'' << std::setw(2) << sec << "\"";
+
+  return ss.str();
+}
 
 inline const std::string AspectToString(Aspect asp) {
   switch (asp) {

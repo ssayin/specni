@@ -33,17 +33,7 @@ public:
   inline constexpr T operator()() const { return this->m; }
   auto operator<=>(const Cyclic &) const = default;
 
-  // DMS
   friend std::ostream &operator<<(std::ostream &os, const Cyclic &obj) {
-    /*int sec = static_cast<int>(std::round(obj.m * 3600));
-    int deg = sec / 3600;
-    sec = std::abs(sec % 3600);
-    int min = sec / 60;
-    sec %= 60;
-
-    os << deg << "°" << min << "'" << sec << "\"";
-    os.flush();
-*/
     os << std::to_string(obj.m);
     return os;
   }

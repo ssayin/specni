@@ -16,7 +16,10 @@ private:
   int month;
   int day;
   int year;
-  double hour;
+  int hour;
+  int min;
+  int sec;
+
   double latitude;
   double longitude;
   int houseSel;

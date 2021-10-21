@@ -16,7 +16,9 @@ specni::ControlsWidget::ControlsWidget(specni::ChartModel *model)
   month = 9;
   day = 26;
   year = 2021;
-  hour = 14.50;
+  hour = 14;
+  min = 11;
+  sec = 12;
   latitude = 45;
   longitude = 45;
   houseSel = 0;
@@ -26,7 +28,7 @@ specni::ControlsWidget::ControlsWidget(specni::ChartModel *model)
 void specni::ControlsWidget::UpdateModel() {
   model->SetHouseSystem(static_cast<swephpp::HouseSystem>(
       (char)((houseSel > 3) ? (66 + houseSel) : (65 + houseSel))));
-  model->SetDateGregorian(year, month, day, hour);
+  model->SetDateGregorian(year, month, day, hour, min, sec);
   model->SetCoordinates(latitude, longitude);
   model->RecalculatePlanetPos();
   model->RecalculateHouses();
@@ -47,7 +49,13 @@ void specni::ControlsWidget::Show() {
   ImGui::InputInt("Year", &year);
   changeFlag |= ImGui::IsItemEdited();
 
-  ImGui::InputDouble("Hour", &hour);
+  ImGui::InputInt("Hour", &hour);
+  changeFlag |= ImGui::IsItemEdited();
+
+  ImGui::InputInt("Min", &min);
+  changeFlag |= ImGui::IsItemEdited();
+
+  ImGui::InputInt("Sec", &sec);
   changeFlag |= ImGui::IsItemEdited();
 
   ImGui::InputDouble("Latitude", &latitude);

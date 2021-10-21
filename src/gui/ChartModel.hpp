@@ -18,8 +18,13 @@ public:
   ChartModel() = default;
   ~ChartModel() = default;
 
-  void SetDateGregorian(int year, int month, int day, double hour) {
-    this->ut = swe_julday(year, month, day, hour, 1);
+  void SetDateGregorian(int year, int month, int day, int hour, int min,
+                        double sec) {
+    double dret[2];
+    char serr[256];
+    assert(swe_utc_to_jd(year, month, day, hour, min, sec, 1, dret, serr) ==
+           OK);
+    this->ut = dret[1]; // UT1
   }
 
   void SetCoordinates(double latitude, double longitude) {
