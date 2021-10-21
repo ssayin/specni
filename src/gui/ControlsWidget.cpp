@@ -2,6 +2,7 @@
 
 #include <core/swephpp.hpp>
 #include <imgui.h>
+#include <util/Calendar.hpp>
 
 static const char *GetHouseSystemString() {
   return "Equal\0Alcabitius\0Campanus\0EqualMC\0Carter\0Gauquelin\0Azimuth\0Sun"
@@ -13,12 +14,7 @@ static const char *GetHouseSystemString() {
 
 specni::ControlsWidget::ControlsWidget(specni::ChartModel *model)
     : model(model) {
-  month = 9;
-  day = 26;
-  year = 2021;
-  hour = 14;
-  min = 11;
-  sec = 12;
+  std::tie(year, month, day, hour, min, sec) = util::time_now();
   latitude = 45;
   longitude = 45;
   houseSel = 0;

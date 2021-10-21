@@ -12,6 +12,7 @@ add_executable(
   gui/ChartModel.cpp
   gui/AspectsWidget.cpp
   gui/RadixChartWidget.cpp
+  util/Calendar.cpp
   main.cpp)
 
 set_property(TARGET specni PROPERTY C_STANDARD 17)
