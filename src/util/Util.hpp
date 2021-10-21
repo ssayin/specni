@@ -10,7 +10,7 @@
 namespace specni {
 namespace util {
 
-inline float DegToRad(float deg) { return (M_PI * deg) / 180; }
+inline constexpr float DegToRad(float deg) { return (M_PI * deg) / 180; }
 
 const std::string get_sign_deg(/* longitude */ double lon);
 

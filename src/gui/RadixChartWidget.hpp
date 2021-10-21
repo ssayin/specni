@@ -39,6 +39,7 @@ public:
   void Show() const;
 
 private:
+  const std::tuple<float, float> GetDegreeCosSinRotAsc(float deg) const;
   ChartSettings settings;
   ChartModel *model;
   int houseSel = 0;

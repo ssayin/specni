@@ -29,6 +29,8 @@ public:
     return lhs;
   }
 
+  // inline constexpr operator T() const { return this->m; }
+  inline constexpr T operator()() const { return this->m; }
   auto operator<=>(const Cyclic &) const = default;
 
   // DMS

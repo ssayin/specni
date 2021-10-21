@@ -2,10 +2,23 @@
 #include "SDL_video.h"
 #include <gui/ImVecEx.hpp>
 #include <imgui.h>
+#include <tuple>
 #include <util/Util.hpp>
 #include <util/ZodiacsFont.hpp>
 
 namespace specni {
+
+constexpr const std::tuple<float, float> GetDegreeCosSin(float deg) {
+  return std::make_tuple(
+      cosf(util::DegToRad(-deg)),
+      sinf(util::DegToRad(-deg))); // we want to draw counter-clockwise
+}
+
+const std::tuple<float, float>
+RadixChartWidget::GetDegreeCosSinRotAsc(float deg) const {
+  Longitude lon = Longitude(deg) - Longitude(model->ascmc.ac) + Longitude(-90);
+  return GetDegreeCosSin(lon());
+}
 
 RadixChartWidget::RadixChartWidget(ChartSettings &settings, ChartModel *model)
     : settings(settings), model(model) {}
@@ -64,34 +77,31 @@ void RadixChartWidget::Show() const {
   ImGui::PushFont(settings.font);
 
   // Set ASC at -90 degrees
-  float rotate = 90 + model->ascmc.ac;
-
+  // float rotate = Longitude(model->ascmc.ac)();
+  float rotate = 0;
   // Draw sign glyphs
   char f[3];
 
   const int SignCount = 12;
   const int SignSpanDegrees = 30;
   const int HalfSignSpanDegrees = SignSpanDegrees / 2;
+  float CosA = 0;
+  float SinA = 0;
 
   for (int i = 0; i < SignCount; i++) {
-    float cos_a = cosf(util::DegToRad(-i * SignSpanDegrees - rotate));
-    float sin_a = sinf(util::DegToRad(-i * SignSpanDegrees - rotate));
+    std::tie(CosA, SinA) = GetDegreeCosSinRotAsc(i * SignSpanDegrees);
 
     draw_list->AddLine(
-        window_center +
-            ImRotate(RPoints[ChartSettings::SignInner], cos_a, sin_a),
-        window_center +
-            ImRotate(RPoints[ChartSettings::SignOuter], cos_a, sin_a),
+        window_center + ImRotate(RPoints[ChartSettings::SignInner], CosA, SinA),
+        window_center + ImRotate(RPoints[ChartSettings::SignOuter], CosA, SinA),
         settings.BaseColor, settings.Thickness);
 
-    float cos_b = cosf(
-        util::DegToRad(-i * SignSpanDegrees - HalfSignSpanDegrees - rotate));
-    float sin_b = sinf(
-        util::DegToRad(-i * SignSpanDegrees - HalfSignSpanDegrees - rotate));
+    std::tie(CosA, SinA) =
+        GetDegreeCosSinRotAsc(i * SignSpanDegrees + HalfSignSpanDegrees);
 
     sprintf(f, "%c", 'a' + i);
 
-    draw_list->AddText(window_center + ImRotate(RSign, cos_b, sin_b),
+    draw_list->AddText(window_center + ImRotate(RSign, CosA, SinA),
                        settings.SignColor, f);
   }
 
@@ -101,36 +111,34 @@ void RadixChartWidget::Show() const {
     auto find = PlanetCharMap.find(p.first);
     if (find != PlanetCharMap.end()) {
       sprintf(f, "%c", find->second.first);
-      float cos_p = cosf(-util::DegToRad(p.second.Data.lon - rotate));
-      float sin_p = sinf(-util::DegToRad(p.second.Data.lon - rotate));
-      draw_list->AddText(window_center + ImRotate(mid2, cos_p, sin_p),
+      std::tie(CosA, SinA) =
+          GetDegreeCosSinRotAsc(-(p.second.Data.lon - rotate));
+      draw_list->AddText(window_center + ImRotate(mid2, CosA, SinA),
                          ImColor(find->second.second), f);
     }
   }
 
-  float cosac = cosf(-util::DegToRad(model->ascmc.ac - rotate));
-  float sinac = sinf(-util::DegToRad(model->ascmc.ac - rotate));
+  std::tie(CosA, SinA) = GetDegreeCosSinRotAsc(model->ascmc.ac);
 
   draw_list->AddLine(
-      window_center + ImRotate(RPoints[ChartSettings::SignOuter], cosac, sinac),
-      window_center + ImRotate(RPoints[ChartSettings::Innermost], cosac, sinac),
+      window_center + ImRotate(RPoints[ChartSettings::SignOuter], CosA, SinA),
+      window_center + ImRotate(RPoints[ChartSettings::Innermost], CosA, SinA),
       settings.AscMcColor, settings.Thickness);
 
   sprintf(f, "%c", 'K');
-  draw_list->AddText(window_center + ImRotate(RAscMc, cosac, sinac),
+  draw_list->AddText(window_center + ImRotate(RAscMc, CosA, SinA),
                      settings.AscMcColor, f);
 
-  cosac = cosf(-util::DegToRad(model->ascmc.mc - rotate));
-  sinac = sinf(-util::DegToRad(model->ascmc.mc - rotate));
+  std::tie(CosA, SinA) = GetDegreeCosSinRotAsc(model->ascmc.mc);
 
   draw_list->AddLine(
-      window_center + ImRotate(RPoints[ChartSettings::SignOuter], cosac, sinac),
-      window_center + ImRotate(RPoints[ChartSettings::Innermost], cosac, sinac),
+      window_center + ImRotate(RPoints[ChartSettings::SignOuter], CosA, SinA),
+      window_center + ImRotate(RPoints[ChartSettings::Innermost], CosA, SinA),
       settings.AscMcColor, settings.Thickness);
 
   sprintf(f, "%c", 'L');
 
-  draw_list->AddText(window_center + ImRotate(RAscMc, cosac, sinac),
+  draw_list->AddText(window_center + ImRotate(RAscMc, CosA, SinA),
                      settings.AscMcColor, f);
 
   std::vector<ImVec2> vMidpoints;
@@ -139,17 +147,14 @@ void RadixChartWidget::Show() const {
   for (std::vector<float>::size_type i = 0; i < model->vHouseCusps.size();
        ++i) {
 
-    float cosxd = cosf(-util::DegToRad(model->vHouseCusps.at(i) - rotate));
-    float sinxd = sinf(-util::DegToRad(model->vHouseCusps.at(i) - rotate));
+    std::tie(CosA, SinA) = GetDegreeCosSinRotAsc(model->vHouseCusps.at(i));
 
     draw_list->AddLine(
-        window_center +
-            ImRotate(RPoints[ChartSettings::Innermost], cosxd, sinxd),
-        window_center +
-            ImRotate(RPoints[ChartSettings::SignInner], cosxd, sinxd),
+        window_center + ImRotate(RPoints[ChartSettings::Innermost], CosA, SinA),
+        window_center + ImRotate(RPoints[ChartSettings::SignInner], CosA, SinA),
         settings.BaseColor, settings.Thickness);
 
-    vMidpoints.push_back(window_center + ImRotate(RHouseNumber, cosxd, sinxd));
+    vMidpoints.push_back(window_center + ImRotate(RHouseNumber, CosA, SinA));
   }
 
   for (std::vector<ImVec2>::size_type i = 1; i < vMidpoints.size(); ++i) {
@@ -169,20 +174,17 @@ void RadixChartWidget::Show() const {
 
   for (std::tuple<swephpp::PlanetaryBody, swephpp::PlanetaryBody, Aspect> &x :
        model->vAspects) {
-    Planet p1 = model->Eph[std::get<0>(x)];
-    Planet p2 = model->Eph[std::get<1>(x)];
+    float CosB;
+    float SinB;
 
-    float cos_p = cosf(-util::DegToRad(p1.Data.lon - rotate));
-    float sin_p = sinf(-util::DegToRad(p1.Data.lon - rotate));
-
-    float cos_2p = cosf(-util::DegToRad(p2.Data.lon - rotate));
-    float sin_2p = sinf(-util::DegToRad(p2.Data.lon - rotate));
+    std::tie(CosA, SinA) =
+        GetDegreeCosSinRotAsc(model->Eph[std::get<0>(x)].Data.lon);
+    std::tie(CosB, SinB) =
+        GetDegreeCosSinRotAsc(model->Eph[std::get<1>(x)].Data.lon);
 
     draw_list->AddLine(
-        window_center +
-            ImRotate(RPoints[ChartSettings::Innermost], cos_p, sin_p),
-        window_center +
-            ImRotate(RPoints[ChartSettings::Innermost], cos_2p, sin_2p),
+        window_center + ImRotate(RPoints[ChartSettings::Innermost], CosA, SinA),
+        window_center + ImRotate(RPoints[ChartSettings::Innermost], CosB, SinB),
         ImColor(ImVec4(0.5, 0.5, 0.5, 1.0)));
   }
 
