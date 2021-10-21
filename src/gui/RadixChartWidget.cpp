@@ -76,10 +76,6 @@ void RadixChartWidget::Show() const {
 
   ImGui::PushFont(settings.font);
 
-  // Set ASC at -90 degrees
-  // float rotate = Longitude(model->ascmc.ac)();
-  float rotate = 0;
-  // Draw sign glyphs
   char f[3];
 
   const int SignCount = 12;
@@ -96,11 +92,12 @@ void RadixChartWidget::Show() const {
         window_center + ImRotate(RPoints[ChartSettings::SignOuter], CosA, SinA),
         settings.BaseColor, settings.Thickness);
 
+    sprintf(f, "%c", 'a' + i);
+
     std::tie(CosA, SinA) =
         GetDegreeCosSinRotAsc(i * SignSpanDegrees + HalfSignSpanDegrees);
 
-    sprintf(f, "%c", 'a' + i);
-
+    // Draw sign glyphs
     draw_list->AddText(window_center + ImRotate(RSign, CosA, SinA),
                        settings.SignColor, f);
   }
@@ -111,8 +108,7 @@ void RadixChartWidget::Show() const {
     auto find = PlanetCharMap.find(p.first);
     if (find != PlanetCharMap.end()) {
       sprintf(f, "%c", find->second.first);
-      std::tie(CosA, SinA) =
-          GetDegreeCosSinRotAsc(-(p.second.Data.lon - rotate));
+      std::tie(CosA, SinA) = GetDegreeCosSinRotAsc(p.second.Data.lon);
       draw_list->AddText(window_center + ImRotate(mid2, CosA, SinA),
                          ImColor(find->second.second), f);
     }
