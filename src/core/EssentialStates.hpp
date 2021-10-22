@@ -73,7 +73,7 @@ inline bool IsInOwnTriplicity(const Planet &p) { return false; }
 
 inline bool IsInOwnFace(const Planet &p) { return (p.Id == face(p.Data.lon)); }
 
-inline bool IsInOwnTerm(const Planet &p) { return true; }
+bool IsInOwnTerm(const Planet &p);
 
 const std::unordered_map<Planet, std::vector<EssentialState>>
 GetPlanetEssentialStates(std::vector<Planet> &planets, PlanetPairs &pairs);
