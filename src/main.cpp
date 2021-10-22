@@ -15,8 +15,8 @@
 #include <SDL_opengl.h>
 #endif
 
+#include <core/ChartModel.hpp>
 #include <gui/AspectsWidget.hpp>
-#include <gui/ChartModel.hpp>
 #include <gui/ControlsWidget.hpp>
 #include <gui/PlanetsWidget.hpp>
 #include <gui/RadixChartWidget.hpp>

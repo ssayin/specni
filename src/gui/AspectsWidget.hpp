@@ -1,5 +1,6 @@
 #pragma once
-#include <gui/ChartModel.hpp>
+#include <core/ChartModel.hpp>
+
 namespace specni {
 class AspectsWidget {
 public:

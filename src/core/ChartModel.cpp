@@ -1,9 +1,9 @@
-#include "core/EssentialStates.hpp"
-#include "core/PlanetPairs.hpp"
 #include <core/Aspects.hpp>
+#include <core/ChartModel.hpp>
 #include <core/Cyclic.hpp>
+#include <core/EssentialStates.hpp>
+#include <core/PlanetPairs.hpp>
 #include <core/swephpp.hpp>
-#include <gui/ChartModel.hpp>
 
 namespace specni {
 

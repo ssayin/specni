@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ChartModel.hpp"
+#include <core/ChartModel.hpp>
 
 namespace specni {
 

@@ -1,12 +1,13 @@
 #pragma once
 
 #include <core/Aspects.hpp>
-#include <core/EssentialStates.hpp>
+#include <core/EssentialState.hpp>
 #include <core/MoonPhase.hpp>
 #include <core/Planet.hpp>
 #include <core/PlanetPairs.hpp>
 #include <core/swephpp.hpp>
 #include <string>
+#include <unordered_map>
 #include <util/Util.hpp>
 #include <vector>
 
@@ -40,11 +41,12 @@ public:
 
   void RecalculateHouses();
 
-  std::unordered_map<swephpp::PlanetaryBody, Planet> Eph;
-  std::vector<float> vHouseCusps;
-  AspectTuple vAspects;
-  swephpp::Angles ascmc;
   swephpp::HouseSystem hsys;
+  swephpp::Angles ascmc;
+  std::vector<float> vHouseCusps;
+  std::unordered_map<swephpp::PlanetaryBody, Planet> Eph;
+
+  AspectTuple vAspects;
   PlanetPairs pairs;
   std::unordered_map<Planet, std::vector<EssentialState>> eStates;
 

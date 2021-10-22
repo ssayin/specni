@@ -6,10 +6,10 @@ add_executable(
   core/EssentialStates.cpp
   core/PlanetPairs.cpp
   core/Aspects.cpp
+  core/ChartModel.cpp
   gui/AspectsWidget.cpp
   gui/PlanetsWidget.cpp
   gui/ControlsWidget.cpp
-  gui/ChartModel.cpp
   gui/AspectsWidget.cpp
   gui/RadixChartWidget.cpp
   util/Calendar.cpp

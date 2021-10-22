@@ -185,6 +185,7 @@ bool IsInOwnTerm(const Planet &p) {
         return std::get<0>(*it) == p.Id;
     }
   }
+  return false;
 }
 bool IsInOwnTriplicity(const Planet &p) { return false; }
 } // namespace specni

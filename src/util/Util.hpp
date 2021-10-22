@@ -7,7 +7,7 @@
 #include <string>
 #include <utility>
 
-#include <core/EssentialStates.hpp>
+#include <core/EssentialState.hpp>
 
 namespace specni {
 namespace util {
@@ -89,6 +89,8 @@ inline const std::string EssentialStateToString(EssentialState state) {
     return "In Own Term";
   case EssentialState::Peregrine:
     return "Peregrine";
+  default:
+    return "";
   }
 }
 } // namespace util

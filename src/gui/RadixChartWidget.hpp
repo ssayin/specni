@@ -3,7 +3,7 @@
 #include <imgui.h>
 #include <vector>
 
-#include "ChartModel.hpp"
+#include <core/ChartModel.hpp>
 
 namespace specni {
 
