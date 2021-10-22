@@ -1,11 +1,14 @@
 #pragma once
 
+#include "AccidentalStates.hpp"
 #include "Planet.hpp"
 #include "core/PlanetPairs.hpp"
 #include "swephpp.hpp"
 #include <array>
+#include <cassert>
 #include <core/Cyclic.hpp>
 #include <functional>
+#include <tuple>
 #include <unordered_map>
 #include <vector>
 
@@ -25,6 +28,35 @@ static constexpr std::array<swephpp::PlanetaryBody, 7> faceOrder{
     swephpp::PlanetaryBody::Venus,  swephpp::PlanetaryBody::Mercury,
     swephpp::PlanetaryBody::Moon,   swephpp::PlanetaryBody::Saturn,
     swephpp::PlanetaryBody::Jupiter};
+
+static constexpr std::array<
+    std::tuple<swephpp::PlanetaryBody, swephpp::PlanetaryBody>, 12>
+    triplicityRulers{
+        std::make_tuple(swephpp::PlanetaryBody::Sun,
+                        swephpp::PlanetaryBody::Jupiter),
+        std::make_tuple(swephpp::PlanetaryBody::Venus,
+                        swephpp::PlanetaryBody::Moon),
+        std::make_tuple(swephpp::PlanetaryBody::Saturn,
+                        swephpp::PlanetaryBody::Mercury),
+        std::make_tuple(swephpp::PlanetaryBody::Mars,
+                        swephpp::PlanetaryBody::Mars),
+        std::make_tuple(swephpp::PlanetaryBody::Sun,
+                        swephpp::PlanetaryBody::Jupiter),
+        std::make_tuple(swephpp::PlanetaryBody::Venus,
+                        swephpp::PlanetaryBody::Moon),
+        std::make_tuple(swephpp::PlanetaryBody::Saturn,
+                        swephpp::PlanetaryBody::Mercury),
+        std::make_tuple(swephpp::PlanetaryBody::Mars,
+                        swephpp::PlanetaryBody::Mars),
+        std::make_tuple(swephpp::PlanetaryBody::Sun,
+                        swephpp::PlanetaryBody::Jupiter),
+        std::make_tuple(swephpp::PlanetaryBody::Venus,
+                        swephpp::PlanetaryBody::Moon),
+        std::make_tuple(swephpp::PlanetaryBody::Saturn,
+                        swephpp::PlanetaryBody::Mercury),
+        std::make_tuple(swephpp::PlanetaryBody::Mars,
+                        swephpp::PlanetaryBody::Mars),
+    };
 
 constexpr swephpp::PlanetaryBody face(double lon) {
   return faceOrder.at(std::fmod(lon / 10.0, 7));
@@ -69,7 +101,7 @@ enum class EssentialState {
 // determine astrological season
 // determine whether it is night or day
 // get ruler / participitating ruler
-inline bool IsInOwnTriplicity(const Planet &p) { return false; }
+bool IsInOwnTriplicity(const Planet &p);
 
 inline bool IsInOwnFace(const Planet &p) { return (p.Id == face(p.Data.lon)); }
 
@@ -77,4 +109,12 @@ bool IsInOwnTerm(const Planet &p);
 
 const std::unordered_map<Planet, std::vector<EssentialState>>
 GetPlanetEssentialStates(std::vector<Planet> &planets, PlanetPairs &pairs);
+
+/*
+  Astrological night begins when sun is below Descendant
+*/
+inline bool IsItNight(Planet &sun, swephpp::Angles &asc) {
+  assert(sun.Id == swephpp::PlanetaryBody::Sun);
+  return false;
+}
 } // namespace specni

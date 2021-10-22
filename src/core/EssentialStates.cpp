@@ -18,108 +18,94 @@ static const std::unordered_map<swephpp::PlanetaryBody, double> exaltations = {
     {swephpp::PlanetaryBody::Venus, 357.0},   // Pisces 27
 };
 
-static std::unordered_map<
-    util::Sign, std::array<std::tuple<swephpp::PlanetaryBody, double>, 5>>
-    terms{
+static std::array<std::array<std::tuple<swephpp::PlanetaryBody, double>, 5>, 12>
+    terms{{
         {
-            util::Sign::Aries,
-            {
-                std::make_tuple(swephpp::PlanetaryBody::Jupiter, 6.0),
-                std::make_tuple(swephpp::PlanetaryBody::Venus, 14.0),
-                std::make_tuple(swephpp::PlanetaryBody::Mercury, 21.0),
-                std::make_tuple(swephpp::PlanetaryBody::Mars, 26.0),
-                std::make_tuple(swephpp::PlanetaryBody::Saturn, 30.0),
-            },
+            std::make_tuple(swephpp::PlanetaryBody::Jupiter, 6.0),
+            std::make_tuple(swephpp::PlanetaryBody::Venus, 14.0),
+            std::make_tuple(swephpp::PlanetaryBody::Mercury, 21.0),
+            std::make_tuple(swephpp::PlanetaryBody::Mars, 26.0),
+            std::make_tuple(swephpp::PlanetaryBody::Saturn, 30.0),
         },
-        {util::Sign::Taurus,
-         {
-             std::make_tuple(swephpp::PlanetaryBody::Venus, 8.0),
-             std::make_tuple(swephpp::PlanetaryBody::Mercury, 15.0),
-             std::make_tuple(swephpp::PlanetaryBody::Jupiter, 22.0),
-             std::make_tuple(swephpp::PlanetaryBody::Saturn, 26.0),
-             std::make_tuple(swephpp::PlanetaryBody::Mars, 30.0),
-         }},
-        {util::Sign::Gemini,
-         {
-             std::make_tuple(swephpp::PlanetaryBody::Mercury, 7.0),
-             std::make_tuple(swephpp::PlanetaryBody::Jupiter, 14.0),
-             std::make_tuple(swephpp::PlanetaryBody::Venus, 21.0),
-             std::make_tuple(swephpp::PlanetaryBody::Saturn, 25.0),
-             std::make_tuple(swephpp::PlanetaryBody::Mars, 30.0),
-         }},
-        {util::Sign::Cancer,
-         {
-             std::make_tuple(swephpp::PlanetaryBody::Mars, 6.0),
-             std::make_tuple(swephpp::PlanetaryBody::Jupiter, 13.0),
-             std::make_tuple(swephpp::PlanetaryBody::Mercury, 20.0),
-             std::make_tuple(swephpp::PlanetaryBody::Venus, 27.0),
-             std::make_tuple(swephpp::PlanetaryBody::Saturn, 30.0),
-         }},
-        {util::Sign::Leo,
-         {
-             std::make_tuple(swephpp::PlanetaryBody::Saturn, 6.0),
-             std::make_tuple(swephpp::PlanetaryBody::Mercury, 13.0),
-             std::make_tuple(swephpp::PlanetaryBody::Venus, 19.0),
-             std::make_tuple(swephpp::PlanetaryBody::Jupiter, 25.0),
-             std::make_tuple(swephpp::PlanetaryBody::Mars, 30.0),
-         }},
-        {util::Sign::Virgo,
-         {
-             std::make_tuple(swephpp::PlanetaryBody::Mercury, 7.0),
-             std::make_tuple(swephpp::PlanetaryBody::Venus, 13.0),
-             std::make_tuple(swephpp::PlanetaryBody::Jupiter, 18.0),
-             std::make_tuple(swephpp::PlanetaryBody::Saturn, 24.0),
-             std::make_tuple(swephpp::PlanetaryBody::Mars, 30.0),
-         }},
-        {util::Sign::Libra,
-         {
-             std::make_tuple(swephpp::PlanetaryBody::Saturn, 7.0),
-             std::make_tuple(swephpp::PlanetaryBody::Venus, 13.0),
-             std::make_tuple(swephpp::PlanetaryBody::Jupiter, 18.0),
-             std::make_tuple(swephpp::PlanetaryBody::Mercury, 24.0),
-             std::make_tuple(swephpp::PlanetaryBody::Mars, 30.0),
-         }},
-        {util::Sign::Scorpio,
-         {
-             std::make_tuple(swephpp::PlanetaryBody::Mars, 6.0),
-             std::make_tuple(swephpp::PlanetaryBody::Jupiter, 14.0),
-             std::make_tuple(swephpp::PlanetaryBody::Venus, 21.0),
-             std::make_tuple(swephpp::PlanetaryBody::Mercury, 27.0),
-             std::make_tuple(swephpp::PlanetaryBody::Saturn, 30.0),
-         }},
-        {util::Sign::Sagittarius,
-         {
-             std::make_tuple(swephpp::PlanetaryBody::Jupiter, 8.0),
-             std::make_tuple(swephpp::PlanetaryBody::Venus, 14.0),
-             std::make_tuple(swephpp::PlanetaryBody::Mercury, 19.0),
-             std::make_tuple(swephpp::PlanetaryBody::Saturn, 25.0),
-             std::make_tuple(swephpp::PlanetaryBody::Mars, 30.0),
-         }},
-        {util::Sign::Capricorn,
-         {
-             std::make_tuple(swephpp::PlanetaryBody::Venus, 6.0),
-             std::make_tuple(swephpp::PlanetaryBody::Mercury, 12.0),
-             std::make_tuple(swephpp::PlanetaryBody::Jupiter, 19.0),
-             std::make_tuple(swephpp::PlanetaryBody::Mars, 25.0),
-             std::make_tuple(swephpp::PlanetaryBody::Saturn, 30.0),
-         }},
-        {util::Sign::Aquarius,
-         {
-             std::make_tuple(swephpp::PlanetaryBody::Saturn, 6.0),
-             std::make_tuple(swephpp::PlanetaryBody::Mercury, 12.0),
-             std::make_tuple(swephpp::PlanetaryBody::Venus, 20.0),
-             std::make_tuple(swephpp::PlanetaryBody::Jupiter, 25.0),
-             std::make_tuple(swephpp::PlanetaryBody::Mars, 30.0),
-         }},
-        {util::Sign::Pisces,
-         {
-             std::make_tuple(swephpp::PlanetaryBody::Venus, 8.0),
-             std::make_tuple(swephpp::PlanetaryBody::Jupiter, 14.0),
-             std::make_tuple(swephpp::PlanetaryBody::Mercury, 20.0),
-             std::make_tuple(swephpp::PlanetaryBody::Mars, 26.0),
-             std::make_tuple(swephpp::PlanetaryBody::Saturn, 30.0),
-         }},
-    };
+
+        {
+            std::make_tuple(swephpp::PlanetaryBody::Venus, 8.0),
+            std::make_tuple(swephpp::PlanetaryBody::Mercury, 15.0),
+            std::make_tuple(swephpp::PlanetaryBody::Jupiter, 22.0),
+            std::make_tuple(swephpp::PlanetaryBody::Saturn, 26.0),
+            std::make_tuple(swephpp::PlanetaryBody::Mars, 30.0),
+        },
+        {
+            std::make_tuple(swephpp::PlanetaryBody::Mercury, 7.0),
+            std::make_tuple(swephpp::PlanetaryBody::Jupiter, 14.0),
+            std::make_tuple(swephpp::PlanetaryBody::Venus, 21.0),
+            std::make_tuple(swephpp::PlanetaryBody::Saturn, 25.0),
+            std::make_tuple(swephpp::PlanetaryBody::Mars, 30.0),
+        },
+        {
+            std::make_tuple(swephpp::PlanetaryBody::Mars, 6.0),
+            std::make_tuple(swephpp::PlanetaryBody::Jupiter, 13.0),
+            std::make_tuple(swephpp::PlanetaryBody::Mercury, 20.0),
+            std::make_tuple(swephpp::PlanetaryBody::Venus, 27.0),
+            std::make_tuple(swephpp::PlanetaryBody::Saturn, 30.0),
+        },
+        {
+            std::make_tuple(swephpp::PlanetaryBody::Saturn, 6.0),
+            std::make_tuple(swephpp::PlanetaryBody::Mercury, 13.0),
+            std::make_tuple(swephpp::PlanetaryBody::Venus, 19.0),
+            std::make_tuple(swephpp::PlanetaryBody::Jupiter, 25.0),
+            std::make_tuple(swephpp::PlanetaryBody::Mars, 30.0),
+        },
+        {
+            std::make_tuple(swephpp::PlanetaryBody::Mercury, 7.0),
+            std::make_tuple(swephpp::PlanetaryBody::Venus, 13.0),
+            std::make_tuple(swephpp::PlanetaryBody::Jupiter, 18.0),
+            std::make_tuple(swephpp::PlanetaryBody::Saturn, 24.0),
+            std::make_tuple(swephpp::PlanetaryBody::Mars, 30.0),
+        },
+        {
+            std::make_tuple(swephpp::PlanetaryBody::Saturn, 7.0),
+            std::make_tuple(swephpp::PlanetaryBody::Venus, 13.0),
+            std::make_tuple(swephpp::PlanetaryBody::Jupiter, 18.0),
+            std::make_tuple(swephpp::PlanetaryBody::Mercury, 24.0),
+            std::make_tuple(swephpp::PlanetaryBody::Mars, 30.0),
+        },
+        {
+            std::make_tuple(swephpp::PlanetaryBody::Mars, 6.0),
+            std::make_tuple(swephpp::PlanetaryBody::Jupiter, 14.0),
+            std::make_tuple(swephpp::PlanetaryBody::Venus, 21.0),
+            std::make_tuple(swephpp::PlanetaryBody::Mercury, 27.0),
+            std::make_tuple(swephpp::PlanetaryBody::Saturn, 30.0),
+        },
+        {
+            std::make_tuple(swephpp::PlanetaryBody::Jupiter, 8.0),
+            std::make_tuple(swephpp::PlanetaryBody::Venus, 14.0),
+            std::make_tuple(swephpp::PlanetaryBody::Mercury, 19.0),
+            std::make_tuple(swephpp::PlanetaryBody::Saturn, 25.0),
+            std::make_tuple(swephpp::PlanetaryBody::Mars, 30.0),
+        },
+        {
+            std::make_tuple(swephpp::PlanetaryBody::Venus, 6.0),
+            std::make_tuple(swephpp::PlanetaryBody::Mercury, 12.0),
+            std::make_tuple(swephpp::PlanetaryBody::Jupiter, 19.0),
+            std::make_tuple(swephpp::PlanetaryBody::Mars, 25.0),
+            std::make_tuple(swephpp::PlanetaryBody::Saturn, 30.0),
+        },
+        {
+            std::make_tuple(swephpp::PlanetaryBody::Saturn, 6.0),
+            std::make_tuple(swephpp::PlanetaryBody::Mercury, 12.0),
+            std::make_tuple(swephpp::PlanetaryBody::Venus, 20.0),
+            std::make_tuple(swephpp::PlanetaryBody::Jupiter, 25.0),
+            std::make_tuple(swephpp::PlanetaryBody::Mars, 30.0),
+        },
+        {
+            std::make_tuple(swephpp::PlanetaryBody::Venus, 8.0),
+            std::make_tuple(swephpp::PlanetaryBody::Jupiter, 14.0),
+            std::make_tuple(swephpp::PlanetaryBody::Mercury, 20.0),
+            std::make_tuple(swephpp::PlanetaryBody::Mars, 26.0),
+            std::make_tuple(swephpp::PlanetaryBody::Saturn, 30.0),
+        },
+    }};
 
 const std::unordered_map<EssentialState, std::function<bool(const Planet &)>>
     EssentialStateFunctions = {
@@ -189,8 +175,7 @@ GetPlanetEssentialStates(std::vector<Planet> &planets, PlanetPairs &pairs) {
 bool IsInOwnTerm(const Planet &p) {
   unsigned sign = p.Data.lon / 30;
   double deg = std::fmod(p.Data.lon, 30.0);
-  std::array<std::tuple<swephpp::PlanetaryBody, double>, 5> &a =
-      terms[static_cast<util::Sign>(sign)];
+  std::array<std::tuple<swephpp::PlanetaryBody, double>, 5> &a = terms[sign];
   for (std::tuple<swephpp::PlanetaryBody, double> *it = a.begin();
        it != a.end(); it++) {
     if (std::get<1>(*it) <= deg) {
@@ -201,4 +186,5 @@ bool IsInOwnTerm(const Planet &p) {
     }
   }
 }
+bool IsInOwnTriplicity(const Planet &p) { return false; }
 } // namespace specni
