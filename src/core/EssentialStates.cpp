@@ -169,7 +169,7 @@ GetPlanetEssentialStates(const ChartModel &model) {
   }
 
   for (auto &p : model.Eph) {
-    if (ret.empty())
+    if (ret[p.second].empty())
       ret[p.second].push_back(EssentialState::Peregrine);
   }
 
