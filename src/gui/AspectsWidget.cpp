@@ -1,3 +1,4 @@
+#include "core/Dignities.hpp"
 #include "core/swephpp.hpp"
 #include <array>
 #include <cmath>
@@ -21,8 +22,9 @@ void AspectsWidget::Show() const {
   for (std::tuple<swephpp::PlanetaryBody, swephpp::PlanetaryBody, Aspect> &x :
        model->vAspects) {
     ss << swephpp::planet_name(std::get<0>(x)) << " "
-       << swephpp::planet_name(std::get<1>(x)) << " "
-       << util::AspectToString(std::get<2>(x));
+       << util::AspectToString(std::get<2>(x)) << " "
+       << swephpp::planet_name(std::get<1>(x));
+
     ss << std::endl;
   }
 

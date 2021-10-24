@@ -1,4 +1,6 @@
 #include "EssentialStates.hpp"
+#include "core/ChartModel.hpp"
+#include "core/EssentialState.hpp"
 #include "core/swephpp.hpp"
 #include <algorithm>
 #include <core/PlanetPairs.hpp>
@@ -108,13 +110,11 @@ static std::array<std::array<std::tuple<swephpp::PlanetaryBody, double>, 5>, 12>
     }};
 
 const std::unordered_map<EssentialState, std::function<bool(const Planet &)>>
-    EssentialStateFunctions = {
-        {EssentialState::Domicile, IsDomicile},
-        {EssentialState::InDetriment, IsInDetriment},
-        {EssentialState::Fallen, IsFallen},
-        {EssentialState::InOwnTriplicity, IsInOwnTriplicity},
-        {EssentialState::InOwnFace, IsInOwnFace},
-        {EssentialState::InOwnTerm, IsInOwnTerm}};
+    EssentialStateFunctions = {{EssentialState::Domicile, IsDomicile},
+                               {EssentialState::InDetriment, IsInDetriment},
+                               {EssentialState::Fallen, IsFallen},
+                               {EssentialState::InOwnFace, IsInOwnFace},
+                               {EssentialState::InOwnTerm, IsInOwnTerm}};
 
 // should consider mutual reception
 bool IsExalted(const Planet &p) {
@@ -140,18 +140,22 @@ bool IsFallen(const Planet &p) {
 }
 
 const std::unordered_map<Planet, std::vector<EssentialState>>
-GetPlanetEssentialStates(std::vector<Planet> &planets, PlanetPairs &pairs) {
+GetPlanetEssentialStates(const ChartModel &model) {
   std::unordered_map<Planet, std::vector<EssentialState>> ret;
 
-  for (auto &p : planets) {
-    ret.insert({p, std::vector<EssentialState>()});
+  for (auto &p : model.Eph) {
+    ret.insert({p.second, std::vector<EssentialState>()});
     for (auto &ef : EssentialStateFunctions) {
-      if (ef.second(p))
-        ret.at(p).push_back(ef.first);
+      if (ef.second(p.second))
+        ret.at(p.second).push_back(ef.first);
+    }
+
+    if (IsInOwnTriplicity(p.second, model)) {
+      ret.at(p.second).push_back(EssentialState::InOwnTriplicity);
     }
   }
 
-  for (std::pair<Planet, Planet> &p : pairs) {
+  for (std::pair<Planet, Planet> p : model.pairs) {
 
     if (IsMutualReceptionExalted(p.first, p.second)) {
       ret[p.first].push_back(EssentialState::MutualExalted);
@@ -164,16 +168,16 @@ GetPlanetEssentialStates(std::vector<Planet> &planets, PlanetPairs &pairs) {
     }
   }
 
-  for (auto &p : planets) {
+  for (auto &p : model.Eph) {
     if (ret.empty())
-      ret[p].push_back(EssentialState::Peregrine);
+      ret[p.second].push_back(EssentialState::Peregrine);
   }
 
   return ret;
 }
 
 bool IsInOwnTerm(const Planet &p) {
-  unsigned sign = p.Data.lon / 30;
+  unsigned sign = static_cast<unsigned>(p.Data.lon / 30);
   double deg = std::fmod(p.Data.lon, 30.0);
   std::array<std::tuple<swephpp::PlanetaryBody, double>, 5> &a = terms[sign];
   for (std::tuple<swephpp::PlanetaryBody, double> *it = a.begin();
@@ -187,5 +191,25 @@ bool IsInOwnTerm(const Planet &p) {
   }
   return false;
 }
-bool IsInOwnTriplicity(const Planet &p) { return false; }
+
+bool IsItNight(const ChartModel &model) {
+  const float HalfCircle = 180.0;
+
+  auto it = model.Eph.find(swephpp::PlanetaryBody::Sun);
+
+  if (it == model.Eph.end()) {
+    // help
+    return false;
+  }
+
+  double lon = it->second.Data.lon;
+  double tmp = model.ascmc.ac;
+
+  if (tmp >= HalfCircle) {
+    tmp -= 180.0;
+    lon = (Longitude(lon) - Longitude(180))();
+  }
+
+  return (lon >= tmp && lon <= (tmp + 180.0));
+}
 } // namespace specni

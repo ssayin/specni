@@ -10,9 +10,9 @@ static const std::unordered_map<swephpp::PlanetaryBody, std::pair<char, ImVec4>>
     PlanetCharMap = {
         {swephpp::PlanetaryBody::Sun,
          std::make_pair('A', ImVec4(0.984, 0.650, 0, 1.0))},
-        {swephpp::PlanetaryBody::Mercury,
-         std::make_pair('B', ImVec4(0.858, 0.972, 1, 1.0))},
         {swephpp::PlanetaryBody::Moon,
+         std::make_pair('B', ImVec4(0.858, 0.972, 1, 1.0))},
+        {swephpp::PlanetaryBody::Mercury,
          std::make_pair('C', ImVec4(0.941, 0.678, 0.439, 1.0))},
         {swephpp::PlanetaryBody::Venus,
          std::make_pair('D', ImVec4(0.596, 0.062, 0.835, 1.0))},

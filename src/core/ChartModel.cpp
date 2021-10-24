@@ -34,7 +34,7 @@ void ChartModel::RecalculatePlanetPos() {
   }
 
   pairs = GetPlanetCombPairs(vPlanet);
-  eStates = GetPlanetEssentialStates(vPlanet, pairs);
+  eStates = GetPlanetEssentialStates(*this);
 }
 
 template <class CuspArray>

@@ -66,8 +66,8 @@ typedef struct {
 
 enum class PlanetaryBody : int32_t {
   Sun,
-  Mercury,
   Moon,
+  Mercury,
   Venus,
   Mars,
   Jupiter,

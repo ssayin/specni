@@ -7,7 +7,7 @@
 namespace specni {
 
 static constexpr std::array<swephpp::PlanetaryBody, 12>
-    houseOrder /* domicile */ = {
+    houseOrder /* domicile */ {
         swephpp::PlanetaryBody::Mars,    swephpp::PlanetaryBody::Venus,
         swephpp::PlanetaryBody::Mercury, swephpp::PlanetaryBody::Moon,
         swephpp::PlanetaryBody::Sun,     swephpp::PlanetaryBody::Mercury,
