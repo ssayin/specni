@@ -66,11 +66,16 @@ void AspectsWidget::Show() const {
   }
 
   for (auto &d : model->eStates) {
-    ImGui::Text("%s", swephpp::planet_name(d.first.Id).c_str());
-    for (auto &e : d.second) {
-      ImGui::SameLine();
-      ImGui::Text("%s", util::EssentialStateToString(e).c_str());
-    }
+    if (ImGui::CollapsingHeader(swephpp::planet_name(d.first.Id).c_str()))
+      for (auto &e : d.second) {
+        ImGui::Text("%s", util::EssentialStateToString(e).c_str());
+      }
+  }
+
+  AccidentalStates ass(*model);
+  for (auto &p : model->Eph) {
+    if (ass.IsCombust(p.second))
+      ImGui::Text("%s", swephpp::planet_name(p.first).c_str());
   }
 
   ImGui::End();

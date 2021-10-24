@@ -28,19 +28,20 @@ void specni::PlanetsWidget::Show() const {
         ImGui::Text("%c", ' ');
       }
 
+      AccidentalStates ass(*model);
+
       ImGui::SameLine();
       ImGui::Text("%s", swephpp::planet_name(x.first).c_str());
       ImGui::TableNextColumn();
-      ImGui::Text("%c", IsRetrograde(x.second) ? 'R' : '-');
+      ImGui::Text("%c", ass.IsRetrograde(x.second) ? 'R' : '-');
       ImGui::TableNextColumn();
       ImGui::Text("%s", specni::util::get_sign_deg(x.second.Data.lon).c_str());
       ImGui::TableNextColumn();
       ImGui::Text("%s%f%s", x.second.Data.spdlon >= 0 ? "+" : "",
-                  x.second.Data.spdlon, IsSwift(x.second) ? " (Fast)" : "");
+                  x.second.Data.spdlon, ass.IsSwift(x.second) ? " (Fast)" : "");
       ImGui::TableNextColumn();
 
-      ImGui::Text(
-          "%d", specni::GetHouseNum(x.second, model->vHouseCusps, model->hsys));
+      ImGui::Text("%d", ass.GetHouseNum(x.second));
     }
   }
 

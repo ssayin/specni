@@ -13,8 +13,9 @@ namespace specni {
  http://www.ben-daglish.net/moon.shtml
 */
 int DaysSinceNewMoon(double ut) {
-  int y, m;
-  swe_jdut1_to_utc(ut, 0, &y, &m, 0, 0, 0, 0);
+  int y, m, d, h, min;
+  double sec;
+  swe_jdut1_to_utc(ut, 1, &y, &m, &d, &h, &min, &sec);
   double n = std::floor(12.37 * (y - 1900 + ((1.0 * m - 0.5) / 12.0)));
   double t = n / 1236.85;
   double t2 = t * t;

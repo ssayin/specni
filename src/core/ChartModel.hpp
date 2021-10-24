@@ -14,7 +14,6 @@
 namespace specni {
 
 struct ChartModel {
-
 public:
   ChartModel() = default;
   ~ChartModel() = default;
@@ -49,6 +48,7 @@ public:
   AspectTuple vAspects;
   PlanetPairs pairs;
   std::unordered_map<Planet, std::vector<EssentialState>> eStates;
+  MoonPhase phase;
 
 private:
   double ut;

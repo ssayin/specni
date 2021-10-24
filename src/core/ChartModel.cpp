@@ -35,6 +35,7 @@ void ChartModel::RecalculatePlanetPos() {
 
   pairs = GetPlanetCombPairs(vPlanet);
   eStates = GetPlanetEssentialStates(*this);
+  phase = GetMoonPhase(this->ut);
 }
 
 template <class CuspArray>

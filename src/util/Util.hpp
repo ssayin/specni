@@ -35,14 +35,25 @@ inline const char *SignToString(Sign sign) {
 
 inline constexpr float DegToRad(float deg) { return (M_PI * deg) / 180; }
 
-inline const std::string get_sign_deg(/* longitude */ double lon) {
-  std::stringstream ss;
-  int sec = static_cast<int>(std::round(std::fmod(lon, 30.0) * 3600));
-  int deg = sec / 3600;
+constexpr std::tuple<int, int, int> degtodms(double deg) {
+  int sec = static_cast<int>(std::round(deg * 3600));
+  int d = sec / 3600;
   sec = std::abs(sec % 3600);
   int min = sec / 60;
   sec %= 60;
+  return std::make_tuple(d, min, sec);
+}
 
+constexpr double dmstodeg(int deg, int min, int sec) {
+  return deg + min / 60.0 + sec / 3600.0;
+}
+
+inline const std::string get_sign_deg(/* longitude */ double lon) {
+  std::stringstream ss;
+  int deg;
+  int min;
+  int sec;
+  std::tie(deg, min, sec) = degtodms(std::fmod(lon, 30.0));
   ss.fill('0');
   ss << deg << "° " << std::setw(2) << SignToString(static_cast<Sign>(lon / 30))
      << ' ' << std::setw(2) << min << '\'' << std::setw(2) << sec << "\"";

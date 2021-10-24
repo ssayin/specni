@@ -1,6 +1,7 @@
 #include "AccidentalStates.hpp"
 #include "core/MoonPhase.hpp"
 #include "core/swephpp.hpp"
+#include <exception>
 
 namespace specni {
 
@@ -8,14 +9,14 @@ namespace specni {
 FIXME: Gauquelin not working
 Adapted from Pullen's placalc
 */
-int GetHouseNum(const Planet &p, const std::vector<float> &houses,
-                swephpp::HouseSystem hsys) {
+int AccidentalStates::GetHouseNum(const Planet &p) {
 
+  const auto &houses = model.vHouseCusps;
   const float epsilon = 1.7453E-09;
   int i = 0;
   Longitude lon = Longitude(p.Data.lon) + epsilon;
   std::vector<float>::size_type houseSize = houses.size();
-  if (hsys != swephpp::HouseSystem::Gauquelin) {
+  if (model.hsys != swephpp::HouseSystem::Gauquelin) {
     while (i < houseSize &&
            !(lon >= houses[i] && lon < houses[(i + 1) % houseSize]) &&
            (houses[i] <= houses[(i + 1) % houseSize] ||
@@ -27,7 +28,7 @@ int GetHouseNum(const Planet &p, const std::vector<float> &houses,
   return i;
 }
 
-bool IsSwift(const Planet &p) {
+bool AccidentalStates::IsSwift(const Planet &p) {
   float spd = fabs(p.Data.spdlon);
   switch (p.Id) {
   case swephpp::PlanetaryBody::Moon:
@@ -47,7 +48,7 @@ bool IsSwift(const Planet &p) {
   }
 };
 
-bool IsSlow(const Planet &p) {
+bool AccidentalStates::IsSlow(const Planet &p) {
   float spd = fabs(p.Data.spdlon);
   switch (p.Id) {
   case swephpp::PlanetaryBody::Moon:
@@ -67,7 +68,15 @@ bool IsSlow(const Planet &p) {
   }
 }
 
-bool IsOriental(const Planet &p, MoonPhase phase) {
+bool AccidentalStates::IsWithinSun(const Planet &p, double deg) {
+  return Longitude(GetSun().Data.lon).within(p.Data.lon, deg) &&
+         (p.Id != swephpp::PlanetaryBody::Sun);
+}
+
+bool AccidentalStates::IsOccidental(const Planet &p) {}
+
+bool AccidentalStates::IsOriental(const Planet &p) {
+  auto phase = model.phase;
   if (p.Id == swephpp::PlanetaryBody::Moon) {
     if (phase == MoonPhase::NewMoon || phase == MoonPhase::WaxingCrescent ||
         phase == MoonPhase::FirstQuarter || phase == MoonPhase::WaxingGibbous ||
@@ -79,11 +88,23 @@ bool IsOriental(const Planet &p, MoonPhase phase) {
   if (p.Id == swephpp::PlanetaryBody::Sun) {
   }
 }
-/*
-bool IsOccidental(const Planet &);
-bool IsUnderSunBeams(const Planet &);
-bool IsCombust(const Planet &);
-bool IsCazimi(const Planet &);
-*/
 
+bool AccidentalStates::IsUnderSunBeams(const Planet &p) {
+  return IsWithinSun(p, util::dmstodeg(17, 0, 0));
+}
+bool AccidentalStates::IsCombust(const Planet &p) {
+  return IsWithinSun(p, util::dmstodeg(8, 30, 0));
+}
+bool AccidentalStates::IsCazimi(const Planet &p) {
+  return IsWithinSun(p, util::dmstodeg(0, 17, 0));
+}
+
+const Planet &AccidentalStates::GetSun() {
+  auto it = model.Eph.find(swephpp::PlanetaryBody::Sun);
+  if (it != model.Eph.end()) {
+    return it->second;
+  }
+
+  throw std::exception();
+}
 }; // namespace specni
