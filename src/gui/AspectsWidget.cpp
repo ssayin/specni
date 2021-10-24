@@ -2,8 +2,8 @@
 #include "core/swephpp.hpp"
 #include <array>
 #include <cmath>
-#include <core/AccidentalStates.hpp>
 #include <core/Aspects.hpp>
+#include <core/PlanetStates.hpp>
 #include <functional>
 #include <gui/AspectsWidget.hpp>
 #include <imgui.h>
@@ -70,12 +70,6 @@ void AspectsWidget::Show() const {
       for (auto &e : d.second) {
         ImGui::Text("%s", util::EssentialStateToString(e).c_str());
       }
-  }
-
-  AccidentalStates ass(*model);
-  for (auto &p : model->Eph) {
-    if (ass.IsCombust(p.second))
-      ImGui::Text("%s", swephpp::planet_name(p.first).c_str());
   }
 
   ImGui::End();

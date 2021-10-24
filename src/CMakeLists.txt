@@ -2,8 +2,7 @@ add_executable(
   specni
   core/swephpp.hpp
   core/MoonPhase.cpp
-  core/AccidentalStates.cpp
-  core/EssentialStates.cpp
+  core/PlanetStates.cpp
   core/PlanetPairs.cpp
   core/Aspects.cpp
   core/ChartModel.cpp

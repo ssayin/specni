@@ -1,8 +1,8 @@
 #include <core/Aspects.hpp>
 #include <core/ChartModel.hpp>
 #include <core/Cyclic.hpp>
-#include <core/EssentialStates.hpp>
 #include <core/PlanetPairs.hpp>
+#include <core/PlanetStates.hpp>
 #include <core/swephpp.hpp>
 
 namespace specni {
@@ -34,7 +34,7 @@ void ChartModel::RecalculatePlanetPos() {
   }
 
   pairs = GetPlanetCombPairs(vPlanet);
-  eStates = GetPlanetEssentialStates(*this);
+  eStates = PlanetStates(*this).GetPlanetEssentialStates();
   phase = GetMoonPhase(this->ut);
 }
 

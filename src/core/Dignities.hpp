@@ -6,23 +6,22 @@
 
 namespace specni {
 
-static constexpr std::array<swephpp::PlanetaryBody, 12>
-    houseOrder /* domicile */ {
-        swephpp::PlanetaryBody::Mars,    swephpp::PlanetaryBody::Venus,
-        swephpp::PlanetaryBody::Mercury, swephpp::PlanetaryBody::Moon,
-        swephpp::PlanetaryBody::Sun,     swephpp::PlanetaryBody::Mercury,
-        swephpp::PlanetaryBody::Venus,   swephpp::PlanetaryBody::Mars,
-        swephpp::PlanetaryBody::Jupiter, swephpp::PlanetaryBody::Saturn,
-        swephpp::PlanetaryBody::Saturn,  swephpp::PlanetaryBody::Jupiter};
+constexpr std::array<swephpp::PlanetaryBody, 12> houseOrder /* domicile */ {
+    swephpp::PlanetaryBody::Mars,    swephpp::PlanetaryBody::Venus,
+    swephpp::PlanetaryBody::Mercury, swephpp::PlanetaryBody::Moon,
+    swephpp::PlanetaryBody::Sun,     swephpp::PlanetaryBody::Mercury,
+    swephpp::PlanetaryBody::Venus,   swephpp::PlanetaryBody::Mars,
+    swephpp::PlanetaryBody::Jupiter, swephpp::PlanetaryBody::Saturn,
+    swephpp::PlanetaryBody::Saturn,  swephpp::PlanetaryBody::Jupiter};
 
-static constexpr std::array<swephpp::PlanetaryBody, 7> faceOrder{
+constexpr std::array<swephpp::PlanetaryBody, 7> faceOrder{
     swephpp::PlanetaryBody::Mars,   swephpp::PlanetaryBody::Sun,
     swephpp::PlanetaryBody::Venus,  swephpp::PlanetaryBody::Mercury,
     swephpp::PlanetaryBody::Moon,   swephpp::PlanetaryBody::Saturn,
     swephpp::PlanetaryBody::Jupiter};
 
-static constexpr std::array<
-    std::tuple<swephpp::PlanetaryBody, swephpp::PlanetaryBody>, 12>
+constexpr std::array<std::tuple<swephpp::PlanetaryBody, swephpp::PlanetaryBody>,
+                     12>
     triplicityRulers{
         std::make_tuple(swephpp::PlanetaryBody::Sun,
                         swephpp::PlanetaryBody::Jupiter),

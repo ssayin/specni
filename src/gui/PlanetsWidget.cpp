@@ -1,5 +1,5 @@
 #include "PlanetsWidget.hpp"
-#include <core/AccidentalStates.hpp>
+#include <core/PlanetStates.hpp>
 
 #include <gui/Config.hpp>
 #include <imgui.h>
@@ -28,20 +28,20 @@ void specni::PlanetsWidget::Show() const {
         ImGui::Text("%c", ' ');
       }
 
-      AccidentalStates ass(*model);
+      PlanetStates ps(*model);
 
       ImGui::SameLine();
       ImGui::Text("%s", swephpp::planet_name(x.first).c_str());
       ImGui::TableNextColumn();
-      ImGui::Text("%c", ass.IsRetrograde(x.second) ? 'R' : '-');
+      ImGui::Text("%c", ps.IsRetrograde(x.second) ? 'R' : '-');
       ImGui::TableNextColumn();
       ImGui::Text("%s", specni::util::get_sign_deg(x.second.Data.lon).c_str());
       ImGui::TableNextColumn();
       ImGui::Text("%s%f%s", x.second.Data.spdlon >= 0 ? "+" : "",
-                  x.second.Data.spdlon, ass.IsSwift(x.second) ? " (Fast)" : "");
+                  x.second.Data.spdlon, ps.IsSwift(x.second) ? " (Fast)" : "");
       ImGui::TableNextColumn();
 
-      ImGui::Text("%d", ass.GetHouseNum(x.second));
+      ImGui::Text("%d", ps.GetHouseNum(x.second));
     }
   }
 
