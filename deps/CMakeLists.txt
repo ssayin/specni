@@ -26,7 +26,6 @@ target_sources(
         ${SWISSEPH_DIR}/swedate.c
         ${SWISSEPH_DIR}/swecl.c
         ${SWISSEPH_DIR}/swevents.c
-        ${SWISSEPH_DIR}/sweasp.c
         ${SWISSEPH_DIR}/swehel.c
         ${SWISSEPH_DIR}/sweephe4.c
         ${SWISSEPH_DIR}/swemplan.c

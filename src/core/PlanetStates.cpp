@@ -73,11 +73,13 @@ bool PlanetStates::IsWithinSun(const Planet &p, double deg) {
          (p.Id != swephpp::PlanetaryBody::Sun);
 }
 
-bool PlanetStates::IsOccidental(const Planet &p) {}
+bool PlanetStates::IsOccidental(const Planet &p) { return !IsOriental(p); }
 
 bool PlanetStates::IsOriental(const Planet &p) {
-  auto phase = model.phase;
   if (p.Id == swephpp::PlanetaryBody::Moon) {
+    MoonPhase phase = model.phase;
+
+    // actually we can find out moon phase by looking at house placements
     if (phase == MoonPhase::NewMoon || phase == MoonPhase::WaxingCrescent ||
         phase == MoonPhase::FirstQuarter || phase == MoonPhase::WaxingGibbous ||
         phase == MoonPhase::FullMoon) {
@@ -86,7 +88,19 @@ bool PlanetStates::IsOriental(const Planet &p) {
   }
 
   if (p.Id == swephpp::PlanetaryBody::Sun) {
+    int house = GetHouseNum(p);
+    switch (house) {
+    case 12:
+    case 11:
+    case 10:
+    case 6:
+    case 5:
+    case 4:
+      return true;
+    }
   }
+
+  return false;
 }
 
 bool PlanetStates::IsUnderSunBeams(const Planet &p) {
@@ -235,6 +249,19 @@ const std::unordered_map<Planet, std::vector<EssentialState>>
 PlanetStates::GetPlanetEssentialStates() {
   std::unordered_map<Planet, std::vector<EssentialState>> ret;
 
+  for (std::pair<Planet, Planet> p : model.pairs) {
+
+    if (IsMutualReceptionExalted(p.first, p.second)) {
+      ret[p.first].push_back(EssentialState::MutualExalted);
+      ret[p.second].push_back(EssentialState::MutualExalted);
+    }
+
+    if (IsInMutualReceptionDomicile(p.first, p.second)) {
+      ret[p.first].push_back(EssentialState::MutualDomicile);
+      ret[p.second].push_back(EssentialState::MutualDomicile);
+    }
+  }
+
   for (auto &p : model.Eph) {
     ret.insert({p.second, std::vector<EssentialState>()});
 
@@ -263,22 +290,7 @@ PlanetStates::GetPlanetEssentialStates() {
     if (IsInOwnTriplicity(p.second)) {
       ret.at(p.second).push_back(EssentialState::InOwnTriplicity);
     }
-  }
 
-  for (std::pair<Planet, Planet> p : model.pairs) {
-
-    if (IsMutualReceptionExalted(p.first, p.second)) {
-      ret[p.first].push_back(EssentialState::MutualExalted);
-      ret[p.second].push_back(EssentialState::MutualExalted);
-    }
-
-    if (IsInMutualReceptionDomicile(p.first, p.second)) {
-      ret[p.first].push_back(EssentialState::MutualDomicile);
-      ret[p.second].push_back(EssentialState::MutualDomicile);
-    }
-  }
-
-  for (auto &p : model.Eph) {
     if (ret[p.second].empty())
       ret[p.second].push_back(EssentialState::Peregrine);
   }

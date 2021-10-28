@@ -55,6 +55,10 @@ struct OrbConfig {
   }
 };
 
+struct OrbPartileConfig {
+  static constexpr int Get(swephpp::PlanetaryBody body) { return 1; }
+};
+
 typedef std::vector<
     std::tuple<swephpp::PlanetaryBody, swephpp::PlanetaryBody, Aspect>>
     AspectTuple;

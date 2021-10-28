@@ -3,6 +3,7 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
+#include <iostream>
 #include <string>
 
 // clang-format off
@@ -176,6 +177,13 @@ inline const std::string planet_name(PlanetaryBody body) {
   char n[SE_MAX_STNAME];
   swe_get_planet_name(static_cast<int>(body), n);
   return std::string(n);
+}
+
+inline int fixstar(double ut, char *name, Flag flg, double xx[6]) {
+  char err[256];
+  int ret = swe_fixstar_ut(name, ut, static_cast<int32_t>(flg), xx, err);
+  std::cerr << err << std::endl;
+  return ret;
 }
 
 } // namespace swephpp

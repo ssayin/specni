@@ -4,6 +4,7 @@
 #include <core/PlanetPairs.hpp>
 #include <core/PlanetStates.hpp>
 #include <core/swephpp.hpp>
+#include <cstdio>
 
 namespace specni {
 
@@ -36,6 +37,7 @@ void ChartModel::RecalculatePlanetPos() {
   pairs = GetPlanetCombPairs(vPlanet);
   eStates = PlanetStates(*this).GetPlanetEssentialStates();
   phase = GetMoonPhase(this->ut);
+  GetStars();
 }
 
 template <class CuspArray>
@@ -57,5 +59,32 @@ void ChartModel::RecalculateHouses() {
   vHouseCusps = ((house_opts.hsys == swephpp::HouseSystem::Gauquelin)
                      ? GetHouseCusps<swephpp::GauquelinCusps>(house_opts, ascmc)
                      : GetHouseCusps<swephpp::HouseCusps>(house_opts, ascmc));
+}
+
+static std::string fixstarname(ChartModel::FixedStar star) {
+  switch (star) {
+  default:
+  case ChartModel::Algol:
+    return "algol";
+  case ChartModel::Regulus:
+    return "regulus";
+  case ChartModel::Spica:
+    return "spica";
+  }
+
+  return "";
+}
+
+void ChartModel::GetStars() {
+  double tmp[6];
+  char str[32];
+  for (int i = 0; i < FixedStar::Count; ++i) {
+    sprintf(str, "%s", fixstarname(static_cast<FixedStar>(i)).c_str());
+
+    swephpp::fixstar(this->ut, str,
+                     swephpp::Flag::Speed | swephpp::Flag::SwissEph, tmp);
+    fixStars[i] = tmp[0];
+    std::cout << fixStars[i] << std::endl;
+  }
 }
 }; // namespace specni

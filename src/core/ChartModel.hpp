@@ -1,5 +1,6 @@
 #pragma once
 
+#include "sweodef.h"
 #include <core/Aspects.hpp>
 #include <core/EssentialState.hpp>
 #include <core/MoonPhase.hpp>
@@ -40,6 +41,8 @@ public:
 
   void RecalculateHouses();
 
+  void GetStars();
+
   swephpp::HouseSystem hsys;
   swephpp::Angles ascmc;
   std::vector<float> vHouseCusps;
@@ -49,6 +52,10 @@ public:
   PlanetPairs pairs;
   std::unordered_map<Planet, std::vector<EssentialState>> eStates;
   MoonPhase phase;
+
+  enum FixedStar { Algol, Regulus, Spica, Count };
+
+  std::array<double, Count> fixStars;
 
 private:
   double ut;
