@@ -229,6 +229,18 @@ void AspectsWidget::Show() const {
       }
     }
 
+    Longitude pLon{d.first.Data.lon};
+    const char fixedStarOrb = 6;
+    if (pLon.within(model->fixStars[ChartModel::Algol], fixedStarOrb)) {
+      dignities.push_back({-4, "Conj. with Algol"});
+    }
+    if (pLon.within(model->fixStars[ChartModel::Regulus], fixedStarOrb)) {
+      dignities.push_back({6, "Conj. with Regulus"});
+    }
+    if (pLon.within(model->fixStars[ChartModel::Spica], fixedStarOrb)) {
+      dignities.push_back({5, "Conj. with Spica"});
+    }
+
     char sum = 0;
     for (auto &t : dignities) {
       sum += std::get<0>(t);
