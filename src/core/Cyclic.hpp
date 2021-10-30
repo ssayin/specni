@@ -40,7 +40,7 @@ public:
   }
 
   constexpr bool within(const Cyclic &a, double orb) {
-    return ((a + *this) <= orb) || ((a - *this) <= orb) || ((*this - a) <= orb);
+    return ((a - *this) <= orb) || ((*this - a) <= orb);
   }
 
 private:

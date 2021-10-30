@@ -55,7 +55,7 @@ public:
 
   enum FixedStar { Algol, Regulus, Spica, Count };
 
-  std::array<double, Count> fixStars;
+  std::array<Longitude, Count> fixStars;
   double ut;
   double geolat;
   double geolon;

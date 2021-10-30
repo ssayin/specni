@@ -64,13 +64,15 @@ void ChartModel::RecalculateHouses() {
 
 static std::string fixstarname(ChartModel::FixedStar star) {
   switch (star) {
-  default:
+
   case ChartModel::Algol:
-    return "algol";
+    return "Algol";
   case ChartModel::Regulus:
-    return "regulus";
+    return "Regulus";
   case ChartModel::Spica:
-    return "spica";
+    return "Spica";
+  default:
+    return "";
   }
 
   return "";
@@ -78,12 +80,11 @@ static std::string fixstarname(ChartModel::FixedStar star) {
 
 void ChartModel::GetStars() {
   double tmp[6];
-  char str[32];
+  char str[64];
   for (int i = 0; i < FixedStar::Count; ++i) {
     sprintf(str, "%s", fixstarname(static_cast<FixedStar>(i)).c_str());
 
-    swephpp::fixstar(this->ut, str,
-                     swephpp::Flag::Speed | swephpp::Flag::SwissEph, tmp);
+    swephpp::fixstar(this->ut, str, swephpp::Flag::SwissEph, tmp);
     fixStars[i] = tmp[0];
     std::cout << fixStars[i] << std::endl;
   }
