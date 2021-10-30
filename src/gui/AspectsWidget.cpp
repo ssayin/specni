@@ -200,6 +200,7 @@ void AspectsWidget::Show() const {
         if (p2 == swephpp::Ipl::Jupiter) {
           dignities.push_back({3, "Partile sextile with Jupiter"});
         }
+        break;
       case Square:
         if (p2 == swephpp::Ipl::Saturn) {
           dignities.push_back({-4, "Partile square with Saturn"});
@@ -207,6 +208,7 @@ void AspectsWidget::Show() const {
         if (p2 == swephpp::Ipl::Mars) {
           dignities.push_back({-4, "Partile square with Mars"});
         }
+        break;
       case Trine:
         if (p2 == swephpp::Ipl::Venus) {
           dignities.push_back({4, "Partile trine with Venus"});
@@ -214,6 +216,7 @@ void AspectsWidget::Show() const {
         if (p2 == swephpp::Ipl::Jupiter) {
           dignities.push_back({4, "Partile trine with Jupiter"});
         }
+        break;
       case Opposition:
         if (p2 == swephpp::Ipl::Saturn) {
           dignities.push_back({-4, "Partile opp. with Saturn"});
@@ -224,6 +227,7 @@ void AspectsWidget::Show() const {
         if (p2 == swephpp::Ipl::TrueNode) {
           dignities.push_back({-4, "Partile conj. with SN"});
         }
+        break;
       case None:
         break;
       }

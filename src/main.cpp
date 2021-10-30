@@ -128,6 +128,9 @@ int main(int, char **) {
   // io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f,
   // NULL, io.Fonts->GetGlyphRangesJapanese()); IM_ASSERT(font != NULL);
 
+
+  swe_set_ephe_path("./ephe/");
+
   specni::ChartModel model;
   specni::ControlsWidget controls(&model);
   specni::AspectsWidget aspects(&model);
@@ -191,6 +194,8 @@ int main(int, char **) {
   SDL_GL_DeleteContext(gl_context);
   SDL_DestroyWindow(window);
   SDL_Quit();
+
+  swe_close();
 
   return 0;
 }
