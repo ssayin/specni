@@ -15,7 +15,9 @@ void ChartModel::RecalculateAspects() {
 void ChartModel::RecalculatePlanetPos() {
   swephpp::PlanetEphData data = {0};
   Eph.clear();
-  for (int i = 0; i < 10; ++i) {
+  for (int i = 0; i < 12; ++i) {
+    if (i == 10)
+      continue;
     swephpp::CalcOpts opts = {
         ut,
         i,
@@ -23,13 +25,12 @@ void ChartModel::RecalculatePlanetPos() {
     };
 
     swephpp::calc(opts, data);
-    Eph.insert({static_cast<swephpp::PlanetaryBody>(i),
-                Planet{static_cast<swephpp::PlanetaryBody>(i), data}});
+    Eph.insert({static_cast<swephpp::Ipl>(i),
+                Planet{static_cast<swephpp::Ipl>(i), data}});
   }
 
   std::vector<Planet> vPlanet;
-  for (std::unordered_map<swephpp::PlanetaryBody, Planet>::iterator it =
-           Eph.begin();
+  for (std::unordered_map<swephpp::Ipl, Planet>::iterator it = Eph.begin();
        it != Eph.end(); ++it) {
     vPlanet.push_back(it->second);
   }

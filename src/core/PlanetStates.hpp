@@ -29,7 +29,7 @@ public:
   bool IsCombust(const Planet &);
   bool IsCazimi(const Planet &);
 
-  constexpr swephpp::PlanetaryBody face(double lon) {
+  constexpr swephpp::Ipl face(double lon) {
     return faceOrder.at(std::fmod(lon / 10.0, 7));
   }
 
@@ -77,10 +77,11 @@ public:
 
   const std::unordered_map<Planet, std::vector<EssentialState>>
   GetPlanetEssentialStates();
+  const Planet &GetPlanet(swephpp::Ipl id);
+  const Planet &GetSun();
 
 private:
   const ChartModel &model;
-  const Planet &GetSun();
   bool IsWithinSun(const Planet &p, double deg);
 };
 

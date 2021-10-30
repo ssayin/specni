@@ -168,8 +168,7 @@ void RadixChartWidget::Show() const {
 
   ImGui::PopFont();
 
-  for (std::tuple<swephpp::PlanetaryBody, swephpp::PlanetaryBody, Aspect> &x :
-       model->vAspects) {
+  for (std::tuple<swephpp::Ipl, swephpp::Ipl, Aspect> &x : model->vAspects) {
     float CosB;
     float SinB;
 

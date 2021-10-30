@@ -65,7 +65,7 @@ typedef struct {
   double spddist;
 } PlanetEphData;
 
-enum class PlanetaryBody : int32_t {
+enum class Ipl : int32_t {
   Sun,
   Moon,
   Mercury,
@@ -173,7 +173,7 @@ inline int calc(const CalcOpts &opts, PlanetEphData &data) {
                      reinterpret_cast<double *>(&data), 0);
 }
 
-inline const std::string planet_name(PlanetaryBody body) {
+inline const std::string planet_name(Ipl body) {
   char n[SE_MAX_STNAME];
   swe_get_planet_name(static_cast<int>(body), n);
   return std::string(n);

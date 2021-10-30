@@ -35,19 +35,19 @@ const std::unordered_map<Aspect, int> Aspects = {
 };
 
 struct OrbConfig {
-  static constexpr int Get(swephpp::PlanetaryBody body) {
+  static constexpr int Get(swephpp::Ipl body) {
     switch (body) {
-    case swephpp::PlanetaryBody::Sun:
+    case swephpp::Ipl::Sun:
       return 7;
-    case swephpp::PlanetaryBody::Moon:
+    case swephpp::Ipl::Moon:
       return 6;
-    case swephpp::PlanetaryBody::Mercury:
-    case swephpp::PlanetaryBody::Venus:
+    case swephpp::Ipl::Mercury:
+    case swephpp::Ipl::Venus:
       return 3;
-    case swephpp::PlanetaryBody::Mars:
+    case swephpp::Ipl::Mars:
       return 4;
-    case swephpp::PlanetaryBody::Jupiter:
-    case swephpp::PlanetaryBody::Saturn:
+    case swephpp::Ipl::Jupiter:
+    case swephpp::Ipl::Saturn:
       return 5;
     default:
       return 2;
@@ -56,12 +56,10 @@ struct OrbConfig {
 };
 
 struct OrbPartileConfig {
-  static constexpr int Get(swephpp::PlanetaryBody body) { return 1; }
+  static constexpr int Get(swephpp::Ipl body) { return 1; }
 };
 
-typedef std::vector<
-    std::tuple<swephpp::PlanetaryBody, swephpp::PlanetaryBody, Aspect>>
-    AspectTuple;
+typedef std::vector<std::tuple<swephpp::Ipl, swephpp::Ipl, Aspect>> AspectTuple;
 
 AspectTuple
 CalculateAspects(PlanetPairs &pairs,

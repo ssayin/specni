@@ -46,7 +46,7 @@ public:
   swephpp::HouseSystem hsys;
   swephpp::Angles ascmc;
   std::vector<float> vHouseCusps;
-  std::unordered_map<swephpp::PlanetaryBody, Planet> Eph;
+  std::unordered_map<swephpp::Ipl, Planet> Eph;
 
   AspectTuple vAspects;
   PlanetPairs pairs;
@@ -56,10 +56,10 @@ public:
   enum FixedStar { Algol, Regulus, Spica, Count };
 
   std::array<double, Count> fixStars;
-
-private:
   double ut;
   double geolat;
   double geolon;
+
+private:
 };
 }; // namespace specni
