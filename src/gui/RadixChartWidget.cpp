@@ -180,7 +180,7 @@ void RadixChartWidget::Show() const {
     draw_list->AddLine(
         window_center + ImRotate(RPoints[ChartSettings::Innermost], CosA, SinA),
         window_center + ImRotate(RPoints[ChartSettings::Innermost], CosB, SinB),
-        ImColor(ImVec4(0.5, 0.5, 0.5, 1.0)));
+        ImColor(aspectColor[std::get<2>(x)]));
   }
 
   ImGui::End();

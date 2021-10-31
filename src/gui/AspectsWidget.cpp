@@ -237,10 +237,8 @@ void AspectsWidget::Show() const {
     const double fixedStarOrb = 6.0;
     if (pLon.within(model->fixStars[ChartModel::Algol], fixedStarOrb)) {
       dignities.push_back({-4, "Conj. with Algol"});
-      std::cout << pLon << " " << model->fixStars[ChartModel::Algol] << "\n";
     }
     if (pLon.within(model->fixStars[ChartModel::Regulus], fixedStarOrb)) {
-      // std::cout << model->fixStars[ChartModel::Regulus] << std::endl;
       dignities.push_back({6, "Conj. with Regulus"});
     }
     if (pLon.within(model->fixStars[ChartModel::Spica], fixedStarOrb)) {

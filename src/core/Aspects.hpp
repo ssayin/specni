@@ -2,8 +2,10 @@
 
 #include "Cyclic.hpp"
 #include "Planet.hpp"
+#include "imgui.h"
 #include "swephpp.hpp"
 #include <algorithm>
+#include <array>
 #include <cassert>
 #include <core/PlanetPairs.hpp>
 #include <cstddef>
@@ -32,6 +34,11 @@ enum Aspect {
 const std::unordered_map<Aspect, int> Aspects = {
     {Conjunction, 0}, {Sextile, 60},     {Square, 90},
     {Trine, 120},     {Opposition, 180},
+};
+
+const std::array<ImVec4, None> aspectColor{
+    ImVec4(1, 1, 1, 1), ImVec4(0, 1, 0, 1), ImVec4(1, 0, 0, 1),
+    ImVec4(0, 1, 1, 1), ImVec4(1, 0, 0, 1),
 };
 
 struct OrbConfig {
