@@ -14,7 +14,7 @@ namespace specni {
 
 class PlanetStates {
 public:
-  PlanetStates(ChartModel &model) : model(model) {}
+  PlanetStates(const ChartModel &model) : model(model) {}
   int GetHouseNum(const Planet &p);
 
   bool IsSwift(const Planet &);

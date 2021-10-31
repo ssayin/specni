@@ -6,11 +6,12 @@ add_executable(
   core/PlanetPairs.cpp
   core/Aspects.cpp
   core/ChartModel.cpp
+  core/Horary.cpp
   gui/AspectsWidget.cpp
   gui/PlanetsWidget.cpp
   gui/ControlsWidget.cpp
   gui/AspectsWidget.cpp
-  gui/RadixChartWidget.cpp
+  gui/UniWheel.cpp
   util/Calendar.cpp
   main.cpp)
 

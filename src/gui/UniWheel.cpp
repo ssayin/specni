@@ -1,4 +1,4 @@
-#include "RadixChartWidget.hpp"
+#include "UniWheel.hpp"
 #include "SDL_video.h"
 #include <gui/ImVecEx.hpp>
 #include <imgui.h>
@@ -15,15 +15,15 @@ constexpr const std::tuple<float, float> GetDegreeCosSin(float deg) {
 }
 
 const std::tuple<float, float>
-RadixChartWidget::GetDegreeCosSinRotAsc(float deg) const {
+UniWheel::GetDegreeCosSinRotAsc(float deg) const {
   Longitude lon = Longitude(deg) - Longitude(model->ascmc.ac) + Longitude(-90);
   return GetDegreeCosSin(lon());
 }
 
-RadixChartWidget::RadixChartWidget(ChartSettings &settings, ChartModel *model)
+UniWheel::UniWheel(ChartSettings &settings, ChartModel *model)
     : settings(settings), model(model) {}
 
-void RadixChartWidget::Show() const {
+void UniWheel::Show() const {
   struct Constraint {
 
     static void Square(ImGuiSizeCallbackData *data) {

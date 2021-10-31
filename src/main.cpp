@@ -19,7 +19,7 @@
 #include <gui/AspectsWidget.hpp>
 #include <gui/ControlsWidget.hpp>
 #include <gui/PlanetsWidget.hpp>
-#include <gui/RadixChartWidget.hpp>
+#include <gui/UniWheel.hpp>
 
 // Main code
 int main(int, char **) {
@@ -128,15 +128,14 @@ int main(int, char **) {
   // io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f,
   // NULL, io.Fonts->GetGlyphRangesJapanese()); IM_ASSERT(font != NULL);
 
-
   swe_set_ephe_path("./ephe/");
 
   specni::ChartModel model;
   specni::ControlsWidget controls(&model);
   specni::AspectsWidget aspects(&model);
   specni::PlanetsWidget planets(&model, monospace_zodiac);
-  specni::RadixChartWidget::ChartSettings settings(font);
-  specni::RadixChartWidget chart(settings, &model);
+  specni::UniWheel::ChartSettings settings(font);
+  specni::UniWheel chart(settings, &model);
 
   // Our state
   ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);

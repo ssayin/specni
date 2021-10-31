@@ -7,7 +7,7 @@
 
 namespace specni {
 
-class RadixChartWidget {
+class UniWheel {
 public:
   struct ChartSettings {
     ImColor BaseColor = {};
@@ -35,7 +35,7 @@ public:
           AscMcColor(ImVec4(0.5, 1, 1, 1)), font(font) {}
   };
 
-  RadixChartWidget(ChartSettings &settings, ChartModel *model);
+  UniWheel(ChartSettings &settings, ChartModel *model);
   void Show() const;
 
 private:

@@ -86,7 +86,6 @@ void ChartModel::GetStars() {
 
     swephpp::fixstar(this->ut, str, swephpp::Flag::SwissEph, tmp);
     fixStars[i] = tmp[0];
-    std::cout << fixStars[i] << std::endl;
   }
 }
 }; // namespace specni
