@@ -84,7 +84,7 @@ void AspectsWidget::Show() const {
             (swephpp::planet_name(std::get<0>(t)) + " " + std::to_string(sum))
                 .c_str())) {
       for (auto &s : std::get<1>(t)) {
-        ImGui::Text("%s %d", std::get<1>(s).c_str(), std::get<0>(t));
+        ImGui::Text("%s %d", std::get<1>(s).c_str(), std::get<0>(s));
       }
     }
   }

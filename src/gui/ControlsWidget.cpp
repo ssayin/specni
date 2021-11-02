@@ -37,11 +37,21 @@ void specni::ControlsWidget::Show() {
 
   bool changeFlag = false;
 
+  ImGui::PushItemWidth(-1);
+  float Avail = ImGui::CalcItemWidth();
+  float LabelW = ImGui::CalcTextSize("Month").x;
+  ImGui::PopItemWidth();
+  ImGui::PushItemWidth((Avail / 3) - LabelW -
+                       ImGui::GetStyle().ItemInnerSpacing.x);
   ImGui::InputInt("Month", &month);
   changeFlag |= ImGui::IsItemEdited();
 
+  ImGui::SameLine();
+
   ImGui::InputInt("Day", &day);
   changeFlag |= ImGui::IsItemEdited();
+
+  ImGui::SameLine();
 
   ImGui::InputInt("Year", &year);
   changeFlag |= ImGui::IsItemEdited();
@@ -49,20 +59,38 @@ void specni::ControlsWidget::Show() {
   ImGui::InputInt("Hour", &hour);
   changeFlag |= ImGui::IsItemEdited();
 
+  ImGui::SameLine();
+
   ImGui::InputInt("Min", &min);
   changeFlag |= ImGui::IsItemEdited();
+
+  ImGui::SameLine();
 
   ImGui::InputInt("Sec", &sec);
   changeFlag |= ImGui::IsItemEdited();
 
+  ImGui::PopItemWidth();
+
+  ImGui::PushItemWidth(-1);
+  Avail = ImGui::CalcItemWidth();
+  LabelW = ImGui::CalcTextSize("Longitude").x;
+  ImGui::PopItemWidth();
+  ImGui::PushItemWidth((Avail / 2) - LabelW -
+                       ImGui::GetStyle().ItemInnerSpacing.x);
+
   ImGui::InputDouble("Latitude", &latitude);
   changeFlag |= ImGui::IsItemEdited();
+
+  ImGui::SameLine();
 
   ImGui::InputDouble("Longitude", &longitude);
   changeFlag |= ImGui::IsItemEdited();
 
+  ImGui::PopItemWidth();
+
   static int prev = 0;
-  ImGui::Combo("HouseSystem", &houseSel, ::GetHouseSystemString());
+
+  ImGui::Combo("House System", &houseSel, ::GetHouseSystemString());
   changeFlag |= (prev != houseSel);
   prev = houseSel;
 
