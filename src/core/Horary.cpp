@@ -110,10 +110,10 @@ DignityScoreTable GetDignityScoreTable(const ChartModel &model) {
     AspectTuple aspects = CalculateAspects(pairs, AspectFunc<OrbPartileConfig>);
 
     for (auto &aspect : aspects) {
-      swephpp::Ipl p1;
-      swephpp::Ipl p2;
-      Aspect asp;
-      std::tie(p1, p2, asp) = aspect;
+      swephpp::Ipl p1 = std::get<0>(aspect);
+      swephpp::Ipl p2 = std::get<1>(aspect);
+      Aspect asp = std::get<2>(aspect);
+
       switch (asp) {
       case Conjunction:
         if (p2 == swephpp::Ipl::Venus) {

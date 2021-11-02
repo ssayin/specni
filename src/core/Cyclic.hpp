@@ -43,6 +43,10 @@ public:
     return ((a - *this) <= orb) || ((*this - a) <= orb);
   }
 
+  constexpr double distToZero() {
+    return std::min((std::fabs((MAX - *this)())), std::fabs((*this)()));
+  }
+
 private:
   T m;
 };
