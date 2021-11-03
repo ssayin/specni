@@ -41,8 +41,7 @@ static const std::unordered_map<swephpp::Ipl, std::pair<char, ImVec4>>
 };
 
 static const std::unordered_map<specni::Aspect, char> AspectCharMap = {
-    {specni::Aspect::Conjunction, 'm'},
-    {specni::Aspect::Square, 'r'},
-    {specni::Aspect::Trine, 's'},
-    {specni::Aspect::Opposition, 'v'},
+    {specni::Aspect::Conjunction, 'm'}, {specni::Aspect::Sextile, 'p'},
+    {specni::Aspect::Square, 'q'},      {specni::Aspect::Trine, 'r'},
+    {specni::Aspect::Opposition, 'u'},
 };

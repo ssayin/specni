@@ -132,7 +132,7 @@ int main(int, char **) {
 
   specni::ChartModel model;
   specni::ControlsWidget controls(&model);
-  specni::AspectsWidget aspects(&model);
+  specni::AspectsWidget aspects(&model, *monospace_zodiac);
   specni::PlanetsWidget planets(&model, monospace_zodiac);
   specni::UniWheel::ChartSettings settings(font);
   specni::UniWheel chart(settings, &model);

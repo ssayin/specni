@@ -17,10 +17,10 @@
 #include <tuple>
 #include <unordered_map>
 
+#include <core/AccidentalState.hpp>
 #include <gui/Config.hpp>
 #include <util/Util.hpp>
-
-#include <core/AccidentalState.hpp>
+#include <util/ZodiacsFont.hpp>
 
 namespace specni {
 
@@ -28,13 +28,34 @@ void AspectsWidget::Show() const {
 
   ImGui::Begin("Aspects");
 
-  for (std::tuple<swephpp::Ipl, swephpp::Ipl, Aspect, double, AspectStat> &x :
-       model->vAspects) {
-    ImGui::Text("%s %s %s %f %c", swephpp::planet_name(std::get<0>(x)).c_str(),
-                util::AspectToString(std::get<2>(x)).c_str(),
-                swephpp::planet_name(std::get<1>(x)).c_str(), std::get<3>(x),
-                std::get<4>(x) == Applying ? 'A' : 'S');
+  if (ImGui::BeginTable("aspects", 5, PlanetWidgetTableFlags)) {
+    for (std::tuple<swephpp::Ipl, swephpp::Ipl, Aspect, double, AspectStat> &x :
+         model->vAspects) {
+
+      ImGui::TableNextRow();
+      ImGui::TableNextColumn();
+      ImGui::Text("%s ", swephpp::planet_name(std::get<0>(x)).c_str());
+
+      ImGui::PushFont(&font);
+      ImGui::TableNextColumn();
+
+      ImGui::Text("%c ", AspectCharMap.at(std::get<2>(x)));
+
+      ImGui::PopFont();
+      ImGui::TableNextColumn();
+
+      ImGui::Text("%s ", swephpp::planet_name(std::get<1>(x)).c_str());
+
+      ImGui::TableNextColumn();
+
+      ImGui::Text("%f ", std::get<3>(x));
+
+      ImGui::TableNextColumn();
+
+      ImGui::Text("%c ", std::get<4>(x) == Applying ? 'A' : 'S');
+    }
   }
+  ImGui::EndTable();
 
   ImGui::End();
 
