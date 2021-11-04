@@ -167,7 +167,7 @@ DignityScoreTable GetDignityScoreTable(const ChartModel &model) {
           dts[d.first.Id].push_back({-4, "Partile conj. with SN"});
         }
         break;
-      case None:
+      case Count:
         break;
       }
     }

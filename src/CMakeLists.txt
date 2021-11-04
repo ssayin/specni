@@ -13,6 +13,7 @@ add_executable(
   gui/AspectsWidget.cpp
   gui/UniWheel.cpp
   util/Calendar.cpp
+  util/Util.cpp
   main.cpp)
 
 set_property(TARGET specni PROPERTY C_STANDARD 17)

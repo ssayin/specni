@@ -4,6 +4,7 @@
 #include "Planet.hpp"
 #include "imgui.h"
 #include "swephpp.hpp"
+#include <X11/Xlib.h>
 #include <algorithm>
 #include <array>
 #include <cassert>
@@ -28,7 +29,7 @@ enum Aspect {
   Square,
   Trine,
   Opposition,
-  None,
+  Count,
 };
 
 const std::unordered_map<Aspect, int> Aspects = {
@@ -36,7 +37,7 @@ const std::unordered_map<Aspect, int> Aspects = {
     {Trine, 120},     {Opposition, 180},
 };
 
-const std::array<ImVec4, None> aspectColor{
+const std::array<ImVec4, Count> aspectColor{
     ImVec4(1, 1, 1, 1), ImVec4(0, 1, 0, 1), ImVec4(1, 0, 0, 1),
     ImVec4(0, 1, 1, 1), ImVec4(1, 0, 0, 1),
 };
@@ -78,6 +79,14 @@ AspectTuple CalculateAspects(
                                                          const Planet &)>
         f);
 
+static const Longitude &willNameItLater(const Longitude &first,
+                                        const Longitude &second,
+                                        const Longitude &orb) {
+  Longitude asd = std::min(second - first + orb, first - second + orb);
+  Longitude sdf = std::min(second - first - orb, first - second - orb);
+  return std::min(asd, sdf);
+}
+
 template <class Config = OrbConfig>
 auto AspectFunc =
     [](const Planet &p1,
@@ -88,25 +97,23 @@ auto AspectFunc =
     int maxOrb = std::max(Config::Get(p1.Id), Config::Get(p2.Id));
     if (a.within(b + asp.second, maxOrb) || a.within(b - asp.second, maxOrb)) {
       Longitude degP1Next = a + Longitude(p1.Data.spdlon);
+
       Longitude degP2Next = b + Longitude(p2.Data.spdlon);
+
       AspectStat stat = No;
-      if (degP1Next.within(degP2Next + Longitude(asp.second), maxOrb)) {
-        Longitude actualArcDistance = (b - a + Longitude(asp.second));
-        Longitude predictedArcDistance =
-            (degP2Next - degP1Next + Longitude(asp.second));
 
-        stat = ((actualArcDistance.distToZero() >
-                 predictedArcDistance.distToZero())
-                    ? Applying
-                    : Seperating);
+      Longitude actualArcDistance =
+          willNameItLater(a, b, asp.second); // implicit
 
-      } else
-        stat = Seperating;
+      Longitude predictedArcDistance =
+          willNameItLater(degP1Next, degP2Next, asp.second);
 
-      return std::make_tuple(
-          asp.first, (b + Longitude(asp.second) - a).distToZero(), stat);
+      stat = ((actualArcDistance() > predictedArcDistance()) ? Applying
+                                                             : Seperating);
+
+      return std::make_tuple(asp.first, actualArcDistance(), stat);
     }
   }
-  return std::make_tuple(Aspect::None, 0, AspectStat::No);
+  return std::make_tuple(Aspect::Count, 0, AspectStat::No);
 };
 }; // namespace specni

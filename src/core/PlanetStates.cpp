@@ -84,10 +84,11 @@ bool PlanetStates::IsOriental(const Planet &p) {
   double atTemp = 0;
 
   double geo[3] = {model.geolon, model.geolat, 0};
-  swe_rise_trans(model.ut, static_cast<int32>(p.Id), "", 0, SE_CALC_RISE, geo,
+
+  swe_rise_trans(model.ut, static_cast<int32>(p.Id), 0, 0, SE_CALC_RISE, geo,
                  atPressure, atTemp, tret, err);
 
-  swe_rise_trans(model.ut, static_cast<int32>(swephpp::Ipl::Sun), "", 0,
+  swe_rise_trans(model.ut, static_cast<int32>(swephpp::Ipl::Sun), 0, 0,
                  SE_CALC_RISE, geo, atPressure, atTemp, tret2, err);
 
   return tret[0] < tret2[0];
