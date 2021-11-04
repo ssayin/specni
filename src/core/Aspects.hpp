@@ -4,7 +4,6 @@
 #include "Planet.hpp"
 #include "imgui.h"
 #include "swephpp.hpp"
-#include <X11/Xlib.h>
 #include <algorithm>
 #include <array>
 #include <cassert>
