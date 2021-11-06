@@ -53,6 +53,9 @@ void specni::ControlsWidget::Show() {
   changeFlag |= ImGui::IsItemEdited();
 
   int dayMax = util::last_day_of_month(year, month);
+  if (day > dayMax) {
+    day = dayMax;
+  }
 
   ImGui::SameLine();
 
