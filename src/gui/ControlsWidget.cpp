@@ -43,30 +43,35 @@ void specni::ControlsWidget::Show() {
   ImGui::PopItemWidth();
   ImGui::PushItemWidth((Avail / 3) - LabelW -
                        ImGui::GetStyle().ItemInnerSpacing.x);
-  ImGui::InputInt("Month", &month);
+  ImGui::DragInt("Year", &year);
   changeFlag |= ImGui::IsItemEdited();
 
   ImGui::SameLine();
 
-  ImGui::InputInt("Day", &day);
+  ImGui::DragInt("Month", &month, 1.0f, 1, 12, "%d",
+                 ImGuiSliderFlags_AlwaysClamp);
+  changeFlag |= ImGui::IsItemEdited();
+
+  int dayMax = util::last_day_of_month(year, month);
+
+  ImGui::SameLine();
+
+  ImGui::DragInt("Day", &day, 1.0f, 1, dayMax, "%d",
+                 ImGuiSliderFlags_AlwaysClamp);
+  changeFlag |= ImGui::IsItemEdited();
+
+  ImGui::DragInt("Hour", &hour, 1.0f, 0, 23, "%d",
+                 ImGuiSliderFlags_AlwaysClamp);
   changeFlag |= ImGui::IsItemEdited();
 
   ImGui::SameLine();
 
-  ImGui::InputInt("Year", &year);
-  changeFlag |= ImGui::IsItemEdited();
-
-  ImGui::InputInt("Hour", &hour);
+  ImGui::DragInt("Min", &min, 1.0f, 0, 59, "%d", ImGuiSliderFlags_AlwaysClamp);
   changeFlag |= ImGui::IsItemEdited();
 
   ImGui::SameLine();
 
-  ImGui::InputInt("Min", &min);
-  changeFlag |= ImGui::IsItemEdited();
-
-  ImGui::SameLine();
-
-  ImGui::InputInt("Sec", &sec);
+  ImGui::DragInt("Sec", &sec, 1.0f, 0, 59, "%d", ImGuiSliderFlags_AlwaysClamp);
   changeFlag |= ImGui::IsItemEdited();
 
   ImGui::PopItemWidth();

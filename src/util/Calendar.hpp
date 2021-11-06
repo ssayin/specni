@@ -42,6 +42,37 @@ constexpr std::tuple<Int, unsigned, unsigned> civil_from_days(Int z) noexcept {
   return std::tuple<Int, unsigned, unsigned>(y + (m <= 2), m, d);
 }
 
+// Returns: true if y is a leap year in the civil calendar, else false
+template <class Int> constexpr bool is_leap(Int y) noexcept {
+  return y % 4 == 0 && (y % 100 != 0 || y % 400 == 0);
+}
+
+// Preconditions: m is in [1, 12]
+// Returns: The number of days in the month m of common year
+// The result is always in the range [28, 31].
+constexpr unsigned last_day_of_month_common_year(unsigned m) noexcept {
+  constexpr unsigned char a[] = {31, 28, 31, 30, 31, 30,
+                                 31, 31, 30, 31, 30, 31};
+  return a[m - 1];
+}
+
+// Preconditions: m is in [1, 12]
+// Returns: The number of days in the month m of leap year
+// The result is always in the range [29, 31].
+constexpr unsigned last_day_of_month_leap_year(unsigned m) noexcept {
+  constexpr unsigned char a[] = {31, 29, 31, 30, 31, 30,
+                                 31, 31, 30, 31, 30, 31};
+  return a[m - 1];
+}
+
+// Preconditions: m is in [1, 12]
+// Returns: The number of days in the month m of year y
+// The result is always in the range [28, 31].
+template <class Int>
+constexpr unsigned last_day_of_month(Int y, unsigned m) noexcept {
+  return m != 2 || !is_leap(y) ? last_day_of_month_common_year(m) : 29u;
+}
+
 /*
   From chrono-Compatible Low-Level Date Algorithms
   Howard Hinnant

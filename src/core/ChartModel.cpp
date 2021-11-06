@@ -15,8 +15,8 @@ void ChartModel::RecalculateAspects() {
 void ChartModel::RecalculatePlanetPos() {
   swephpp::PlanetEphData data = {0};
   Eph.clear();
-  for (int i = 0; i < 12; ++i) {
-    if (i == 10)
+  for (int i = 0; i < 16; ++i) {
+    if (i == 10 || i == 12 || i == 13 || i == 14)
       continue;
     swephpp::CalcOpts opts = {
         ut,
