@@ -28,7 +28,7 @@ jobs:
       
     - name: Update GCC
       run: |
-        sudo apt-add-repository 'deb https://apt.kitware.com/ubuntu/ impish main'
+        sudo apt-add-repository 'deb http://archive.ubuntu.com/ubuntu/ impish main'
         sudo apt-get update && sudo apt-get install -y g++
         
     - name: Configure CMake
