@@ -3,10 +3,10 @@
 namespace specni {
 DignityScoreTable GetDignityScoreTable(const ChartModel &model) {
 
-  constexpr static std::array<char, 13> houseScore{0, 5,  3, 1, 4, 3, -2,
+  constexpr static std::array<char, 13> houseScore{5, 3,  1, 4, 3, -2,
                                                    4, -2, 2, 5, 4, -5};
 
-  constexpr static char suffix[][3]{" ",  "st", "nd", "rd", "th", "th", "th",
+  constexpr static char suffix[][3]{"st", "nd", "rd", "th", "th", "th",
                                     "th", "th", "th", "th", "th", "th"};
   DignityScoreTable dts;
 
@@ -19,7 +19,7 @@ DignityScoreTable GetDignityScoreTable(const ChartModel &model) {
       dts[d.first.Id].push_back({score, util::EssentialStateToString(e)});
     }
 
-    char houseNum = ps.GetHouseNum(d.first);
+    char houseNum = ps.GetHouseNum(d.first) - 1;
     char score = houseScore[houseNum];
 
     dts[d.first.Id].push_back(
