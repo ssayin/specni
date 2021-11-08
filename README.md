@@ -13,6 +13,7 @@ An application which implements William Lilly Dignity/Debility point-scoring sys
 ## Build Requirements
 * CMake >= 3.21
 * GCC >= 11 *or* clang >= 12
+* SDL2 binaries
 
 
 
