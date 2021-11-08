@@ -8,6 +8,12 @@ An application which implements William Lilly Dignity/Debility point-scoring sys
 
 * [SwissEph](http://www.astro.com/swisseph/swephinfo_e.htm) - The high precision ephemeris developed by Astrodienst, largely based upon the DExxx ephemerides from NASA's JPL.
 
+## Build Requirements
+* CMake >= 3.21
+* GCC >= 11 *or* clang >= 12
+
+
+
 ## Authors
 
 * **Serdar Sayın** - *Initial work* - [GitHub](https://github.com/ssayin)
