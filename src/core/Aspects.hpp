@@ -108,10 +108,18 @@ auto aspectFunc2 =
     [](const Planet &p1,
        const Planet &p2) -> std::tuple<Aspect2, double, AspectStat> {
   // This should give ~0 if planets are contra-parallel
-  if (std::fabs(p1.Data.lat + p2.Data.lat) < Config::Get(p1.Id)) {
-    return std::make_tuple(Aspect2::Contraparallel, 0, No);
-  } else if (std::fabs(p1.Data.lat - p2.Data.lat) < Config::Get(p1.Id)) {
-    return std::make_tuple(Aspect2::Parallel, 0, No);
+  double a = std::fabs(p1.Data.lat + p2.Data.lat);
+  double b = std::fabs(p1.Data.lat - p2.Data.lat);
+  if (a < Config::Get(p1.Id)) {
+    return std::make_tuple(Aspect2::Contraparallel, a,
+                           a <= std::fabs(p1.Data.spdlat + p2.Data.spdlat)
+                               ? Applying
+                               : Seperating);
+  } else if (b < Config::Get(p1.Id)) {
+    return std::make_tuple(Aspect2::Parallel, b,
+                           b <= std::fabs(p1.Data.spdlat + p2.Data.spdlat)
+                               ? Applying
+                               : Seperating);
   }
 
   return std::make_tuple(Aspect2::Count, 0, AspectStat::No);

@@ -65,7 +65,6 @@ Cyclic<T, MIN, MAX>::operator-=(const Cyclic &rhs) {
   return *this;
 }
 
-typedef Cyclic<double, -90, 90> Latitude;
 typedef Cyclic<double, 0, 360> Longitude;
 
 }; // namespace specni
