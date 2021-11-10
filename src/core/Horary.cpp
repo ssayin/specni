@@ -116,7 +116,7 @@ DignityScoreTable GetDignityScoreTable(const ChartModel &model) {
       Aspect asp = std::get<2>(aspect);
 
       switch (asp) {
-      case Conjunction:
+      case Aspect::Conjunction:
         if (p2 == swephpp::Ipl::Venus) {
           dts[d.first.Id].push_back({5, "Partile conj. with Venus"});
         }
@@ -133,7 +133,7 @@ DignityScoreTable GetDignityScoreTable(const ChartModel &model) {
           dts[d.first.Id].push_back({4, "Partile conj. with NN"});
         }
         break;
-      case Sextile:
+      case Aspect::Sextile:
         if (p2 == swephpp::Ipl::Venus) {
           dts[d.first.Id].push_back({3, "Partile sextile with Venus"});
         }
@@ -141,7 +141,7 @@ DignityScoreTable GetDignityScoreTable(const ChartModel &model) {
           dts[d.first.Id].push_back({3, "Partile sextile with Jupiter"});
         }
         break;
-      case Square:
+      case Aspect::Square:
         if (p2 == swephpp::Ipl::Saturn) {
           dts[d.first.Id].push_back({-4, "Partile square with Saturn"});
         }
@@ -149,7 +149,7 @@ DignityScoreTable GetDignityScoreTable(const ChartModel &model) {
           dts[d.first.Id].push_back({-4, "Partile square with Mars"});
         }
         break;
-      case Trine:
+      case Aspect::Trine:
         if (p2 == swephpp::Ipl::Venus) {
           dts[d.first.Id].push_back({4, "Partile trine with Venus"});
         }
@@ -157,7 +157,7 @@ DignityScoreTable GetDignityScoreTable(const ChartModel &model) {
           dts[d.first.Id].push_back({4, "Partile trine with Jupiter"});
         }
         break;
-      case Opposition:
+      case Aspect::Opposition:
         if (p2 == swephpp::Ipl::Saturn) {
           dts[d.first.Id].push_back({-4, "Partile opp. with Saturn"});
         }
@@ -168,7 +168,7 @@ DignityScoreTable GetDignityScoreTable(const ChartModel &model) {
           dts[d.first.Id].push_back({-4, "Partile conj. with SN"});
         }
         break;
-      case Count:
+      case Aspect::Count:
         break;
       }
     }

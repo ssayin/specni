@@ -57,6 +57,35 @@ void AspectsWidget::Show() const {
   }
   ImGui::EndTable();
 
+  if (ImGui::BeginTable("aspects2", 5, PlanetWidgetTableFlags)) {
+    for (std::tuple<swephpp::Ipl, swephpp::Ipl, Aspect2, double, AspectStat>
+             &x : CalculateAspects<Aspect2>(model->pairs, aspectFunc2<>)) {
+
+      ImGui::TableNextRow();
+      ImGui::TableNextColumn();
+      ImGui::Text("%s ", swephpp::planet_name(std::get<0>(x)).c_str());
+
+      ImGui::TableNextColumn();
+
+      ImGui::Text("%s ", std::get<2>(x) == Aspect2::Parallel
+                             ? "Parallel"
+                             : "Contra-parallel");
+
+      ImGui::TableNextColumn();
+
+      ImGui::Text("%s ", swephpp::planet_name(std::get<1>(x)).c_str());
+
+      ImGui::TableNextColumn();
+
+      ImGui::Text("%f ", std::get<3>(x));
+
+      ImGui::TableNextColumn();
+
+      ImGui::Text("%c ", std::get<4>(x) == Applying ? 'A' : 'S');
+    }
+  }
+  ImGui::EndTable();
+
   ImGui::End();
 
   ImGui::Begin("Houses");

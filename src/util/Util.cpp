@@ -4,15 +4,15 @@ namespace specni {
 namespace util {
 const std::string AspectToString(Aspect asp) {
   switch (asp) {
-  case Conjunction:
+  case Aspect::Conjunction:
     return "Conjunction";
-  case Sextile:
+  case Aspect::Sextile:
     return "Sextile";
-  case Square:
+  case Aspect::Square:
     return "Square";
-  case Trine:
+  case Aspect::Trine:
     return "Trine";
-  case Opposition:
+  case Aspect::Opposition:
     return "Opposition";
   default:
     return "";

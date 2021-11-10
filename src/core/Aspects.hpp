@@ -22,7 +22,7 @@ namespace specni {
  * Only major aspects for now
  */
 
-enum Aspect {
+enum class Aspect {
   Conjunction,
   Sextile,
   Square,
@@ -31,14 +31,14 @@ enum Aspect {
   Count,
 };
 
-enum Aspect2 { Parallel, Contraparallel };
+enum class Aspect2 { Parallel, Contraparallel, Count };
 
 const std::unordered_map<Aspect, int> Aspects = {
-    {Conjunction, 0}, {Sextile, 60},     {Square, 90},
-    {Trine, 120},     {Opposition, 180},
+    {Aspect::Conjunction, 0}, {Aspect::Sextile, 60},     {Aspect::Square, 90},
+    {Aspect::Trine, 120},     {Aspect::Opposition, 180},
 };
 
-const std::array<ImVec4, Count> aspectColor{
+const std::array<ImVec4, static_cast<size_t>(Aspect::Count)> aspectColor{
     ImVec4(1, 1, 1, 1), ImVec4(0, 1, 0, 1), ImVec4(1, 0, 0, 1),
     ImVec4(0, 1, 1, 1), ImVec4(1, 0, 0, 1),
 };
@@ -101,6 +101,21 @@ static const Longitude &willNameItLater(const Longitude &first,
   Longitude sdf = std::min(second - first - orb, first - second - orb);
   return std::min(asd, sdf);
 }
+
+// Orbs are not implemented yet
+template <class Config = OrbPartileConfig>
+auto aspectFunc2 =
+    [](const Planet &p1,
+       const Planet &p2) -> std::tuple<Aspect2, double, AspectStat> {
+  // This should give ~0 if planets are contra-parallel
+  if (std::fabs(p1.Data.lat + p2.Data.lat) < Config::Get(p1.Id)) {
+    return std::make_tuple(Aspect2::Contraparallel, 0, No);
+  } else if (std::fabs(p1.Data.lat - p2.Data.lat) < Config::Get(p1.Id)) {
+    return std::make_tuple(Aspect2::Parallel, 0, No);
+  }
+
+  return std::make_tuple(Aspect2::Count, 0, AspectStat::No);
+};
 
 template <class Config = OrbConfig>
 auto AspectFunc =

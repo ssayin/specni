@@ -181,7 +181,7 @@ void UniWheel::Show() const {
     draw_list->AddLine(
         window_center + ImRotate(RPoints[ChartSettings::Innermost], CosA, SinA),
         window_center + ImRotate(RPoints[ChartSettings::Innermost], CosB, SinB),
-        ImColor(aspectColor[std::get<2>(x)]));
+        ImColor(aspectColor[static_cast<size_t>(std::get<2>(x))]));
   }
 
   ImGui::End();
