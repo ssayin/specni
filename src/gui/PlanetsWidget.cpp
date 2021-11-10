@@ -8,12 +8,13 @@
 
 void specni::PlanetsWidget::Show() const {
   ImGui::Begin("Planets");
-  if (ImGui::BeginTable("split2", 5, PlanetWidgetTableFlags)) {
+  if (ImGui::BeginTable("split2", 6, PlanetWidgetTableFlags)) {
     ImGui::TableSetupColumn("Body");
     ImGui::TableSetupColumn("Ret");
     ImGui::TableSetupColumn("Location");
     ImGui::TableSetupColumn("Velocity");
     ImGui::TableSetupColumn("House");
+    ImGui::TableSetupColumn("Decl");
     ImGui::TableHeadersRow();
     for (auto &x : model->Eph) {
       ImGui::TableNextRow();
@@ -42,6 +43,11 @@ void specni::PlanetsWidget::Show() const {
       ImGui::TableNextColumn();
 
       ImGui::Text("%d", ps.GetHouseNum(x.second));
+      ImGui::TableNextColumn();
+
+      int deg, min, sec;
+      std::tie(deg, min, sec) = util::degtodms(x.second.Data.lat);
+      ImGui::Text("%d %d'%d\"", deg, min, sec);
     }
   }
 
