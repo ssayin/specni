@@ -4,7 +4,6 @@ add_executable(
   core/MoonPhase.cpp
   core/PlanetStates.cpp
   core/PlanetPairs.cpp
-  core/Aspects.cpp
   core/ChartModel.cpp
   core/Horary.cpp
   gui/AspectsWidget.cpp

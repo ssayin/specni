@@ -31,6 +31,8 @@ enum Aspect {
   Count,
 };
 
+enum Aspect2 { Parallel, Contraparallel };
+
 const std::unordered_map<Aspect, int> Aspects = {
     {Conjunction, 0}, {Sextile, 60},     {Square, 90},
     {Trine, 120},     {Opposition, 180},
@@ -68,15 +70,29 @@ struct OrbPartileConfig {
 
 enum AspectStat { Applying = 0, Seperating, No };
 
-typedef std::vector<
-    std::tuple<swephpp::Ipl, swephpp::Ipl, Aspect, double, AspectStat>>
-    AspectTuple;
+template <class Aspect>
+using AspectTuple = std::vector<
+    std::tuple<swephpp::Ipl, swephpp::Ipl, Aspect, double, AspectStat>>;
 
-AspectTuple CalculateAspects(
+template <class Aspect>
+AspectTuple<Aspect> CalculateAspects(
     PlanetPairs &pairs,
     std::function<std::tuple<Aspect, double, AspectStat>(const Planet &,
                                                          const Planet &)>
-        f);
+        f) {
+
+  AspectTuple<Aspect> ret;
+
+  for (std::pair<Planet, Planet> &p : pairs) {
+    auto asp = f(p.first, p.second);
+    if (std::get<0>(asp) != Aspect::Count) {
+      ret.push_back({p.first.Id, p.second.Id, std::get<0>(asp),
+                     std::get<1>(asp), std::get<2>(asp)});
+    }
+  }
+
+  return ret;
+}
 
 static const Longitude &willNameItLater(const Longitude &first,
                                         const Longitude &second,

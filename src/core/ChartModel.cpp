@@ -9,7 +9,7 @@
 namespace specni {
 
 void ChartModel::RecalculateAspects() {
-  vAspects = CalculateAspects(pairs, AspectFunc<>);
+  vAspects = CalculateAspects<Aspect>(pairs, AspectFunc<>);
 }
 
 void ChartModel::RecalculatePlanetPos() {

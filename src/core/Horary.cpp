@@ -107,7 +107,8 @@ DignityScoreTable GetDignityScoreTable(const ChartModel &model) {
         pairs.push_back(std::make_pair(d.first, asd));
     }
 
-    AspectTuple aspects = CalculateAspects(pairs, AspectFunc<OrbPartileConfig>);
+    AspectTuple<Aspect> aspects =
+        CalculateAspects<Aspect>(pairs, AspectFunc<OrbPartileConfig>);
 
     for (auto &aspect : aspects) {
       swephpp::Ipl p1 = std::get<0>(aspect);
