@@ -21,7 +21,8 @@ void ChartModel::RecalculatePlanetPos() {
     swephpp::CalcOpts opts = {
         ut,
         i,
-        swephpp::Flag::SwissEph | swephpp::Flag::Speed,
+        swephpp::Flag::SwissEph | swephpp::Flag::Speed |
+            swephpp::Flag::Equatorial,
     };
 
     swephpp::calc(opts, data);
