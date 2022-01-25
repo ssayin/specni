@@ -8,13 +8,13 @@ struct Planet {
   swephpp::Ipl Id;
   swephpp::PlanetEphData Data;
 
-  bool operator==(const Planet &o) const { return (o.Id == this->Id); }
+  auto operator==(const Planet &o) const -> bool { return (o.Id == this->Id); }
 };
 }; // namespace specni
 
 namespace std {
 template <> struct hash<specni::Planet> {
-  std::size_t operator()(const specni::Planet &p) const {
+  auto operator()(const specni::Planet &p) const -> std::size_t {
     using std::hash;
     return std::hash<swephpp::Ipl>()(p.Id);
   }

@@ -9,6 +9,8 @@ namespace specni {
 
 class UniWheel {
 public:
+  friend class BiWheel;
+
   struct ChartSettings {
     ImColor BaseColor = {};
     ImColor SignColor = {};
@@ -35,11 +37,14 @@ public:
           AscMcColor(ImVec4(0.5, 1, 1, 1)), font(font) {}
   };
 
-  UniWheel(ChartSettings &settings, ChartModel *model);
+  UniWheel(ChartSettings settings, ChartModel *model);
   void Show() const;
 
 private:
-  const std::tuple<float, float> GetDegreeCosSinRotAsc(float deg) const;
+  void BeginDraw() const;
+  void EndDraw() const;
+  void DrawChart() const;
+  [[nodiscard]] auto GetDegreeCosSinRotAsc(float deg) const -> const std::tuple<float, float>;
   ChartSettings settings;
   ChartModel *model;
   int houseSel = 0;

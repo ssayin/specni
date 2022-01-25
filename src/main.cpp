@@ -4,11 +4,12 @@
 // to Dear ImGui, read documentation from the docs/ folder + read the top of
 // imgui.cpp. Read online: https://github.com/ocornut/imgui/tree/master/docs
 
+#include "gui/BiWheel.hpp"
 #include "imgui.h"
 #include "imgui_impl_opengl3.h"
 #include "imgui_impl_sdl.h"
 #include <SDL.h>
-#include <stdio.h>
+#include <cstdio>
 #if defined(IMGUI_IMPL_OPENGL_ES2)
 #include <SDL_opengles2.h>
 #else
@@ -22,7 +23,7 @@
 #include <gui/UniWheel.hpp>
 
 // Main code
-int main(int, char **) {
+auto main(int, char **) -> int {
   // Setup SDL
   // (Some versions of SDL before <2.0.10 appears to have performance/stalling
   // issues on a minority of Windows systems, depending on whether
@@ -64,7 +65,7 @@ int main(int, char **) {
   SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
   SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
   SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
-  SDL_WindowFlags window_flags =
+  auto window_flags =
       (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE |
                         SDL_WINDOW_ALLOW_HIGHDPI);
   SDL_Window *window = SDL_CreateWindow(
@@ -128,14 +129,19 @@ int main(int, char **) {
   // io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f,
   // NULL, io.Fonts->GetGlyphRangesJapanese()); IM_ASSERT(font != NULL);
 
-  swe_set_ephe_path("./ephe/");
+  char ephe[] = "./ephe/";
+  swe_set_ephe_path(ephe);
 
   specni::ChartModel model;
-  specni::ControlsWidget controls(&model);
+  specni::ChartModel model2;
+
+  specni::ControlsWidget controls("Controls1", &model);
+  specni::ControlsWidget controls2("Controls2", &model2);
+
   specni::AspectsWidget aspects(&model, *monospace_zodiac);
   specni::PlanetsWidget planets(&model, monospace_zodiac);
   specni::UniWheel::ChartSettings settings(font);
-  specni::UniWheel chart(settings, &model);
+  specni::BiWheel chart(settings, &model, &model2);
 
   // Our state
   ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
@@ -171,6 +177,7 @@ int main(int, char **) {
     ImGui::ShowDemoWindow();
 
     controls.Show();
+    controls2.Show();
     aspects.Show();
     planets.Show();
     chart.Show();

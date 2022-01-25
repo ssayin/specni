@@ -8,8 +8,7 @@
 #include <sstream>
 #include <string>
 
-namespace specni {
-namespace util { // namespace specni
+namespace specni::util { // namespace specni
 
 /*
   From chrono-Compatible Low-Level Date Algorithms
@@ -22,7 +21,7 @@ namespace util { // namespace specni
 //                   [numeric_limits<Int>::min(),
 //                   numeric_limits<Int>::max()-719468].
 template <class Int>
-constexpr std::tuple<Int, unsigned, unsigned> civil_from_days(Int z) noexcept {
+constexpr auto civil_from_days(Int z) noexcept -> std::tuple<Int, unsigned, unsigned> {
   static_assert(
       std::numeric_limits<unsigned>::digits >= 18,
       "This algorithm has not been ported to a 16 bit unsigned integer");
@@ -31,7 +30,7 @@ constexpr std::tuple<Int, unsigned, unsigned> civil_from_days(Int z) noexcept {
       "This algorithm has not been ported to a 16 bit signed integer");
   z += 719468;
   const Int era = (z >= 0 ? z : z - 146096) / 146097;
-  const unsigned doe = static_cast<unsigned>(z - era * 146097); // [0, 146096]
+  const auto doe = static_cast<unsigned>(z - era * 146097); // [0, 146096]
   const unsigned yoe =
       (doe - doe / 1460 + doe / 36524 - doe / 146096) / 365; // [0, 399]
   const Int y = static_cast<Int>(yoe) + era * 400;
@@ -43,14 +42,14 @@ constexpr std::tuple<Int, unsigned, unsigned> civil_from_days(Int z) noexcept {
 }
 
 // Returns: true if y is a leap year in the civil calendar, else false
-template <class Int> constexpr bool is_leap(Int y) noexcept {
+template <class Int> constexpr auto is_leap(Int y) noexcept -> bool {
   return y % 4 == 0 && (y % 100 != 0 || y % 400 == 0);
 }
 
 // Preconditions: m is in [1, 12]
 // Returns: The number of days in the month m of common year
 // The result is always in the range [28, 31].
-constexpr unsigned last_day_of_month_common_year(unsigned m) noexcept {
+constexpr auto last_day_of_month_common_year(unsigned m) noexcept -> unsigned {
   constexpr unsigned char a[] = {31, 28, 31, 30, 31, 30,
                                  31, 31, 30, 31, 30, 31};
   return a[m - 1];
@@ -59,7 +58,7 @@ constexpr unsigned last_day_of_month_common_year(unsigned m) noexcept {
 // Preconditions: m is in [1, 12]
 // Returns: The number of days in the month m of leap year
 // The result is always in the range [29, 31].
-constexpr unsigned last_day_of_month_leap_year(unsigned m) noexcept {
+constexpr auto last_day_of_month_leap_year(unsigned m) noexcept -> unsigned {
   constexpr unsigned char a[] = {31, 29, 31, 30, 31, 30,
                                  31, 31, 30, 31, 30, 31};
   return a[m - 1];
@@ -69,7 +68,7 @@ constexpr unsigned last_day_of_month_leap_year(unsigned m) noexcept {
 // Returns: The number of days in the month m of year y
 // The result is always in the range [28, 31].
 template <class Int>
-constexpr unsigned last_day_of_month(Int y, unsigned m) noexcept {
+constexpr auto last_day_of_month(Int y, unsigned m) noexcept -> unsigned {
   return m != 2 || !is_leap(y) ? last_day_of_month_common_year(m) : 29u;
 }
 
@@ -78,7 +77,6 @@ constexpr unsigned last_day_of_month(Int y, unsigned m) noexcept {
   Howard Hinnant
   2021-09-01
 */
-std::tuple<unsigned, unsigned, unsigned, unsigned, unsigned, unsigned>
-time_now();
-} // namespace util
+auto
+time_now() -> std::tuple<unsigned, unsigned, unsigned, unsigned, unsigned, unsigned>;
 } // namespace specni

@@ -5,25 +5,23 @@
 #include <tuple>
 #include <util/Util.hpp>
 #include <util/ZodiacsFont.hpp>
+#include <utility>
 
 namespace specni {
 
-constexpr const std::tuple<float, float> GetDegreeCosSin(float deg) {
+constexpr auto GetDegreeCosSin(float deg) -> const std::tuple<float, float> {
   return std::make_tuple(
       cosf(util::DegToRad(-deg)),
       sinf(util::DegToRad(-deg))); // we want to draw counter-clockwise
 }
 
-const std::tuple<float, float>
-UniWheel::GetDegreeCosSinRotAsc(float deg) const {
+auto
+UniWheel::GetDegreeCosSinRotAsc(float deg) const -> const std::tuple<float, float> {
   Longitude lon = Longitude(deg) - Longitude(model->ascmc.ac) + Longitude(-90);
   return GetDegreeCosSin(lon());
 }
 
-UniWheel::UniWheel(ChartSettings &settings, ChartModel *model)
-    : settings(settings), model(model) {}
-
-void UniWheel::Show() const {
+void UniWheel::BeginDraw() const {
   struct Constraint {
 
     static void Square(ImGuiSizeCallbackData *data) {
@@ -37,6 +35,14 @@ void UniWheel::Show() const {
                                       Constraint::Square);
 
   ImGui::Begin("Chart");
+}
+
+void UniWheel::EndDraw() const { ImGui::End(); }
+
+UniWheel::UniWheel(ChartSettings settings, ChartModel *model)
+    : settings(std::move(settings)), model(model) {}
+
+void UniWheel::DrawChart() const {
   ImDrawList *draw_list = ImGui::GetWindowDrawList();
   // const ImVec2 p = ImGui::GetCursorScreenPos();
   ImVec2 window_pos = ImGui::GetWindowPos();
@@ -140,10 +146,9 @@ void UniWheel::Show() const {
   std::vector<ImVec2> vMidpoints;
 
   // Draw house cusps
-  for (std::vector<float>::size_type i = 0; i < model->vHouseCusps.size();
-       ++i) {
+  for (float vHouseCusp : model->vHouseCusps) {
 
-    std::tie(CosA, SinA) = GetDegreeCosSinRotAsc(model->vHouseCusps.at(i));
+    std::tie(CosA, SinA) = GetDegreeCosSinRotAsc(vHouseCusp);
 
     draw_list->AddLine(
         window_center + ImRotate(RPoints[ChartSettings::Innermost], CosA, SinA),
@@ -183,8 +188,12 @@ void UniWheel::Show() const {
         window_center + ImRotate(RPoints[ChartSettings::Innermost], CosB, SinB),
         ImColor(aspectColor[static_cast<size_t>(std::get<2>(x))]));
   }
+}
 
-  ImGui::End();
+void UniWheel::Show() const {
+  BeginDraw();
+  DrawChart();
+  EndDraw();
 }
 
 }; // namespace specni

@@ -44,7 +44,7 @@ const std::array<ImVec4, static_cast<size_t>(Aspect::Count)> aspectColor{
 };
 
 struct OrbConfig {
-  static constexpr int Get(swephpp::Ipl body) {
+  static constexpr auto Get(swephpp::Ipl body) -> int {
     switch (body) {
     case swephpp::Ipl::Sun:
       return 7;
@@ -65,7 +65,7 @@ struct OrbConfig {
 };
 
 struct OrbPartileConfig {
-  static constexpr int Get(swephpp::Ipl body) { return 1; }
+  static constexpr auto Get(swephpp::Ipl body) -> int { return 1; }
 };
 
 enum AspectStat { Applying = 0, Seperating, No };
@@ -75,11 +75,10 @@ using AspectTuple = std::vector<
     std::tuple<swephpp::Ipl, swephpp::Ipl, Aspect, double, AspectStat>>;
 
 template <class Aspect>
-AspectTuple<Aspect> CalculateAspects(
-    PlanetPairs &pairs,
-    std::function<std::tuple<Aspect, double, AspectStat>(const Planet &,
-                                                         const Planet &)>
-        f) {
+auto CalculateAspects(PlanetPairs &pairs,
+                      std::function<std::tuple<Aspect, double, AspectStat>(
+                          const Planet &, const Planet &)>
+                          f) -> AspectTuple<Aspect> {
 
   AspectTuple<Aspect> ret;
 
@@ -94,12 +93,11 @@ AspectTuple<Aspect> CalculateAspects(
   return ret;
 }
 
-static const Longitude &willNameItLater(const Longitude &first,
-                                        const Longitude &second,
-                                        const Longitude &orb) {
-  Longitude asd = std::min(second - first + orb, first - second + orb);
-  Longitude sdf = std::min(second - first - orb, first - second - orb);
-  return std::min(asd, sdf);
+static auto willNameItLater(const Longitude &first, const Longitude &second,
+                            const Longitude &orb) -> const Longitude && {
+  return std::move(
+      std::min(std::min(second - first + orb, first - second + orb),
+               std::min(second - first - orb, first - second - orb)));
 }
 
 // Orbs are not implemented yet

@@ -10,7 +10,7 @@ namespace specni {
 FIXME: Gauquelin not working
 Adapted from Pullen's placalc
 */
-int PlanetStates::GetHouseNum(const Planet &p) {
+auto PlanetStates::GetHouseNum(const Planet &p) -> int {
 
   const auto &houses = model.vHouseCusps;
   const float epsilon = 1.7453E-09;
@@ -29,7 +29,7 @@ int PlanetStates::GetHouseNum(const Planet &p) {
   return i;
 }
 
-bool PlanetStates::IsSwift(const Planet &p) {
+auto PlanetStates::IsSwift(const Planet &p) -> bool {
   float spd = fabs(p.Data.spdlon);
   switch (p.Id) {
   case swephpp::Ipl::Moon:
@@ -49,7 +49,7 @@ bool PlanetStates::IsSwift(const Planet &p) {
   }
 };
 
-bool PlanetStates::IsSlow(const Planet &p) {
+auto PlanetStates::IsSlow(const Planet &p) -> bool {
   float spd = fabs(p.Data.spdlon);
   switch (p.Id) {
   case swephpp::Ipl::Moon:
@@ -69,14 +69,14 @@ bool PlanetStates::IsSlow(const Planet &p) {
   }
 }
 
-bool PlanetStates::IsWithinSun(const Planet &p, double deg) {
+auto PlanetStates::IsWithinSun(const Planet &p, double deg) -> bool {
   return Longitude(GetSun().Data.lon).within(p.Data.lon, deg) &&
          (p.Id != swephpp::Ipl::Sun);
 }
 
-bool PlanetStates::IsOccidental(const Planet &p) { return !IsOriental(p); }
+auto PlanetStates::IsOccidental(const Planet &p) -> bool { return !IsOriental(p); }
 
-bool PlanetStates::IsOriental(const Planet &p) {
+auto PlanetStates::IsOriental(const Planet &p) -> bool {
   double tret[3];
   double tret2[3];
   char err[256];
@@ -85,26 +85,26 @@ bool PlanetStates::IsOriental(const Planet &p) {
 
   double geo[3] = {model.geolon, model.geolat, 0};
 
-  swe_rise_trans(model.ut, static_cast<int32>(p.Id), 0, 0, SE_CALC_RISE, geo,
+  swe_rise_trans(model.ut, static_cast<int32>(p.Id), nullptr, 0, SE_CALC_RISE, geo,
                  atPressure, atTemp, tret, err);
 
-  swe_rise_trans(model.ut, static_cast<int32>(swephpp::Ipl::Sun), 0, 0,
+  swe_rise_trans(model.ut, static_cast<int32>(swephpp::Ipl::Sun), nullptr, 0,
                  SE_CALC_RISE, geo, atPressure, atTemp, tret2, err);
 
   return tret[0] < tret2[0];
 }
 
-bool PlanetStates::IsUnderSunBeams(const Planet &p) {
+auto PlanetStates::IsUnderSunBeams(const Planet &p) -> bool {
   return IsWithinSun(p, util::dmstodeg(17, 0, 0));
 }
-bool PlanetStates::IsCombust(const Planet &p) {
+auto PlanetStates::IsCombust(const Planet &p) -> bool {
   return IsWithinSun(p, util::dmstodeg(8, 30, 0));
 }
-bool PlanetStates::IsCazimi(const Planet &p) {
+auto PlanetStates::IsCazimi(const Planet &p) -> bool {
   return IsWithinSun(p, util::dmstodeg(0, 17, 0));
 }
 
-const Planet &PlanetStates::GetSun() { return GetPlanet(swephpp::Ipl::Sun); }
+auto PlanetStates::GetSun() -> const Planet & { return GetPlanet(swephpp::Ipl::Sun); }
 
 static const std::unordered_map<swephpp::Ipl, double> exaltations = {
     {swephpp::Ipl::Sun, 19.0},      // Aries 19
@@ -206,7 +206,7 @@ static std::array<std::array<std::tuple<swephpp::Ipl, double>, 5>, 12> terms{{
 }};
 
 // should consider mutual reception
-bool PlanetStates::IsExalted(const Planet &p) {
+auto PlanetStates::IsExalted(const Planet &p) -> bool {
   auto it = exaltations.find(p.Id);
   if (it != exaltations.end()) {
     if (Longitude(it->second).within(Longitude(p.Data.lon), 2)) {
@@ -217,7 +217,7 @@ bool PlanetStates::IsExalted(const Planet &p) {
   return false;
 }
 
-bool PlanetStates::IsFallen(const Planet &p) {
+auto PlanetStates::IsFallen(const Planet &p) -> bool {
   auto it = exaltations.find(p.Id);
   if (it != exaltations.end()) {
     if (Longitude(it->second).within(Longitude(p.Data.lon) - 180.0, 2)) {
@@ -228,9 +228,9 @@ bool PlanetStates::IsFallen(const Planet &p) {
   return false;
 }
 
-typedef std::unordered_map<Planet, std::vector<EssentialState>> PlanetEStateMap;
+using PlanetEStateMap = std::unordered_map<Planet, std::vector<EssentialState>>;
 
-const PlanetEStateMap PlanetStates::GetPlanetEssentialStates() {
+auto PlanetStates::GetPlanetEssentialStates() -> const PlanetEStateMap {
   PlanetEStateMap ret;
 
   for (std::pair<Planet, Planet> p : model.pairs) {
@@ -282,8 +282,8 @@ const PlanetEStateMap PlanetStates::GetPlanetEssentialStates() {
   return ret;
 }
 
-bool PlanetStates::IsInOwnTerm(const Planet &p) {
-  unsigned sign = static_cast<unsigned>(p.Data.lon / 30);
+auto PlanetStates::IsInOwnTerm(const Planet &p) -> bool {
+  auto sign = static_cast<unsigned>(p.Data.lon / 30);
   double deg = std::fmod(p.Data.lon, 30.0);
   std::array<std::tuple<swephpp::Ipl, double>, 5> &a = terms[sign];
   for (std::tuple<swephpp::Ipl, double> *it = a.begin(); it != a.end(); it++) {
@@ -297,7 +297,7 @@ bool PlanetStates::IsInOwnTerm(const Planet &p) {
   return false;
 }
 
-bool PlanetStates::IsItNight() {
+auto PlanetStates::IsItNight() -> bool {
   const float HalfCircle = 180.0;
 
   double lon = GetSun().Data.lon;
@@ -311,7 +311,7 @@ bool PlanetStates::IsItNight() {
   return (lon >= tmp && lon <= (tmp + 180.0));
 }
 
-const Planet &PlanetStates::GetPlanet(swephpp::Ipl id) {
+auto PlanetStates::GetPlanet(swephpp::Ipl id) -> const Planet & {
   auto it = model.Eph.find(id);
   if (it != model.Eph.end()) {
     return it->second;

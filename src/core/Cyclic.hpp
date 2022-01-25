@@ -16,30 +16,30 @@ public:
   constexpr Cyclic(const double o) { this->m = o; }
   constexpr Cyclic(const Cyclic &o) { *this = o; }
 
-  constexpr Cyclic &operator+=(const Cyclic &rhs);
+  constexpr auto operator+=(const Cyclic &rhs) -> Cyclic &;
 
-  constexpr Cyclic &operator-=(const Cyclic &rhs);
+  constexpr auto operator-=(const Cyclic &rhs) -> Cyclic &;
 
-  constexpr friend Cyclic operator+(Cyclic lhs, const Cyclic &rhs) {
+  constexpr friend auto operator+(Cyclic lhs, const Cyclic &rhs) -> Cyclic {
     lhs += rhs;
     return lhs;
   }
-  constexpr friend Cyclic operator-(Cyclic lhs, const Cyclic &rhs) {
+  constexpr friend auto operator-(Cyclic lhs, const Cyclic &rhs) -> Cyclic {
     lhs -= rhs;
     return lhs;
   }
 
   // inline constexpr operator T() const { return this->m; }
-  inline constexpr T operator()() const { return this->m; }
+  inline constexpr auto operator()() const -> T { return this->m; }
   constexpr auto operator<=>(const Cyclic &) const = default;
 
-  constexpr friend std::ostream &operator<<(std::ostream &os,
-                                            const Cyclic &obj) {
+  constexpr friend auto operator<<(std::ostream &os,
+                                            const Cyclic &obj) -> std::ostream & {
     os << std::to_string(obj.m);
     return os;
   }
 
-  constexpr bool within(const Cyclic &a, double orb) {
+  constexpr auto within(const Cyclic &a, double orb) -> bool {
     return ((a - *this) <= orb) || ((*this - a) <= orb);
   }
 
@@ -48,8 +48,8 @@ private:
 };
 
 template <typename T, int MIN, int MAX>
-constexpr Cyclic<T, MIN, MAX> &
-Cyclic<T, MIN, MAX>::operator+=(const Cyclic &rhs) {
+constexpr auto
+Cyclic<T, MIN, MAX>::operator+=(const Cyclic &rhs) -> Cyclic<T, MIN, MAX> & {
   this->m += rhs.m;
   while (this->m > MAX)
     this->m -= MAX;
@@ -57,14 +57,14 @@ Cyclic<T, MIN, MAX>::operator+=(const Cyclic &rhs) {
 }
 
 template <typename T, int MIN, int MAX>
-constexpr Cyclic<T, MIN, MAX> &
-Cyclic<T, MIN, MAX>::operator-=(const Cyclic &rhs) {
+constexpr auto
+Cyclic<T, MIN, MAX>::operator-=(const Cyclic &rhs) -> Cyclic<T, MIN, MAX> & {
   this->m -= rhs.m;
   while (this->m < MIN)
     this->m += MAX;
   return *this;
 }
 
-typedef Cyclic<double, 0, 360> Longitude;
+using Longitude = Cyclic<double, 0, 360>;
 
 }; // namespace specni

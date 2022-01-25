@@ -6,7 +6,7 @@
 #include <vector>
 
 namespace specni {
-PlanetPairs GetPlanetCombPairs(std::vector<Planet> &V) {
+auto GetPlanetCombPairs(std::vector<Planet> &V) -> PlanetPairs {
   PlanetPairs pairs;
 
   if (V.size() < 2)

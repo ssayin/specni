@@ -9,8 +9,7 @@
 
 #include <core/EssentialState.hpp>
 
-namespace specni {
-namespace util {
+namespace specni::util {
 
 enum class Sign {
   Aries,
@@ -27,15 +26,15 @@ enum class Sign {
   Pisces
 };
 
-inline const char *SignToString(Sign sign) {
+inline auto SignToString(Sign sign) -> const char * {
   static char signs[][4]{"Ari", "Tau", "Gem", "Can", "Leo", "Vir",
                          "Lib", "Sco", "Sag", "Cap", "Aqu", "Pis"};
   return signs[static_cast<int>(sign)];
 }
 
-inline constexpr float DegToRad(float deg) { return (M_PI * deg) / 180; }
+inline constexpr auto DegToRad(float deg) -> float { return (M_PI * deg) / 180; }
 
-constexpr std::tuple<int, int, int> degtodms(double deg) {
+constexpr auto degtodms(double deg) -> std::tuple<int, int, int> {
   int sec = static_cast<int>(std::round(deg * 3600));
   int d = sec / 3600;
   sec = std::abs(sec % 3600);
@@ -44,14 +43,13 @@ constexpr std::tuple<int, int, int> degtodms(double deg) {
   return std::make_tuple(d, min, sec);
 }
 
-constexpr double dmstodeg(int deg, int min, int sec) {
+constexpr auto dmstodeg(int deg, int min, int sec) -> double {
   return deg + min / 60.0 + sec / 3600.0;
 }
 
-const std::string get_sign_deg(/* longitude */ double lon);
+auto get_sign_deg(/* longitude */ double lon) -> const std::string;
 
-const std::string AspectToString(Aspect asp);
+auto AspectToString(Aspect asp) -> const std::string;
 
-const std::string EssentialStateToString(EssentialState state);
-} // namespace util
+auto EssentialStateToString(EssentialState state) -> const std::string;
 } // namespace specni

@@ -1,9 +1,9 @@
 #include "Calendar.hpp"
-std::tuple<unsigned, unsigned, unsigned, unsigned, unsigned, unsigned>
-specni::util::time_now() {
+auto
+specni::util::time_now() -> std::tuple<unsigned, unsigned, unsigned, unsigned, unsigned, unsigned> {
   using namespace std;
   using namespace std::chrono;
-  typedef duration<int, ratio_multiply<hours::period, ratio<24>>> days;
+  using days = duration<int, ratio_multiply<hours::period, ratio<24>>>;
   // auto utc_offset = hours(0); // my current UTC offset
   // Get duration in local units
   auto now = system_clock::now().time_since_epoch(); //+ utc_offset;
@@ -22,6 +22,6 @@ specni::util::time_now() {
   now -= m;
   auto s = duration_cast<seconds>(now);
   now -= s;
-  auto us = duration_cast<microseconds>(now);
+  //auto us = duration_cast<microseconds>(now);
   return make_tuple(year, month, day, h.count(), m.count(), s.count());
 }

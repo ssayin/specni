@@ -12,7 +12,7 @@ namespace specni {
  based on Ben Danglish's Trig2
  http://www.ben-daglish.net/moon.shtml
 */
-int DaysSinceNewMoon(double ut) {
+auto DaysSinceNewMoon(double ut) -> int {
   int y, m, d, h, min;
   double sec;
   swe_jdut1_to_utc(ut, 1, &y, &m, &d, &h, &min, &sec);
@@ -29,7 +29,7 @@ int DaysSinceNewMoon(double ut) {
   return std::fmod((ut - jd + 30), 30);
 }
 
-MoonPhase GetMoonPhase(double ut) {
+auto GetMoonPhase(double ut) -> MoonPhase {
   int phase = DaysSinceNewMoon(ut);
   switch (phase) {
   case 0:

@@ -1,7 +1,7 @@
 #include "Horary.hpp"
 
 namespace specni {
-DignityScoreTable GetDignityScoreTable(const ChartModel &model) {
+auto GetDignityScoreTable(const ChartModel &model) -> DignityScoreTable {
 
   constexpr static std::array<char, 13> houseScore{5, 3,  1, 4, 3, -2,
                                                    4, -2, 2, 5, 4, -5};
@@ -23,7 +23,7 @@ DignityScoreTable GetDignityScoreTable(const ChartModel &model) {
     char score = houseScore[houseNum];
 
     dts[d.first.Id].push_back(
-        {score, std::string("In " + std::to_string(houseNum) +
+        {score, std::string("In " + std::to_string(houseNum + 1) +
                             suffix[houseNum] + " house ")});
 
     if (d.first.Id != swephpp::Ipl::Sun && d.first.Id != swephpp::Ipl::Moon) {
@@ -111,7 +111,6 @@ DignityScoreTable GetDignityScoreTable(const ChartModel &model) {
         CalculateAspects<Aspect>(pairs, AspectFunc<OrbPartileConfig>);
 
     for (auto &aspect : aspects) {
-      swephpp::Ipl p1 = std::get<0>(aspect);
       swephpp::Ipl p2 = std::get<1>(aspect);
       Aspect asp = std::get<2>(aspect);
 

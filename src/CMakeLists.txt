@@ -11,6 +11,7 @@ add_executable(
   gui/ControlsWidget.cpp
   gui/AspectsWidget.cpp
   gui/UniWheel.cpp
+  gui/BiWheel.cpp
   util/Calendar.cpp
   util/Util.cpp
   main.cpp)

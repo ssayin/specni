@@ -2,7 +2,7 @@
 
 namespace specni {
 namespace util {
-const std::string AspectToString(Aspect asp) {
+auto AspectToString(Aspect asp) -> const std::string {
   switch (asp) {
   case Aspect::Conjunction:
     return "Conjunction";
@@ -19,7 +19,7 @@ const std::string AspectToString(Aspect asp) {
   }
 }
 
-const std::string EssentialStateToString(EssentialState state) {
+auto EssentialStateToString(EssentialState state) -> const std::string {
   switch (state) {
   case EssentialState::Domicile:
     return "Domicile";
@@ -45,7 +45,7 @@ const std::string EssentialStateToString(EssentialState state) {
     return "";
   }
 }
-const std::string get_sign_deg(/* longitude */ double lon) {
+auto get_sign_deg(/* longitude */ double lon) -> const std::string {
   std::stringstream ss;
   int deg;
   int min;

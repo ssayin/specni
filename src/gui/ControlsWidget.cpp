@@ -5,7 +5,7 @@
 #include <imgui.h>
 #include <util/Calendar.hpp>
 
-static const char *GetHouseSystemString() {
+static auto GetHouseSystemString() -> const char * {
   return "Equal\0Alcabitius\0Campanus\0EqualMC\0Carter\0Gauquelin\0Azimuth\0Sun"
          "shine\0Suns"
          "hineAlt\0Koch\0PullenSDelta\0Morinus\0WholeSign\0Porphyry\0Placidus\0"
@@ -13,8 +13,9 @@ static const char *GetHouseSystemString() {
          "r\0EqualVehlow\0EqualWholeSign\0ARSMeridian\0APC\0";
 }
 
-specni::ControlsWidget::ControlsWidget(specni::ChartModel *model)
-    : model(model) {
+specni::ControlsWidget::ControlsWidget(const std::string id,
+                                       specni::ChartModel *model)
+    : id(id), model(model) {
   std::tie(year, month, day, hour, min, sec) = util::time_now();
   latitude = 45;
   longitude = 45;
@@ -33,7 +34,7 @@ void specni::ControlsWidget::UpdateModel() {
 }
 
 void specni::ControlsWidget::Show() {
-  ImGui::Begin("Controls");
+  ImGui::Begin(id.c_str());
 
   bool changeFlag = false;
 

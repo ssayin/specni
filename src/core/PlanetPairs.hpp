@@ -4,7 +4,7 @@
 
 namespace specni {
 class Planet;
-typedef std::vector<std::pair<Planet, Planet>> PlanetPairs;
+using PlanetPairs = std::vector<std::pair<Planet, Planet>>;
 
-PlanetPairs GetPlanetCombPairs(std::vector<Planet> &V);
+auto GetPlanetCombPairs(std::vector<Planet> &V) -> PlanetPairs;
 }; // namespace specni

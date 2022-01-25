@@ -40,10 +40,10 @@ enum class HouseSystem : char {
   APC
 };
 
-typedef std::array<double, 13> HouseCusps;
-typedef std::array<double, 37> GauquelinCusps;
+using HouseCusps = std::array<double, 13>;
+using GauquelinCusps = std::array<double, 37>;
 
-typedef struct {
+using Angles = struct {
   double ac;
   double mc;
   double armc;
@@ -54,16 +54,16 @@ typedef struct {
   double polasc; /* polar ascendant (M. Munkasey)*/
   double res1;
   double res2;
-} Angles;
+};
 
-typedef struct {
+using PlanetEphData = struct {
   double lon;
   double lat;
   double dist;
   double spdlon;
   double spdlat;
   double spddist;
-} PlanetEphData;
+};
 
 enum class Ipl : int32_t {
   Sun,
@@ -137,49 +137,49 @@ enum class Flag : int32_t {
   JPLHorizonsApprox = 512 * 1024
 };
 
-inline constexpr Flag operator|(const Flag &lhs, const Flag &rhs) {
+inline constexpr auto operator|(const Flag &lhs, const Flag &rhs) -> Flag {
   return static_cast<Flag>(static_cast<int32_t>(lhs) |
                            static_cast<int32_t>(rhs));
 }
 
-typedef struct {
+using CalcOpts = struct {
   double jd_ut;
   int32_t id;
   Flag flag;
-} CalcOpts;
+};
 
-typedef struct {
+using HouseOpts = struct {
   double jd_ut;
   HouseCuspFlag flag;
   double geolat;
   double geolon;
   HouseSystem hsys;
-} HouseOpts;
+};
 
 template <typename T>
-inline int houses_ex(const HouseOpts &opts, T &cusps, Angles &ascmc) {
+inline auto houses_ex(const HouseOpts &opts, T &cusps, Angles &ascmc) -> int {
   return swe_houses_ex(opts.jd_ut, static_cast<int32_t>(opts.flag), opts.geolat,
                        opts.geolon, static_cast<char>(opts.hsys),
                        reinterpret_cast<double *>(&cusps),
                        reinterpret_cast<double *>(&ascmc));
 }
 
-inline const std::string house_name(HouseSystem sys) {
+inline auto house_name(HouseSystem sys) -> const std::string {
   return swe_house_name(static_cast<char>(sys));
 }
 
-inline int calc(const CalcOpts &opts, PlanetEphData &data) {
+inline auto calc(const CalcOpts &opts, PlanetEphData &data) -> int {
   return swe_calc_ut(opts.jd_ut, opts.id, static_cast<int32_t>(opts.flag),
-                     reinterpret_cast<double *>(&data), 0);
+                     reinterpret_cast<double *>(&data), nullptr);
 }
 
-inline const std::string planet_name(Ipl body) {
+inline auto planet_name(Ipl body) -> const std::string {
   char n[SE_MAX_STNAME];
   swe_get_planet_name(static_cast<int>(body), n);
   return std::string(n);
 }
 
-inline int fixstar(double ut, char *name, Flag flg, double xx[6]) {
+inline auto fixstar(double ut, char *name, Flag flg, double xx[6]) -> int {
   char err[256];
   int ret = swe_fixstar_ut(name, ut, static_cast<int32_t>(flg), xx, err);
   std::cerr << err << std::endl;

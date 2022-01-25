@@ -31,9 +31,8 @@ void ChartModel::RecalculatePlanetPos() {
   }
 
   std::vector<Planet> vPlanet;
-  for (std::unordered_map<swephpp::Ipl, Planet>::iterator it = Eph.begin();
-       it != Eph.end(); ++it) {
-    vPlanet.push_back(it->second);
+  for (auto & it : Eph) {
+    vPlanet.push_back(it.second);
   }
 
   pairs = GetPlanetCombPairs(vPlanet);
@@ -43,8 +42,8 @@ void ChartModel::RecalculatePlanetPos() {
 }
 
 template <class CuspArray>
-static std::vector<float> GetHouseCusps(const swephpp::HouseOpts &opts,
-                                        swephpp::Angles &ascmc) {
+static auto GetHouseCusps(const swephpp::HouseOpts &opts,
+                                        swephpp::Angles &ascmc) -> std::vector<float> {
   CuspArray tmpCusps;
   std::vector<float> cusps;
   swephpp::houses_ex(opts, tmpCusps, ascmc);
@@ -63,7 +62,7 @@ void ChartModel::RecalculateHouses() {
                      : GetHouseCusps<swephpp::HouseCusps>(house_opts, ascmc));
 }
 
-static std::string fixstarname(ChartModel::FixedStar star) {
+static auto fixstarname(ChartModel::FixedStar star) -> std::string {
   switch (star) {
 
   case ChartModel::Algol:

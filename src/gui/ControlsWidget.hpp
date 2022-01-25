@@ -6,7 +6,7 @@ namespace specni {
 
 class ControlsWidget {
 public:
-  ControlsWidget(ChartModel *model);
+  ControlsWidget(const std::string id, ChartModel *model);
   void Show();
 
   void UpdateModel();
@@ -23,5 +23,7 @@ private:
   double latitude;
   double longitude;
   int houseSel;
+
+  std::string id;
 };
 } // namespace specni

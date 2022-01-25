@@ -15,35 +15,35 @@ namespace specni {
 class PlanetStates {
 public:
   PlanetStates(const ChartModel &model) : model(model) {}
-  int GetHouseNum(const Planet &p);
+  auto GetHouseNum(const Planet &p) -> int;
 
-  bool IsSwift(const Planet &);
-  bool IsSlow(const Planet &);
+  auto IsSwift(const Planet &) -> bool;
+  auto IsSlow(const Planet &) -> bool;
 
-  inline bool IsRetrograde(const Planet &p) { return (p.Data.spdlon < 0.0); }
-  inline bool IsDirect(const Planet &p) { return !IsRetrograde(p); }
+  inline auto IsRetrograde(const Planet &p) -> bool { return (p.Data.spdlon < 0.0); }
+  inline auto IsDirect(const Planet &p) -> bool { return !IsRetrograde(p); }
 
-  bool IsOriental(const Planet &);
-  bool IsOccidental(const Planet &);
-  bool IsUnderSunBeams(const Planet &);
-  bool IsCombust(const Planet &);
-  bool IsCazimi(const Planet &);
+  auto IsOriental(const Planet &) -> bool;
+  auto IsOccidental(const Planet &) -> bool;
+  auto IsUnderSunBeams(const Planet &) -> bool;
+  auto IsCombust(const Planet &) -> bool;
+  auto IsCazimi(const Planet &) -> bool;
 
-  constexpr swephpp::Ipl face(double lon) {
+  constexpr auto face(double lon) -> swephpp::Ipl {
     return faceOrder.at(std::fmod(lon / 10.0, 7));
   }
 
   // should also consider mutual reception
-  inline bool IsDomicile(const Planet &p) {
+  inline auto IsDomicile(const Planet &p) -> bool {
     return (p.Id == houseOrder[static_cast<int>(p.Data.lon / 30)]);
   }
 
-  inline bool IsInMutualReceptionDomicile(const Planet &p1, const Planet &p2) {
+  inline auto IsInMutualReceptionDomicile(const Planet &p1, const Planet &p2) -> bool {
     return IsDomicile(Planet{p1.Id, p2.Data}) &&
            IsDomicile(Planet{p2.Id, p1.Data});
   }
 
-  inline bool IsInDetriment(const Planet &p) {
+  inline auto IsInDetriment(const Planet &p) -> bool {
     return (p.Id ==
             houseOrder[static_cast<int>((6 + (p.Data.lon / 30.0))) % 12]);
   }
@@ -51,38 +51,38 @@ public:
   /*
     Astrological night begins when sun is below Descendant
   */
-  bool IsItNight();
+  auto IsItNight() -> bool;
 
-  inline bool IsInOwnTriplicity(const Planet &p) {
+  inline auto IsInOwnTriplicity(const Planet &p) -> bool {
     const int sign = static_cast<int>(p.Data.lon / 30.0);
     auto &rulers = triplicityRulers[sign];
     return (IsItNight() ? std::get<1>(rulers) : std::get<0>(rulers)) == p.Id;
   }
 
   // should consider mutual reception
-  bool IsExalted(const Planet &p);
+  auto IsExalted(const Planet &p) -> bool;
 
-  bool IsFallen(const Planet &p);
+  auto IsFallen(const Planet &p) -> bool;
 
-  inline bool IsMutualReceptionExalted(const Planet &p1, const Planet &p2) {
+  inline auto IsMutualReceptionExalted(const Planet &p1, const Planet &p2) -> bool {
     return IsExalted(Planet{p1.Id, p2.Data}) &&
            IsExalted(Planet{p2.Id, p1.Data});
   }
 
-  inline bool IsInOwnFace(const Planet &p) {
+  inline auto IsInOwnFace(const Planet &p) -> bool {
     return (p.Id == face(p.Data.lon));
   }
 
-  bool IsInOwnTerm(const Planet &p);
+  auto IsInOwnTerm(const Planet &p) -> bool;
 
-  const std::unordered_map<Planet, std::vector<EssentialState>>
-  GetPlanetEssentialStates();
-  const Planet &GetPlanet(swephpp::Ipl id);
-  const Planet &GetSun();
+  auto
+  GetPlanetEssentialStates() -> const std::unordered_map<Planet, std::vector<EssentialState>>;
+  auto GetPlanet(swephpp::Ipl id) -> const Planet &;
+  auto GetSun() -> const Planet &;
 
 private:
   const ChartModel &model;
-  bool IsWithinSun(const Planet &p, double deg);
+  auto IsWithinSun(const Planet &p, double deg) -> bool;
 };
 
 } // namespace specni

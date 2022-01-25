@@ -8,9 +8,8 @@
 #include <core/PlanetStates.hpp>
 
 namespace specni {
-typedef std::tuple<char, std::string> DignityTuple;
-typedef std::unordered_map<swephpp::Ipl, std::vector<DignityTuple>>
-    DignityScoreTable;
+using DignityTuple = std::tuple<char, std::string>;
+using DignityScoreTable = std::unordered_map<swephpp::Ipl, std::vector<DignityTuple>>;
 
-DignityScoreTable GetDignityScoreTable(const ChartModel &model);
+auto GetDignityScoreTable(const ChartModel &model) -> DignityScoreTable;
 }; // namespace specni

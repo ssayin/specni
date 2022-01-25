@@ -13,7 +13,7 @@ enum MoonPhase {
   WaningCrescent
 };
 
-int DaysSinceNewMoon(double ut);
+auto DaysSinceNewMoon(double ut) -> int;
 
-MoonPhase GetMoonPhase(double ut);
+auto GetMoonPhase(double ut) -> MoonPhase;
 }; // namespace specni
