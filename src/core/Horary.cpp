@@ -2,7 +2,7 @@
 
 namespace specni {
 auto GetDignityScoreTable(const ChartModel &model) -> DignityScoreTable {
-
+  /*
   constexpr static std::array<char, 13> houseScore{5, 3,  1, 4, 3, -2,
                                                    4, -2, 2, 5, 4, -5};
 
@@ -104,18 +104,18 @@ auto GetDignityScoreTable(const ChartModel &model) -> DignityScoreTable {
     PlanetPairs pairs;
     for (auto &asd : vSmall) {
       if (asd.Id != d.first.Id)
-        pairs.push_back(std::make_pair(d.first, asd));
+        pairs.emplace_back(std::make_pair(d.first, asd));
     }
 
-    AspectTuple<Aspect> aspects =
-        CalculateAspects<Aspect>(pairs, AspectFunc<OrbPartileConfig>);
+    AspectTuple<AspectAngle> aspects =
+        CalculateAspects<AspectAngle>(pairs, AspectFunc<OrbPartileConfig>);
 
     for (auto &aspect : aspects) {
       swephpp::Ipl p2 = std::get<1>(aspect);
-      Aspect asp = std::get<2>(aspect);
+      AspectAngle asp = std::get<2>(aspect);
 
       switch (asp) {
-      case Aspect::Conjunction:
+      case AspectAngle::Conjunction:
         if (p2 == swephpp::Ipl::Venus) {
           dts[d.first.Id].push_back({5, "Partile conj. with Venus"});
         }
@@ -132,7 +132,7 @@ auto GetDignityScoreTable(const ChartModel &model) -> DignityScoreTable {
           dts[d.first.Id].push_back({4, "Partile conj. with NN"});
         }
         break;
-      case Aspect::Sextile:
+      case AspectAngle::Sextile:
         if (p2 == swephpp::Ipl::Venus) {
           dts[d.first.Id].push_back({3, "Partile sextile with Venus"});
         }
@@ -140,7 +140,7 @@ auto GetDignityScoreTable(const ChartModel &model) -> DignityScoreTable {
           dts[d.first.Id].push_back({3, "Partile sextile with Jupiter"});
         }
         break;
-      case Aspect::Square:
+      case AspectAngle::Square:
         if (p2 == swephpp::Ipl::Saturn) {
           dts[d.first.Id].push_back({-4, "Partile square with Saturn"});
         }
@@ -148,7 +148,7 @@ auto GetDignityScoreTable(const ChartModel &model) -> DignityScoreTable {
           dts[d.first.Id].push_back({-4, "Partile square with Mars"});
         }
         break;
-      case Aspect::Trine:
+      case AspectAngle::Trine:
         if (p2 == swephpp::Ipl::Venus) {
           dts[d.first.Id].push_back({4, "Partile trine with Venus"});
         }
@@ -156,7 +156,7 @@ auto GetDignityScoreTable(const ChartModel &model) -> DignityScoreTable {
           dts[d.first.Id].push_back({4, "Partile trine with Jupiter"});
         }
         break;
-      case Aspect::Opposition:
+      case AspectAngle::Opposition:
         if (p2 == swephpp::Ipl::Saturn) {
           dts[d.first.Id].push_back({-4, "Partile opp. with Saturn"});
         }
@@ -167,7 +167,7 @@ auto GetDignityScoreTable(const ChartModel &model) -> DignityScoreTable {
           dts[d.first.Id].push_back({-4, "Partile conj. with SN"});
         }
         break;
-      case Aspect::Count:
+      case AspectAngle::Count:
         break;
       }
     }
@@ -185,5 +185,6 @@ auto GetDignityScoreTable(const ChartModel &model) -> DignityScoreTable {
     }
   }
   return dts;
+  */
 }
 }; // namespace specni

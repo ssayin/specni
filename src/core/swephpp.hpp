@@ -179,10 +179,12 @@ inline auto planet_name(Ipl body) -> const std::string {
   return std::string(n);
 }
 
-inline auto fixstar(double ut, char *name, Flag flg, double xx[6]) -> int {
-  char err[256];
-  int ret = swe_fixstar_ut(name, ut, static_cast<int32_t>(flg), xx, err);
-  std::cerr << err << std::endl;
+inline auto fixstar(double ut, char *name, Flag flg, std::array<double, 6> &xx)
+    -> int {
+  std::array<char, 256> err;
+  int ret = swe_fixstar_ut(name, ut, static_cast<int32_t>(flg), xx.data(),
+                           err.data());
+  std::cerr << err.data() << std::endl;
   return ret;
 }
 

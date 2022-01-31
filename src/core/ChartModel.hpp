@@ -48,7 +48,7 @@ public:
   std::vector<float> vHouseCusps;
   std::unordered_map<swephpp::Ipl, Planet> Eph;
 
-  AspectTuple<Aspect> vAspects;
+  AspectTuple<AspectAngle> vAspects;
   PlanetPairs pairs;
   std::unordered_map<Planet, std::vector<EssentialState>> eStates;
   MoonPhase phase;

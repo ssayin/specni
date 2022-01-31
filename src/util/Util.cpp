@@ -2,17 +2,17 @@
 
 namespace specni {
 namespace util {
-auto AspectToString(Aspect asp) -> const std::string {
+auto AspectToString(AspectAngle asp) -> const std::string {
   switch (asp) {
-  case Aspect::Conjunction:
+  case AspectAngle::Conjunction:
     return "Conjunction";
-  case Aspect::Sextile:
+  case AspectAngle::Sextile:
     return "Sextile";
-  case Aspect::Square:
+  case AspectAngle::Square:
     return "Square";
-  case Aspect::Trine:
+  case AspectAngle::Trine:
     return "Trine";
-  case Aspect::Opposition:
+  case AspectAngle::Opposition:
     return "Opposition";
   default:
     return "";

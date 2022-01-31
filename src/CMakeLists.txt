@@ -6,6 +6,7 @@ add_executable(
   core/PlanetPairs.cpp
   core/ChartModel.cpp
   core/Horary.cpp
+  gui/imgui_main.cpp
   gui/AspectsWidget.cpp
   gui/PlanetsWidget.cpp
   gui/ControlsWidget.cpp

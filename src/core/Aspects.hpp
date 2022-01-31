@@ -13,6 +13,7 @@
 #include <iostream>
 #include <string>
 #include <tuple>
+#include <type_traits>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -22,7 +23,7 @@ namespace specni {
  * Only major aspects for now
  */
 
-enum class Aspect {
+enum class AspectAngle {
   Conjunction,
   Sextile,
   Square,
@@ -31,19 +32,17 @@ enum class Aspect {
   Count,
 };
 
-enum class Aspect2 { Parallel, Contraparallel, Count };
+enum class Declination { Parallel, Contraparallel, Count };
 
-const std::unordered_map<Aspect, int> Aspects = {
-    {Aspect::Conjunction, 0}, {Aspect::Sextile, 60},     {Aspect::Square, 90},
-    {Aspect::Trine, 120},     {Aspect::Opposition, 180},
+enum AspectStat { Applying = 0, Seperating, Count };
+
+const std::unordered_map<AspectAngle, int> Aspects = {
+    {AspectAngle::Conjunction, 0},  {AspectAngle::Sextile, 60},
+    {AspectAngle::Square, 90},      {AspectAngle::Trine, 120},
+    {AspectAngle::Opposition, 180},
 };
 
-const std::array<ImVec4, static_cast<size_t>(Aspect::Count)> aspectColor{
-    ImVec4(1, 1, 1, 1), ImVec4(0, 1, 0, 1), ImVec4(1, 0, 0, 1),
-    ImVec4(0, 1, 1, 1), ImVec4(1, 0, 0, 1),
-};
-
-struct OrbConfig {
+struct DefaultOrbConfig {
   static constexpr auto Get(swephpp::Ipl body) -> int {
     switch (body) {
     case swephpp::Ipl::Sun:
@@ -68,28 +67,27 @@ struct OrbPartileConfig {
   static constexpr auto Get(swephpp::Ipl body) -> int { return 1; }
 };
 
-enum AspectStat { Applying = 0, Seperating, No };
-
-template <class Aspect>
+template <class C>
 using AspectTuple = std::vector<
-    std::tuple<swephpp::Ipl, swephpp::Ipl, Aspect, double, AspectStat>>;
+    std::tuple<swephpp::Ipl, swephpp::Ipl, AspectAngle, double, AspectStat>>;
 
-template <class Aspect>
-auto CalculateAspects(PlanetPairs &pairs,
-                      std::function<std::tuple<Aspect, double, AspectStat>(
-                          const Planet &, const Planet &)>
-                          f) -> AspectTuple<Aspect> {
+template <class C>
+using AspectFuncSignature = std::function<std::tuple<C, double, AspectStat>(
+    const Planet &, const Planet &)>;
 
-  AspectTuple<Aspect> ret;
+template <class C>
+auto CalculateAspects(PlanetPairs &pairs, AspectFuncSignature<C> f)
+    -> AspectTuple<C> {
 
-  for (std::pair<Planet, Planet> &p : pairs) {
+  AspectTuple<C> ret;
+
+  for (std::pair<Planet, Planet> p : pairs) {
     auto asp = f(p.first, p.second);
-    if (std::get<0>(asp) != Aspect::Count) {
+    if (std::get<0>(asp) != AspectAngle::Count) {
       ret.push_back({p.first.Id, p.second.Id, std::get<0>(asp),
                      std::get<1>(asp), std::get<2>(asp)});
     }
   }
-
   return ret;
 }
 
@@ -100,56 +98,50 @@ static auto willNameItLater(const Longitude &first, const Longitude &second,
                std::min(second - first - orb, first - second - orb)));
 }
 
-// Orbs are not implemented yet
-template <class Config = OrbPartileConfig>
-auto aspectFunc2 =
-    [](const Planet &p1,
-       const Planet &p2) -> std::tuple<Aspect2, double, AspectStat> {
+template <typename AspectT, class AspectConfig = OrbPartileConfig>
+auto AspectFunc(const Planet &p1, const Planet &p2)
+    -> std::enable_if_t<std::is_same<AspectT, AspectAngle>{}(),
+                        AspectTuple<AspectAngle>> {
   // This should give ~0 if planets are contra-parallel
   double a = std::fabs(p1.Data.lat + p2.Data.lat);
   double b = std::fabs(p1.Data.lat - p2.Data.lat);
-  if (a < Config::Get(p1.Id)) {
-    return std::make_tuple(Aspect2::Contraparallel, a,
+  if (a < AspectConfig::Get(p1.Id)) {
+    return std::make_tuple(Declination::Contraparallel, a,
                            a <= std::fabs(p1.Data.spdlat + p2.Data.spdlat)
                                ? Applying
                                : Seperating);
-  } else if (b < Config::Get(p1.Id)) {
-    return std::make_tuple(Aspect2::Parallel, b,
+  } else if (b < AspectConfig::Get(p1.Id)) {
+    return std::make_tuple(Declination::Parallel, b,
                            b <= std::fabs(p1.Data.spdlat + p2.Data.spdlat)
                                ? Applying
                                : Seperating);
   }
 
-  return std::make_tuple(Aspect2::Count, 0, AspectStat::No);
-};
+  return std::make_tuple(Declination::Count, 0, AspectStat::Count);
+}
 
-template <class Config = OrbConfig>
-auto AspectFunc =
-    [](const Planet &p1,
-       const Planet &p2) -> std::tuple<Aspect, double, AspectStat> {
+template <typename AspectT, class AspectConfig = OrbPartileConfig>
+auto AspectFunc(const Planet &p1, const Planet &p2)
+    -> std::enable_if_t<std::is_same<AspectT, Declination>{}(),
+                        AspectTuple<Declination>> {
   Longitude a(p1.Data.lon);
   Longitude b(p2.Data.lon);
   for (auto &asp : Aspects) {
-    int maxOrb = std::max(Config::Get(p1.Id), Config::Get(p2.Id));
+    int maxOrb = std::max(AspectConfig::Get(p1.Id), AspectConfig::Get(p2.Id));
     if (a.within(b + asp.second, maxOrb) || a.within(b - asp.second, maxOrb)) {
-      Longitude degP1Next = a + Longitude(p1.Data.spdlon);
-
-      Longitude degP2Next = b + Longitude(p2.Data.spdlon);
-
-      AspectStat stat = No;
-
       Longitude actualArcDistance =
           willNameItLater(a, b, asp.second); // implicit
 
       Longitude predictedArcDistance =
-          willNameItLater(degP1Next, degP2Next, asp.second);
+          willNameItLater(a + Longitude(p1.Data.spdlon),
+                          b + Longitude(p2.Data.spdlon), asp.second);
 
-      stat = ((actualArcDistance() > predictedArcDistance()) ? Applying
-                                                             : Seperating);
-
-      return std::make_tuple(asp.first, actualArcDistance(), stat);
+      return std::make_tuple(asp.first, actualArcDistance(),
+                             ((actualArcDistance() > predictedArcDistance())
+                                  ? Applying
+                                  : Seperating));
     }
   }
-  return std::make_tuple(Aspect::Count, 0, AspectStat::No);
+  return std::make_tuple(AspectAngle::Count, 0, AspectStat::Count);
 };
 }; // namespace specni

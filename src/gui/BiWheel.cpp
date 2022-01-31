@@ -4,7 +4,7 @@
 #include "ImVecEx.hpp"
 #include "gui/UniWheel.hpp"
 #include "imgui.h"
-#include "util/ZodiacsFont.hpp"
+#include <gui/Config.hpp>
 
 namespace specni {
 void BiWheel::Show() const {

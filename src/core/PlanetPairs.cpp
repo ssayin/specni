@@ -5,15 +5,17 @@
 #include <string>
 #include <vector>
 
+#include <type_traits>
 namespace specni {
-auto GetPlanetCombPairs(std::vector<Planet> &V) -> PlanetPairs {
-  PlanetPairs pairs;
+/*
+template <int N, int K, auto T, class C> auto Comb(std::vector<C &> &V) {
+  C ret;
 
-  if (V.size() < 2)
-    return pairs;
+  if (ret.size() < K) {
+    return ret;
+  }
 
-  std::string bitmask(2, 1);
-  const auto N = V.size();
+  std::string bitmask(K, 1);
   bitmask.resize(N, 0);
 
   do {
@@ -23,8 +25,8 @@ auto GetPlanetCombPairs(std::vector<Planet> &V) -> PlanetPairs {
         accum.push_back(V[i]);
     }
     assert(accum.size() == 2);
-    pairs.push_back({accum[0], accum[1]});
+    ret.push_back({accum[0], accum[1]});
   } while (std::prev_permutation(bitmask.begin(), bitmask.end()));
-  return pairs;
 }
+*/
 }; // namespace specni

@@ -1,10 +1,10 @@
 #include "UniWheel.hpp"
 #include "SDL_video.h"
+#include <gui/Config.hpp>
 #include <gui/ImVecEx.hpp>
 #include <imgui.h>
 #include <tuple>
 #include <util/Util.hpp>
-#include <util/ZodiacsFont.hpp>
 #include <utility>
 
 namespace specni {
@@ -15,8 +15,8 @@ constexpr auto GetDegreeCosSin(float deg) -> const std::tuple<float, float> {
       sinf(util::DegToRad(-deg))); // we want to draw counter-clockwise
 }
 
-auto
-UniWheel::GetDegreeCosSinRotAsc(float deg) const -> const std::tuple<float, float> {
+auto UniWheel::GetDegreeCosSinRotAsc(float deg) const
+    -> const std::tuple<float, float> {
   Longitude lon = Longitude(deg) - Longitude(model->ascmc.ac) + Longitude(-90);
   return GetDegreeCosSin(lon());
 }
@@ -173,8 +173,8 @@ void UniWheel::DrawChart() const {
 
   ImGui::PopFont();
 
-  for (std::tuple<swephpp::Ipl, swephpp::Ipl, Aspect, double, AspectStat> &x :
-       model->vAspects) {
+  for (std::tuple<swephpp::Ipl, swephpp::Ipl, AspectAngle, double, AspectStat>
+           &x : model->vAspects) {
     float CosB;
     float SinB;
 

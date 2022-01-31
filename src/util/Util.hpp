@@ -32,7 +32,9 @@ inline auto SignToString(Sign sign) -> const char * {
   return signs[static_cast<int>(sign)];
 }
 
-inline constexpr auto DegToRad(float deg) -> float { return (M_PI * deg) / 180; }
+inline constexpr auto DegToRad(float deg) -> float {
+  return (M_PI * deg) / 180;
+}
 
 constexpr auto degtodms(double deg) -> std::tuple<int, int, int> {
   int sec = static_cast<int>(std::round(deg * 3600));
@@ -49,7 +51,7 @@ constexpr auto dmstodeg(int deg, int min, int sec) -> double {
 
 auto get_sign_deg(/* longitude */ double lon) -> const std::string;
 
-auto AspectToString(Aspect asp) -> const std::string;
+auto AspectToString(AspectAngle asp) -> const std::string;
 
 auto EssentialStateToString(EssentialState state) -> const std::string;
-} // namespace specni
+} // namespace specni::util

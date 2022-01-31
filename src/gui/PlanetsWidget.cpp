@@ -4,7 +4,6 @@
 #include <gui/Config.hpp>
 #include <imgui.h>
 #include <util/Util.hpp>
-#include <util/ZodiacsFont.hpp>
 
 void specni::PlanetsWidget::Show() const {
   ImGui::Begin("Planets");

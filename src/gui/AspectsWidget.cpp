@@ -17,10 +17,8 @@
 #include <tuple>
 #include <unordered_map>
 
-#include <core/AccidentalState.hpp>
 #include <gui/Config.hpp>
 #include <util/Util.hpp>
-#include <util/ZodiacsFont.hpp>
 
 namespace specni {
 
@@ -28,7 +26,7 @@ void AspectsWidget::Show() const {
 
   ImGui::Begin("Aspects");
 
-  if (ImGui::BeginTable("aspects", 5, PlanetWidgetTableFlags)) {
+  /*if (ImGui::BeginTable("aspects", 5, PlanetWidgetTableFlags)) {
     for (std::tuple<swephpp::Ipl, swephpp::Ipl, Aspect, double, AspectStat> &x :
          model->vAspects) {
 
@@ -85,7 +83,7 @@ void AspectsWidget::Show() const {
     }
   }
   ImGui::EndTable();
-
+*/
   ImGui::End();
 
   ImGui::Begin("Houses");

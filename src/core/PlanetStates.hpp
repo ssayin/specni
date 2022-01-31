@@ -20,7 +20,9 @@ public:
   auto IsSwift(const Planet &) -> bool;
   auto IsSlow(const Planet &) -> bool;
 
-  inline auto IsRetrograde(const Planet &p) -> bool { return (p.Data.spdlon < 0.0); }
+  inline auto IsRetrograde(const Planet &p) -> bool {
+    return (p.Data.spdlon < 0.0);
+  }
   inline auto IsDirect(const Planet &p) -> bool { return !IsRetrograde(p); }
 
   auto IsOriental(const Planet &) -> bool;
@@ -38,7 +40,8 @@ public:
     return (p.Id == houseOrder[static_cast<int>(p.Data.lon / 30)]);
   }
 
-  inline auto IsInMutualReceptionDomicile(const Planet &p1, const Planet &p2) -> bool {
+  inline auto IsInMutualReceptionDomicile(const Planet &p1, const Planet &p2)
+      -> bool {
     return IsDomicile(Planet{p1.Id, p2.Data}) &&
            IsDomicile(Planet{p2.Id, p1.Data});
   }
@@ -64,7 +67,8 @@ public:
 
   auto IsFallen(const Planet &p) -> bool;
 
-  inline auto IsMutualReceptionExalted(const Planet &p1, const Planet &p2) -> bool {
+  inline auto IsMutualReceptionExalted(const Planet &p1, const Planet &p2)
+      -> bool {
     return IsExalted(Planet{p1.Id, p2.Data}) &&
            IsExalted(Planet{p2.Id, p1.Data});
   }
@@ -75,8 +79,8 @@ public:
 
   auto IsInOwnTerm(const Planet &p) -> bool;
 
-  auto
-  GetPlanetEssentialStates() -> const std::unordered_map<Planet, std::vector<EssentialState>>;
+  auto GetPlanetEssentialStates()
+      -> const std::unordered_map<Planet, std::vector<EssentialState>>;
   auto GetPlanet(swephpp::Ipl id) -> const Planet &;
   auto GetSun() -> const Planet &;
 

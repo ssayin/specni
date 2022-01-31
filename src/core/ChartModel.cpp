@@ -1,3 +1,4 @@
+#include <array>
 #include <core/Aspects.hpp>
 #include <core/ChartModel.hpp>
 #include <core/Cyclic.hpp>
@@ -9,7 +10,7 @@
 namespace specni {
 
 void ChartModel::RecalculateAspects() {
-  vAspects = CalculateAspects<Aspect>(pairs, AspectFunc<>);
+  // vAspects = CalculateAspects(pairs, &AspectFunc<AspectAngle>);
 }
 
 void ChartModel::RecalculatePlanetPos() {
@@ -31,11 +32,11 @@ void ChartModel::RecalculatePlanetPos() {
   }
 
   std::vector<Planet> vPlanet;
-  for (auto & it : Eph) {
+  for (auto &it : Eph) {
     vPlanet.push_back(it.second);
   }
 
-  pairs = GetPlanetCombPairs(vPlanet);
+  // pairs = GetPlanetCombPairs(vPlanet);
   eStates = PlanetStates(*this).GetPlanetEssentialStates();
   phase = GetMoonPhase(this->ut);
   GetStars();
@@ -43,13 +44,11 @@ void ChartModel::RecalculatePlanetPos() {
 
 template <class CuspArray>
 static auto GetHouseCusps(const swephpp::HouseOpts &opts,
-                                        swephpp::Angles &ascmc) -> std::vector<float> {
+                          swephpp::Angles &ascmc) -> std::vector<float> {
   CuspArray tmpCusps;
-  std::vector<float> cusps;
   swephpp::houses_ex(opts, tmpCusps, ascmc);
-  for (typename CuspArray::size_type i = 1; i < tmpCusps.max_size(); ++i)
-    cusps.push_back(tmpCusps[i]);
-
+  std::vector<float> cusps(tmpCusps.data(),
+                           tmpCusps.data() + std::extent_v<CuspArray>);
   return cusps;
 }
 
@@ -79,12 +78,12 @@ static auto fixstarname(ChartModel::FixedStar star) -> std::string {
 }
 
 void ChartModel::GetStars() {
-  double tmp[6];
-  char str[64];
+  std::array<double, 6> tmp;
+  std::array<char, 64> str;
   for (int i = 0; i < FixedStar::Count; ++i) {
-    sprintf(str, "%s", fixstarname(static_cast<FixedStar>(i)).c_str());
+    sprintf(str.data(), "%s", fixstarname(static_cast<FixedStar>(i)).c_str());
 
-    swephpp::fixstar(this->ut, str, swephpp::Flag::SwissEph, tmp);
+    swephpp::fixstar(this->ut, str.data(), swephpp::Flag::SwissEph, tmp);
     fixStars[i] = tmp[0];
   }
 }
