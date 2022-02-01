@@ -36,19 +36,21 @@ void ChartModel::RecalculatePlanetPos() {
     vPlanet.push_back(it.second);
   }
 
-  // pairs = GetPlanetCombPairs(vPlanet);
+  pairs = GetPlanetCombPairs(vPlanet);
   eStates = PlanetStates(*this).GetPlanetEssentialStates();
   phase = GetMoonPhase(this->ut);
   GetStars();
 }
 
 template <class CuspArray>
-static auto GetHouseCusps(const swephpp::HouseOpts &opts,
-                          swephpp::Angles &ascmc) -> std::vector<float> {
+auto GetHouseCusps(const swephpp::HouseOpts &opts, swephpp::Angles &ascmc)
+    -> std::vector<float> {
   CuspArray tmpCusps;
+  std::vector<float> cusps;
   swephpp::houses_ex(opts, tmpCusps, ascmc);
-  std::vector<float> cusps(tmpCusps.data(),
-                           tmpCusps.data() + std::extent_v<CuspArray>);
+  for (typename CuspArray::size_type i = 1; i < tmpCusps.max_size(); ++i)
+    cusps.emplace_back(tmpCusps[i]);
+
   return cusps;
 }
 

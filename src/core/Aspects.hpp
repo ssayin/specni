@@ -91,9 +91,10 @@ using AspFuncSignature = std::enable_if_t<
 template <class A, class AspectConfig = DefaultOrbConfig>
 auto CalculateAspects(
     PlanetPairs &pairs) //, AspFuncSignature<A, AspectConfig> f)
-    -> AspectTupleVector<A> {
+    -> std::enable_if_t<IsAspectAngleType<A> or IsDeclinationType<A>,
+                        AspectTupleVector<A>> {
 
-  AspectTuple<A> ret;
+  AspectTupleVector<A> ret;
 
   for (std::pair<Planet, Planet> p : pairs) {
     auto asp = AspectFunc<A, AspectConfig>(p.first, p.second);
@@ -115,28 +116,28 @@ static auto willNameItLater(const Longitude &first, const Longitude &second,
 // will generate so many functions at compile time, what to do?
 template <class A, class AspectConfig>
 auto AspectFunc(const Planet &p1, const Planet &p2)
-    -> std::enable_if_t<IsAspectAngleType<A>, AspectFuncRetType<A>> {
+    -> std::enable_if_t<IsDeclinationType<A>, AspectFuncRetType<A>> {
   // This should give ~0 if planets are contra-parallel
   double a = std::fabs(p1.Data.lat + p2.Data.lat);
   double b = std::fabs(p1.Data.lat - p2.Data.lat);
   if (a < AspectConfig::Get(p1.Id)) {
-    return std::make_tuple(Declination::Contraparallel, a,
+    return std::make_tuple(A::Contraparallel, a,
                            a <= std::fabs(p1.Data.spdlat + p2.Data.spdlat)
                                ? Applying
                                : Seperating);
   } else if (b < AspectConfig::Get(p1.Id)) {
-    return std::make_tuple(Declination::Parallel, b,
+    return std::make_tuple(A::Parallel, b,
                            b <= std::fabs(p1.Data.spdlat + p2.Data.spdlat)
                                ? Applying
                                : Seperating);
   }
 
-  return std::make_tuple(Declination::Count, 0, AspectStat::Count);
+  return std::make_tuple(A::Count, 0, AspectStat::Count);
 }
 
 template <class A, class AspectConfig>
 auto AspectFunc(const Planet &p1, const Planet &p2)
-    -> std::enable_if_t<IsDeclinationType<A>, AspectFuncRetType<A>> {
+    -> std::enable_if_t<IsAspectAngleType<A>, AspectFuncRetType<A>> {
   Longitude a(p1.Data.lon);
   Longitude b(p2.Data.lon);
   for (auto &asp : Aspects) {
@@ -155,6 +156,6 @@ auto AspectFunc(const Planet &p1, const Planet &p2)
                                   : Seperating));
     }
   }
-  return std::make_tuple(AspectAngle::Count, 0, AspectStat::Count);
+  return std::make_tuple(A::Count, 0, AspectStat::Count);
 };
 }; // namespace specni

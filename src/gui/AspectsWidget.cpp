@@ -26,9 +26,9 @@ void AspectsWidget::Show() const {
 
   ImGui::Begin("Aspects");
 
-  /*if (ImGui::BeginTable("aspects", 5, PlanetWidgetTableFlags)) {
-    for (std::tuple<swephpp::Ipl, swephpp::Ipl, Aspect, double, AspectStat> &x :
-         model->vAspects) {
+  if (ImGui::BeginTable("aspects", 5, PlanetWidgetTableFlags)) {
+    for (std::tuple<swephpp::Ipl, swephpp::Ipl, AspectAngle, double, AspectStat>
+             &x : model->vAspects) {
 
       ImGui::TableNextRow();
       ImGui::TableNextColumn();
@@ -56,8 +56,9 @@ void AspectsWidget::Show() const {
   ImGui::EndTable();
 
   if (ImGui::BeginTable("aspects2", 5, PlanetWidgetTableFlags)) {
-    for (std::tuple<swephpp::Ipl, swephpp::Ipl, Aspect2, double, AspectStat>
-             &x : CalculateAspects<Aspect2>(model->pairs, aspectFunc2<>)) {
+    for (std::tuple<swephpp::Ipl, swephpp::Ipl, Declination, double, AspectStat>
+             &x :
+         CalculateAspects<Declination, OrbPartileConfig>(model->pairs)) {
 
       ImGui::TableNextRow();
       ImGui::TableNextColumn();
@@ -65,7 +66,7 @@ void AspectsWidget::Show() const {
 
       ImGui::TableNextColumn();
 
-      ImGui::Text("%s ", std::get<2>(x) == Aspect2::Parallel
+      ImGui::Text("%s ", std::get<2>(x) == Declination::Parallel
                              ? "Parallel"
                              : "Contra-parallel");
 
@@ -83,7 +84,6 @@ void AspectsWidget::Show() const {
     }
   }
   ImGui::EndTable();
-*/
   ImGui::End();
 
   ImGui::Begin("Houses");

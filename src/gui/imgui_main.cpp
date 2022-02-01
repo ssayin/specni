@@ -1,4 +1,5 @@
 #include "gui/BiWheel.hpp"
+#include "gui/SpecniCtx.hpp"
 #include "imgui.h"
 #include "imgui_impl_opengl3.h"
 #include "imgui_impl_sdl.h"
@@ -16,69 +17,11 @@
 #include <gui/PlanetsWidget.hpp>
 #include <gui/UniWheel.hpp>
 
-auto render_widgets() -> void {
-  // controls.Show();
-  // controls2.Show();
-  // aspects.Show();
-  // planets.Show();
-  // chart.Show();
-}
+auto render_widgets() -> void {}
 
-auto load_fonts(ImGuiIO &io) -> void {
-  // Load Fonts
-  // - If no fonts are loaded, dear imgui will use the default font. You can
-  // also load multiple fonts and use ImGui::PushFont()/PopFont() to select
-  // them.
-  // - AddFontFromFileTTF() will return the ImFont* so you can store it if you
-  // need to select the font among multiple.
-  // - If the file cannot be loaded, the function will return NULL. Please
-  // handle those errors in your application (e.g. use an assertion, or display
-  // an error and quit).
-  // - The fonts will be rasterized at a given size (w/ oversampling) and stored
-  // into a texture when calling ImFontAtlas::Build()/GetTexDataAsXXXX(), which
-  // ImGui_ImplXXXX_NewFrame below will call.
-  // - Read 'docs/FONTS.md' for more instructions and details.
-  // - Remember that in C/C++ if you want to include a backslash \ in a string
-  // literal you need to write a double backslash \\ !
+auto load_fonts(ImGuiIO &io) -> void {}
 
-  io.Fonts->AddFontDefault();
-
-  ImFontConfig cfg;
-  cfg.GlyphMinAdvanceX = 13.0f;
-  ImFont *monospace_zodiac =
-      io.Fonts->AddFontFromFileTTF("../misc/fonts/zodiac_s.ttf", 13.0f, &cfg);
-
-  cfg = {};
-  cfg.GlyphOffset.x = -(16.0f / 2.0);
-  cfg.GlyphOffset.y = -(16.0f / 2.0);
-  ImFont *font =
-      io.Fonts->AddFontFromFileTTF("../misc/fonts/zodiac_s.ttf", 16.0f, &cfg);
-
-  io.Fonts->Build();
-  // io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf", 15.0f);
-  // io.Fonts->AddFontFromFileTTF("../../misc/fonts/DroidSans.ttf", 16.0f);
-  // io.Fonts->AddFontFromFileTTF("../../misc/fonts/ProggyTiny.ttf", 10.0f);
-  // ImFont* font =
-  // io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f,
-  // NULL, io.Fonts->GetGlyphRangesJapanese()); IM_ASSERT(font != NULL);
-}
-
-auto specni_init() -> void {
-
-  std::array<char, 8> ephe = {"./ephe/"};
-  swe_set_ephe_path(ephe.data());
-
-  specni::ChartModel model;
-  // specni::ChartModel model2;
-
-  specni::ControlsWidget controls("Controls1", &model);
-  // specni::ControlsWidget controls2("Controls2", &model2);
-
-  // specni::AspectsWidget aspects(&model, *monospace_zodiac);
-  // specni::PlanetsWidget planets(&model, monospace_zodiac);
-  // specni::UniWheel::ChartSettings settings(font);
-  // specni::BiWheel chart(settings, &model, &model2);
-}
+auto specni_init(SpecniContext &&init) -> void {}
 
 auto specni_close() -> void { swe_close(); }
 
@@ -152,9 +95,56 @@ auto imgui_main() -> int {
   ImGui_ImplSDL2_InitForOpenGL(window, gl_context);
   ImGui_ImplOpenGL3_Init(glsl_version);
 
-  load_fonts(io);
+  // Load Fonts
+  // - If no fonts are loaded, dear imgui will use the default font. You can
+  // also load multiple fonts and use ImGui::PushFont()/PopFont() to select
+  // them.
+  // - AddFontFromFileTTF() will return the ImFont* so you can store it if you
+  // need to select the font among multiple.
+  // - If the file cannot be loaded, the function will return NULL. Please
+  // handle those errors in your application (e.g. use an assertion, or display
+  // an error and quit).
+  // - The fonts will be rasterized at a given size (w/ oversampling) and stored
+  // into a texture when calling ImFontAtlas::Build()/GetTexDataAsXXXX(), which
+  // ImGui_ImplXXXX_NewFrame below will call.
+  // - Read 'docs/FONTS.md' for more instructions and details.
+  // - Remember that in C/C++ if you want to include a backslash \ in a string
+  // literal you need to write a double backslash \\ !
 
-  specni_init();
+  io.Fonts->AddFontDefault();
+
+  ImFontConfig cfg;
+  cfg.GlyphMinAdvanceX = 13.0f;
+  ImFont *monospace_zodiac =
+      io.Fonts->AddFontFromFileTTF("../misc/fonts/zodiac_s.ttf", 13.0f, &cfg);
+
+  cfg = {};
+  cfg.GlyphOffset.x = -(16.0f / 2.0);
+  cfg.GlyphOffset.y = -(16.0f / 2.0);
+  ImFont *font =
+      io.Fonts->AddFontFromFileTTF("../misc/fonts/zodiac_s.ttf", 16.0f, &cfg);
+
+  io.Fonts->Build();
+  // io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf", 15.0f);
+  // io.Fonts->AddFontFromFileTTF("../../misc/fonts/DroidSans.ttf", 16.0f);
+  // io.Fonts->AddFontFromFileTTF("../../misc/fonts/ProggyTiny.ttf", 10.0f);
+  // ImFont* font =
+  // io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f,
+  // NULL, io.Fonts->GetGlyphRangesJapanese()); IM_ASSERT(font != NULL);
+
+  std::array<char, 8> ephe = {"./ephe/"};
+  swe_set_ephe_path(ephe.data());
+
+  specni::ChartModel model;
+  specni::ChartModel model2;
+
+  specni::ControlsWidget controls("Controls1", &model);
+  specni::ControlsWidget controls2("Controls2", &model2);
+
+  specni::AspectsWidget aspects(&model, *monospace_zodiac);
+  specni::PlanetsWidget planets(&model, monospace_zodiac);
+  specni::UniWheel::ChartSettings settings(font);
+  specni::BiWheel chart(settings, &model, &model2);
 
   // Our state
   ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
@@ -189,7 +179,11 @@ auto imgui_main() -> int {
 
     ImGui::ShowDemoWindow();
 
-    render_widgets();
+    controls.Show();
+    controls2.Show();
+    aspects.Show();
+    planets.Show();
+    chart.Show();
 
     // Rendering
     ImGui::Render();

@@ -43,7 +43,7 @@ enum class HouseSystem : char {
 using HouseCusps = std::array<double, 13>;
 using GauquelinCusps = std::array<double, 37>;
 
-using Angles = struct {
+typedef struct {
   double ac;
   double mc;
   double armc;
@@ -54,16 +54,16 @@ using Angles = struct {
   double polasc; /* polar ascendant (M. Munkasey)*/
   double res1;
   double res2;
-};
+} Angles;
 
-using PlanetEphData = struct {
+typedef struct {
   double lon;
   double lat;
   double dist;
   double spdlon;
   double spdlat;
   double spddist;
-};
+} PlanetEphData;
 
 enum class Ipl : int32_t {
   Sun,

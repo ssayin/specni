@@ -7,15 +7,15 @@
 
 #include <type_traits>
 namespace specni {
-/*
-template <int N, int K, auto T, class C> auto Comb(std::vector<C &> &V) {
-  C ret;
 
-  if (ret.size() < K) {
-    return ret;
-  }
+auto GetPlanetCombPairs(std::vector<Planet> &V) -> PlanetPairs {
+  PlanetPairs pairs;
 
-  std::string bitmask(K, 1);
+  if (V.size() < 2)
+    return pairs;
+
+  std::string bitmask(2, 1);
+  const auto N = V.size();
   bitmask.resize(N, 0);
 
   do {
@@ -25,8 +25,9 @@ template <int N, int K, auto T, class C> auto Comb(std::vector<C &> &V) {
         accum.push_back(V[i]);
     }
     assert(accum.size() == 2);
-    ret.push_back({accum[0], accum[1]});
+    pairs.push_back({accum[0], accum[1]});
   } while (std::prev_permutation(bitmask.begin(), bitmask.end()));
+  return pairs;
 }
-*/
+
 }; // namespace specni
