@@ -67,23 +67,37 @@ struct OrbPartileConfig {
   static constexpr auto Get(swephpp::Ipl body) -> int { return 1; }
 };
 
-template <class C>
-using AspectTuple = std::vector<
-    std::tuple<swephpp::Ipl, swephpp::Ipl, AspectAngle, double, AspectStat>>;
+template <class A>
+using AspectTuple =
+    std::tuple<swephpp::Ipl, swephpp::Ipl, A, double, AspectStat>;
 
-template <class C>
-using AspectFuncSignature = std::function<std::tuple<C, double, AspectStat>(
-    const Planet &, const Planet &)>;
+template <class A> using AspectTupleVector = std::vector<AspectTuple<A>>;
 
-template <class C>
-auto CalculateAspects(PlanetPairs &pairs, AspectFuncSignature<C> f)
-    -> AspectTuple<C> {
+template <class A>
+constexpr bool IsAspectAngleType = std::is_same<A, AspectAngle>{}();
 
-  AspectTuple<C> ret;
+template <class A>
+constexpr bool IsDeclinationType = std::is_same<A, Declination>{}();
+
+template <class A> using AspectFuncRetType = std::tuple<A, double, AspectStat>;
+
+template <class A, class AspectConfig = DefaultOrbConfig>
+
+// this is no longer needed
+using AspFuncSignature = std::enable_if_t<
+    IsAspectAngleType<A> or IsDeclinationType<A>,
+    std::function<AspectFuncRetType<A>(const Planet &, const Planet &)>>;
+
+template <class A, class AspectConfig = DefaultOrbConfig>
+auto CalculateAspects(
+    PlanetPairs &pairs) //, AspFuncSignature<A, AspectConfig> f)
+    -> AspectTupleVector<A> {
+
+  AspectTuple<A> ret;
 
   for (std::pair<Planet, Planet> p : pairs) {
-    auto asp = f(p.first, p.second);
-    if (std::get<0>(asp) != AspectAngle::Count) {
+    auto asp = AspectFunc<A, AspectConfig>(p.first, p.second);
+    if (std::get<0>(asp) != A::Count) {
       ret.push_back({p.first.Id, p.second.Id, std::get<0>(asp),
                      std::get<1>(asp), std::get<2>(asp)});
     }
@@ -98,10 +112,10 @@ static auto willNameItLater(const Longitude &first, const Longitude &second,
                std::min(second - first - orb, first - second - orb)));
 }
 
-template <typename AspectT, class AspectConfig = OrbPartileConfig>
+// will generate so many functions at compile time, what to do?
+template <class A, class AspectConfig>
 auto AspectFunc(const Planet &p1, const Planet &p2)
-    -> std::enable_if_t<std::is_same<AspectT, AspectAngle>{}(),
-                        AspectTuple<AspectAngle>> {
+    -> std::enable_if_t<IsAspectAngleType<A>, AspectFuncRetType<A>> {
   // This should give ~0 if planets are contra-parallel
   double a = std::fabs(p1.Data.lat + p2.Data.lat);
   double b = std::fabs(p1.Data.lat - p2.Data.lat);
@@ -120,10 +134,9 @@ auto AspectFunc(const Planet &p1, const Planet &p2)
   return std::make_tuple(Declination::Count, 0, AspectStat::Count);
 }
 
-template <typename AspectT, class AspectConfig = OrbPartileConfig>
+template <class A, class AspectConfig>
 auto AspectFunc(const Planet &p1, const Planet &p2)
-    -> std::enable_if_t<std::is_same<AspectT, Declination>{}(),
-                        AspectTuple<Declination>> {
+    -> std::enable_if_t<IsDeclinationType<A>, AspectFuncRetType<A>> {
   Longitude a(p1.Data.lon);
   Longitude b(p2.Data.lon);
   for (auto &asp : Aspects) {

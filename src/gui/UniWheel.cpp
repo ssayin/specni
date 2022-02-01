@@ -1,5 +1,6 @@
 #include "UniWheel.hpp"
 #include "SDL_video.h"
+#include <core/Aspects.hpp>
 #include <gui/Config.hpp>
 #include <gui/ImVecEx.hpp>
 #include <imgui.h>
@@ -128,6 +129,7 @@ void UniWheel::DrawChart() const {
       settings.AscMcColor, settings.Thickness);
 
   sprintf(f, "%c", 'K');
+
   draw_list->AddText(window_center + ImRotate(RAscMc, CosA, SinA),
                      settings.AscMcColor, f);
 
@@ -173,8 +175,7 @@ void UniWheel::DrawChart() const {
 
   ImGui::PopFont();
 
-  for (std::tuple<swephpp::Ipl, swephpp::Ipl, AspectAngle, double, AspectStat>
-           &x : model->vAspects) {
+  for (const AspectTuple<AspectAngle> &x : model->vAspects) {
     float CosB;
     float SinB;
 

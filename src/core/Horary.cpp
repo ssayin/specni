@@ -1,8 +1,9 @@
 #include "Horary.hpp"
+#include "core/Aspects.hpp"
 
 namespace specni {
 auto GetDignityScoreTable(const ChartModel &model) -> DignityScoreTable {
-  /*
+
   constexpr static std::array<char, 13> houseScore{5, 3,  1, 4, 3, -2,
                                                    4, -2, 2, 5, 4, -5};
 
@@ -107,8 +108,8 @@ auto GetDignityScoreTable(const ChartModel &model) -> DignityScoreTable {
         pairs.emplace_back(std::make_pair(d.first, asd));
     }
 
-    AspectTuple<AspectAngle> aspects =
-        CalculateAspects<AspectAngle>(pairs, AspectFunc<OrbPartileConfig>);
+    AspectTupleVector<AspectAngle> aspects =
+        CalculateAspects<AspectAngle, OrbPartileConfig>(pairs);
 
     for (auto &aspect : aspects) {
       swephpp::Ipl p2 = std::get<1>(aspect);
@@ -185,6 +186,5 @@ auto GetDignityScoreTable(const ChartModel &model) -> DignityScoreTable {
     }
   }
   return dts;
-  */
 }
 }; // namespace specni

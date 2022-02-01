@@ -10,7 +10,7 @@
 namespace specni {
 
 void ChartModel::RecalculateAspects() {
-  // vAspects = CalculateAspects(pairs, &AspectFunc<AspectAngle>);
+  vAspects = CalculateAspects<AspectAngle, DefaultOrbConfig>(pairs);
 }
 
 void ChartModel::RecalculatePlanetPos() {
