@@ -1,5 +1,7 @@
 # Project Details
 
+![badge](https://github.com/ssayin/specni/actions/workflows/cmake.yml/badge.svg?branch=master)
+
 An application which implements William Lilly Dignity/Debility point-scoring system. 
 * [Understanding Planetary Dignity and Debility](http://www.skyscript.co.uk/dignities.html)
 * [Lilly's Table to Examine the Strength & Debility of Each Planet](http://www.skyscript.co.uk/dig5.html#liltab)
