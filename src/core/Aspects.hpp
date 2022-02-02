@@ -7,9 +7,11 @@
 #include <algorithm>
 #include <array>
 #include <cassert>
+#include <cmath>
 #include <core/PlanetPairs.hpp>
 #include <cstddef>
 #include <functional>
+#include <initializer_list>
 #include <iostream>
 #include <string>
 #include <tuple>
@@ -106,11 +108,28 @@ auto CalculateAspects(
   return ret;
 }
 
+template <typename T, typename U>
+using Bigger = typename std::conditional<sizeof(T) >= sizeof(U), T, U>::type;
+
+template <typename T, typename U>
+inline auto AddSub(T x, U y) -> std::tuple<Bigger<T, U>, Bigger<T, U>> {
+  return {x + y, x - y};
+}
+
+template <typename T, typename U = T, typename V = T>
+inline auto AddSub(T x, U y, V z) -> auto {
+  return std::tuple_cat(AddSub(y - x, z), std::move(AddSub(x - y, z)));
+}
+
 static auto willNameItLater(const Longitude &first, const Longitude &second,
-                            const Longitude &orb) -> const Longitude && {
-  return std::move(
-      std::min(std::min(second - first + orb, first - second + orb),
-               std::min(second - first - orb, first - second - orb)));
+                            const Longitude &orb) -> const Longitude {
+
+  auto a = std::apply(
+      [](auto &&...args) { return std::vector<Longitude>{args...}; },
+      std::forward<std::tuple<Longitude, Longitude, Longitude, Longitude>>(
+          std::move(AddSub(first, second, orb))));
+
+  return *std::min_element(a.begin(), a.end());
 }
 
 // will generate so many functions at compile time, what to do?

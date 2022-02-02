@@ -15,6 +15,7 @@ public:
   constexpr virtual ~Cyclic() = default;
   constexpr Cyclic(const double o) { this->m = o; }
   constexpr Cyclic(const Cyclic &o) { *this = o; }
+  explicit constexpr operator double() const { return this->m; }
 
   constexpr auto operator+=(const Cyclic &rhs) -> Cyclic &;
 
@@ -33,8 +34,8 @@ public:
   inline constexpr auto operator()() const -> T { return this->m; }
   constexpr auto operator<=>(const Cyclic &) const = default;
 
-  constexpr friend auto operator<<(std::ostream &os,
-                                            const Cyclic &obj) -> std::ostream & {
+  constexpr friend auto operator<<(std::ostream &os, const Cyclic &obj)
+      -> std::ostream & {
     os << std::to_string(obj.m);
     return os;
   }
@@ -48,8 +49,8 @@ private:
 };
 
 template <typename T, int MIN, int MAX>
-constexpr auto
-Cyclic<T, MIN, MAX>::operator+=(const Cyclic &rhs) -> Cyclic<T, MIN, MAX> & {
+constexpr auto Cyclic<T, MIN, MAX>::operator+=(const Cyclic &rhs)
+    -> Cyclic<T, MIN, MAX> & {
   this->m += rhs.m;
   while (this->m > MAX)
     this->m -= MAX;
@@ -57,8 +58,8 @@ Cyclic<T, MIN, MAX>::operator+=(const Cyclic &rhs) -> Cyclic<T, MIN, MAX> & {
 }
 
 template <typename T, int MIN, int MAX>
-constexpr auto
-Cyclic<T, MIN, MAX>::operator-=(const Cyclic &rhs) -> Cyclic<T, MIN, MAX> & {
+constexpr auto Cyclic<T, MIN, MAX>::operator-=(const Cyclic &rhs)
+    -> Cyclic<T, MIN, MAX> & {
   this->m -= rhs.m;
   while (this->m < MIN)
     this->m += MAX;
