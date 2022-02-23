@@ -9,6 +9,7 @@
 #include <core/swephpp.hpp>
 #include <string>
 #include <unordered_map>
+#include <util/Calendar.hpp>
 #include <util/Util.hpp>
 #include <vector>
 
@@ -16,26 +17,20 @@ namespace specni {
 
 struct ChartModel {
 public:
-  ChartModel() = default;
-  ~ChartModel() = default;
+  ChartModel(swephpp::Ut &&ut) : ut(std::move(ut)){};
+  ChartModel() : ut(std::move(util::get_array_from_tuple(util::time_now()))){};
 
-  void SetDateGregorian(int year, int month, int day, int hour, int min,
-                        double sec) {
-    double dret[2];
-    char serr[256];
-    assert(swe_utc_to_jd(year, month, day, hour, min, sec, 1, dret, serr) ==
-           OK);
-    this->ut = dret[1]; // UT1
-  }
-
+  // only change houses, UT is used
   void SetCoordinates(double latitude, double longitude) {
     geolat = latitude;
     geolon = longitude;
   }
 
-  void SetHouseSystem(swephpp::HouseSystem sys) { hsys = sys; }
+  inline void RecalculateAspects() {
+    vAspects = CalculateAspects<AspectAngle, DefaultOrbConfig>(pairs);
+  }
 
-  void RecalculateAspects();
+  void SetHouseSystem(swephpp::HouseSystem sys) { hsys = sys; }
 
   void RecalculatePlanetPos();
 
@@ -56,10 +51,10 @@ public:
   enum FixedStar { Algol, Regulus, Spica, Count };
 
   std::array<Longitude, Count> fixStars;
-  double ut;
   double geolat;
   double geolon;
 
 private:
+  swephpp::Ut ut;
 };
 }; // namespace specni

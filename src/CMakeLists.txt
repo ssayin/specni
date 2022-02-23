@@ -1,19 +1,9 @@
 add_executable(
   specni
   core/swephpp.hpp
-  core/MoonPhase.cpp
-  core/PlanetStates.cpp
-  core/PlanetPairs.cpp
   core/ChartModel.cpp
-  core/Horary.cpp
+  gui/GUI.cpp
   gui/imgui_main.cpp
-  gui/AspectsWidget.cpp
-  gui/PlanetsWidget.cpp
-  gui/ControlsWidget.cpp
-  gui/AspectsWidget.cpp
-  gui/UniWheel.cpp
-  gui/BiWheel.cpp
-  util/Calendar.cpp
   util/Util.cpp
   main.cpp)
 

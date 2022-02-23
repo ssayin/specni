@@ -8,6 +8,7 @@
 #include <array>
 #include <cassert>
 #include <cmath>
+#include <core/AspectTypes.hpp>
 #include <core/PlanetPairs.hpp>
 #include <cstddef>
 #include <functional>
@@ -21,53 +22,6 @@
 #include <vector>
 
 namespace specni {
-/*
- * Only major aspects for now
- */
-
-enum class AspectAngle {
-  Conjunction,
-  Sextile,
-  Square,
-  Trine,
-  Opposition,
-  Count,
-};
-
-enum class Declination { Parallel, Contraparallel, Count };
-
-enum AspectStat { Applying = 0, Seperating, Count };
-
-const std::unordered_map<AspectAngle, int> Aspects = {
-    {AspectAngle::Conjunction, 0},  {AspectAngle::Sextile, 60},
-    {AspectAngle::Square, 90},      {AspectAngle::Trine, 120},
-    {AspectAngle::Opposition, 180},
-};
-
-struct DefaultOrbConfig {
-  static constexpr auto Get(swephpp::Ipl body) -> int {
-    switch (body) {
-    case swephpp::Ipl::Sun:
-      return 7;
-    case swephpp::Ipl::Moon:
-      return 6;
-    case swephpp::Ipl::Mercury:
-    case swephpp::Ipl::Venus:
-      return 3;
-    case swephpp::Ipl::Mars:
-      return 4;
-    case swephpp::Ipl::Jupiter:
-    case swephpp::Ipl::Saturn:
-      return 5;
-    default:
-      return 2;
-    }
-  }
-};
-
-struct OrbPartileConfig {
-  static constexpr auto Get(swephpp::Ipl body) -> int { return 1; }
-};
 
 template <class A>
 using AspectTuple =
@@ -121,15 +75,15 @@ inline auto AddSub(T x, U y, V z) -> auto {
   return std::tuple_cat(AddSub(y - x, z), std::move(AddSub(x - y, z)));
 }
 
-static auto willNameItLater(const Longitude &first, const Longitude &second,
-                            const Longitude &orb) -> const Longitude {
+static auto MinAddSub(const Longitude &first, const Longitude &second,
+                      const Longitude &orb) -> const Longitude {
 
-  auto a = std::apply(
+  const auto &list = std::apply(
       [](auto &&...args) { return std::vector<Longitude>{args...}; },
       std::forward<std::tuple<Longitude, Longitude, Longitude, Longitude>>(
           std::move(AddSub(first, second, orb))));
 
-  return *std::min_element(a.begin(), a.end());
+  return *std::min_element(list.begin(), list.end());
 }
 
 // will generate so many functions at compile time, what to do?
@@ -137,18 +91,14 @@ template <class A, class AspectConfig>
 auto AspectFunc(const Planet &p1, const Planet &p2)
     -> std::enable_if_t<IsDeclinationType<A>, AspectFuncRetType<A>> {
   // This should give ~0 if planets are contra-parallel
-  double a = std::fabs(p1.Data.lat + p2.Data.lat);
-  double b = std::fabs(p1.Data.lat - p2.Data.lat);
+  double a, b;
+  std::tie(a, b) = AddSub(p1.Data.lat, p2.Data.lat);
+  auto next = std::fabs(p1.Data.spdlat + p2.Data.spdlat);
   if (a < AspectConfig::Get(p1.Id)) {
     return std::make_tuple(A::Contraparallel, a,
-                           a <= std::fabs(p1.Data.spdlat + p2.Data.spdlat)
-                               ? Applying
-                               : Seperating);
+                           a <= next ? Applying : Seperating);
   } else if (b < AspectConfig::Get(p1.Id)) {
-    return std::make_tuple(A::Parallel, b,
-                           b <= std::fabs(p1.Data.spdlat + p2.Data.spdlat)
-                               ? Applying
-                               : Seperating);
+    return std::make_tuple(A::Parallel, b, b <= next ? Applying : Seperating);
   }
 
   return std::make_tuple(A::Count, 0, AspectStat::Count);
@@ -162,12 +112,11 @@ auto AspectFunc(const Planet &p1, const Planet &p2)
   for (auto &asp : Aspects) {
     int maxOrb = std::max(AspectConfig::Get(p1.Id), AspectConfig::Get(p2.Id));
     if (a.within(b + asp.second, maxOrb) || a.within(b - asp.second, maxOrb)) {
-      Longitude actualArcDistance =
-          willNameItLater(a, b, asp.second); // implicit
+      Longitude actualArcDistance = MinAddSub(a, b, asp.second); // implicit
 
       Longitude predictedArcDistance =
-          willNameItLater(a + Longitude(p1.Data.spdlon),
-                          b + Longitude(p2.Data.spdlon), asp.second);
+          MinAddSub(a + Longitude(p1.Data.spdlon),
+                    b + Longitude(p2.Data.spdlon), asp.second);
 
       return std::make_tuple(asp.first, actualArcDistance(),
                              ((actualArcDistance() > predictedArcDistance())

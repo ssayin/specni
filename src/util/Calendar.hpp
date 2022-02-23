@@ -21,7 +21,8 @@ namespace specni::util { // namespace specni
 //                   [numeric_limits<Int>::min(),
 //                   numeric_limits<Int>::max()-719468].
 template <class Int>
-constexpr auto civil_from_days(Int z) noexcept -> std::tuple<Int, unsigned, unsigned> {
+constexpr auto civil_from_days(Int z) noexcept
+    -> std::tuple<Int, unsigned, unsigned> {
   static_assert(
       std::numeric_limits<unsigned>::digits >= 18,
       "This algorithm has not been ported to a 16 bit unsigned integer");
@@ -77,6 +78,30 @@ constexpr auto last_day_of_month(Int y, unsigned m) noexcept -> unsigned {
   Howard Hinnant
   2021-09-01
 */
-auto
-time_now() -> std::tuple<unsigned, unsigned, unsigned, unsigned, unsigned, unsigned>;
-} // namespace specni
+static auto time_now()
+    -> std::tuple<uint16_t, uint16_t, uint16_t, uint16_t, uint16_t, uint16_t> {
+  using namespace std;
+  using namespace std::chrono;
+  using days = duration<int, ratio_multiply<hours::period, ratio<24>>>;
+  // auto utc_offset = hours(0); // my current UTC offset
+  // Get duration in local units
+  auto now = system_clock::now().time_since_epoch(); //+ utc_offset;
+  // Get duration in days
+  auto today = duration_cast<days>(now);
+  int year;
+  unsigned month;
+  unsigned day;
+  // Convert days into year/month/day
+  std::tie(year, month, day) = civil_from_days(today.count());
+  // Subtract off days, leaving now containing time since local midnight
+  now -= today;
+  auto h = duration_cast<hours>(now);
+  now -= h;
+  auto m = duration_cast<minutes>(now);
+  now -= m;
+  auto s = duration_cast<seconds>(now);
+  now -= s;
+  // auto us = duration_cast<microseconds>(now);
+  return make_tuple(year, month, day, h.count(), m.count(), s.count());
+}
+} // namespace specni::util

@@ -54,4 +54,13 @@ auto get_sign_deg(/* longitude */ double lon) -> const std::string;
 auto AspectToString(AspectAngle asp) -> const std::string;
 
 auto EssentialStateToString(EssentialState state) -> const std::string;
+
+template <typename tuple_t>
+constexpr auto get_array_from_tuple(tuple_t &&tuple) {
+  constexpr auto get_array = [](auto &&...x) {
+    return std::array{std::forward<decltype(x)>(x)...};
+  };
+  return std::apply(get_array, std::forward<tuple_t>(tuple));
+}
+
 } // namespace specni::util

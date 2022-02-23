@@ -7,11 +7,19 @@
 #include <core/swephpp.hpp>
 #include <cstdio>
 
-namespace specni {
-
-void ChartModel::RecalculateAspects() {
-  vAspects = CalculateAspects<AspectAngle, DefaultOrbConfig>(pairs);
+namespace swephpp {
+Ut::Ut(const GregorianTime &dt) {
+  constexpr int GregorianFlag = 1;
+  constexpr int UT1 = 1;
+  std::array<double, 2> dret;
+  std::array<char, 256> serr;
+  assert(swe_utc_to_jd(dt[0], dt[1], dt[2], dt[3], dt[4], dt[5], GregorianFlag,
+                       dret.data(), serr.data()) == OK);
+  m = dret[UT1];
 }
+}; // namespace swephpp
+
+namespace specni {
 
 void ChartModel::RecalculatePlanetPos() {
   swephpp::PlanetEphData data = {0};
@@ -20,7 +28,7 @@ void ChartModel::RecalculatePlanetPos() {
     if (i == 10 || i == 12 || i == 13 || i == 14)
       continue;
     swephpp::CalcOpts opts = {
-        ut,
+        std::forward<swephpp::Ut>(ut),
         i,
         swephpp::Flag::SwissEph | swephpp::Flag::Speed |
             swephpp::Flag::Equatorial,
@@ -36,10 +44,10 @@ void ChartModel::RecalculatePlanetPos() {
     vPlanet.push_back(it.second);
   }
 
-  pairs = GetPlanetCombPairs(vPlanet);
-  eStates = PlanetStates(*this).GetPlanetEssentialStates();
-  phase = GetMoonPhase(this->ut);
-  GetStars();
+  // pairs = GetPlanetCombPairs(vPlanet);
+  // eStates = PlanetStates(*this).GetPlanetEssentialStates();
+  // phase = GetMoonPhase(this->ut);
+  // GetStars();
 }
 
 template <class CuspArray>

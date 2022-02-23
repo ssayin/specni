@@ -137,13 +137,25 @@ enum class Flag : int32_t {
   JPLHorizonsApprox = 512 * 1024
 };
 
+class Ut {
+public:
+  Ut(Ut &&) = default;
+  ~Ut() { std::cout << "Lmao I'm done\n"; };
+  using GregorianTime = std::array<uint16_t, 6>;
+  Ut(const GregorianTime &dt);
+  operator double() const { return m; }
+
+private:
+  double m;
+};
+
 inline constexpr auto operator|(const Flag &lhs, const Flag &rhs) -> Flag {
   return static_cast<Flag>(static_cast<int32_t>(lhs) |
                            static_cast<int32_t>(rhs));
 }
 
 using CalcOpts = struct {
-  double jd_ut;
+  Ut &&ut;
   int32_t id;
   Flag flag;
 };
@@ -169,7 +181,7 @@ inline auto house_name(HouseSystem sys) -> const std::string {
 }
 
 inline auto calc(const CalcOpts &opts, PlanetEphData &data) -> int {
-  return swe_calc_ut(opts.jd_ut, opts.id, static_cast<int32_t>(opts.flag),
+  return swe_calc_ut(opts.ut, opts.id, static_cast<int32_t>(opts.flag),
                      reinterpret_cast<double *>(&data), nullptr);
 }
 
@@ -187,5 +199,13 @@ inline auto fixstar(double ut, char *name, Flag flg, std::array<double, 6> &xx)
   std::cerr << err.data() << std::endl;
   return ret;
 }
+
+class SweCtx {
+  SweCtx() {
+    std::array<char, 8> ephe = {"./ephe/"};
+    swe_set_ephe_path(ephe.data());
+  }
+  ~SweCtx() { swe_close(); }
+};
 
 } // namespace swephpp
