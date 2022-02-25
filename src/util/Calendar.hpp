@@ -104,4 +104,13 @@ static auto time_now()
   // auto us = duration_cast<microseconds>(now);
   return make_tuple(year, month, day, h.count(), m.count(), s.count());
 }
+
+template <typename tuple_t>
+constexpr auto get_array_from_tuple(tuple_t &&tuple) {
+  constexpr auto get_array = [](auto &&...x) {
+    return std::array{std::forward<decltype(x)>(x)...};
+  };
+  return std::apply(get_array, std::forward<tuple_t>(tuple));
+}
+
 } // namespace specni::util

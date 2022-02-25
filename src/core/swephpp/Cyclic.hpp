@@ -30,8 +30,7 @@ public:
     return lhs;
   }
 
-  // inline constexpr operator T() const { return this->m; }
-  inline constexpr auto operator()() const -> T { return this->m; }
+  constexpr auto operator()() const -> T { return this->m; }
   constexpr auto operator<=>(const Cyclic &) const = default;
 
   constexpr friend auto operator<<(std::ostream &os, const Cyclic &obj)
@@ -67,5 +66,6 @@ constexpr auto Cyclic<T, MIN, MAX>::operator-=(const Cyclic &rhs)
 }
 
 using Longitude = Cyclic<double, 0, 360>;
+using Latitude = Cyclic<double, 0, 180>;
 
 }; // namespace specni

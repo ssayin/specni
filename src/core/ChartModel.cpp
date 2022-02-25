@@ -1,100 +1,20 @@
-#include <array>
-#include <core/Aspects.hpp>
-#include <core/ChartModel.hpp>
-#include <core/Cyclic.hpp>
-#include <core/PlanetPairs.hpp>
-#include <core/PlanetStates.hpp>
-#include <core/swephpp.hpp>
-#include <cstdio>
-
-namespace swephpp {
-Ut::Ut(const GregorianTime &dt) {
-  constexpr int GregorianFlag = 1;
-  constexpr int UT1 = 1;
-  std::array<double, 2> dret;
-  std::array<char, 256> serr;
-  assert(swe_utc_to_jd(dt[0], dt[1], dt[2], dt[3], dt[4], dt[5], GregorianFlag,
-                       dret.data(), serr.data()) == OK);
-  m = dret[UT1];
-}
-}; // namespace swephpp
+#include "ChartModel.hpp"
 
 namespace specni {
+namespace core {
 
-void ChartModel::RecalculatePlanetPos() {
-  swephpp::PlanetEphData data = {0};
-  Eph.clear();
-  for (int i = 0; i < 16; ++i) {
-    if (i == 10 || i == 12 || i == 13 || i == 14)
-      continue;
-    swephpp::CalcOpts opts = {
-        std::forward<swephpp::Ut>(ut),
-        i,
-        swephpp::Flag::SwissEph | swephpp::Flag::Speed |
-            swephpp::Flag::Equatorial,
-    };
+ChartModel::ChartModel(const swe::Ut &ut, const swe::Coordinate &geodetic,
+                       swe::HouseSystem hs)
+    : houses(ut, swe::ZodiacType::Tropical, geodetic, hs) {
 
-    swephpp::calc(opts, data);
-    Eph.insert({static_cast<swephpp::Ipl>(i),
-                Planet{static_cast<swephpp::Ipl>(i), data}});
-  }
+  for (int i = 0; i < 10; ++i) {
 
-  std::vector<Planet> vPlanet;
-  for (auto &it : Eph) {
-    vPlanet.push_back(it.second);
-  }
-
-  // pairs = GetPlanetCombPairs(vPlanet);
-  // eStates = PlanetStates(*this).GetPlanetEssentialStates();
-  // phase = GetMoonPhase(this->ut);
-  // GetStars();
-}
-
-template <class CuspArray>
-auto GetHouseCusps(const swephpp::HouseOpts &opts, swephpp::Angles &ascmc)
-    -> std::vector<float> {
-  CuspArray tmpCusps;
-  std::vector<float> cusps;
-  swephpp::houses_ex(opts, tmpCusps, ascmc);
-  for (typename CuspArray::size_type i = 1; i < tmpCusps.max_size(); ++i)
-    cusps.emplace_back(tmpCusps[i]);
-
-  return cusps;
-}
-
-void ChartModel::RecalculateHouses() {
-  swephpp::HouseOpts house_opts = {ut, swephpp::HouseCuspFlag::Tropical, geolat,
-                                   geolon, hsys};
-
-  vHouseCusps = ((house_opts.hsys == swephpp::HouseSystem::Gauquelin)
-                     ? GetHouseCusps<swephpp::GauquelinCusps>(house_opts, ascmc)
-                     : GetHouseCusps<swephpp::HouseCusps>(house_opts, ascmc));
-}
-
-static auto fixstarname(ChartModel::FixedStar star) -> std::string {
-  switch (star) {
-
-  case ChartModel::Algol:
-    return "Algol";
-  case ChartModel::Regulus:
-    return "Regulus";
-  case ChartModel::Spica:
-    return "Spica";
-  default:
-    return "";
-  }
-
-  return "";
-}
-
-void ChartModel::GetStars() {
-  std::array<double, 6> tmp;
-  std::array<char, 64> str;
-  for (int i = 0; i < FixedStar::Count; ++i) {
-    sprintf(str.data(), "%s", fixstarname(static_cast<FixedStar>(i)).c_str());
-
-    swephpp::fixstar(this->ut, str.data(), swephpp::Flag::SwissEph, tmp);
-    fixStars[i] = tmp[0];
+    mPl.insert(
+        {static_cast<swe::Ipl>(i),
+         swe::Planet{static_cast<swe::Ipl>(i), ut, swe::EphFlag::Speed}});
   }
 }
+
+}; // namespace core
+
 }; // namespace specni

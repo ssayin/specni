@@ -1,13 +1,10 @@
 #pragma once
 
-#include <core/Aspects.hpp>
-#include <gui/Config.hpp>
 #include <gui/ImVecEx.hpp>
 #include <imgui.h>
 #include <memory>
 #include <tuple>
 #include <util/Calendar.hpp>
-#include <util/Util.hpp>
 #include <utility>
 #include <vector>
 

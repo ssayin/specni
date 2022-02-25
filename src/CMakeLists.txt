@@ -1,10 +1,11 @@
 add_executable(
   specni
-  core/swephpp.hpp
+  core/swephpp/Context.cpp
+  core/swephpp/House.cpp
+  core/swephpp/Ut.cpp
+  core/swephpp/Planet.cpp
   core/ChartModel.cpp
-  gui/GUI.cpp
-  gui/imgui_main.cpp
-  util/Util.cpp
+
   main.cpp)
 
 set_property(TARGET specni PROPERTY C_STANDARD 17)
