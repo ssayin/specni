@@ -12,12 +12,9 @@ struct Context {
   ~Context();
 };
 
-extern Context &ctx;
-
-static struct ContextInit {
+struct ContextInit {
   ContextInit();
-  ~ContextInit();
-} ctx_init;
+};
 
 }; // namespace swe
 }; // namespace core

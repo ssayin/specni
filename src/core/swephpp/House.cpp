@@ -8,21 +8,18 @@ namespace specni {
 namespace core {
 namespace swe {
 
-House::House(const Ut &ut, ZodiacType ztype, const Coordinate &geodetic,
+House::House(const Ut &ut, ZodiacType ztype, Coordinate geodetic,
              HouseSystem hsys) {
-  constexpr size_t GauquelinSize = 37;
-  constexpr size_t NormalSize = 13;
-  (hsys != HouseSystem::Gauquelin) ? cusps.resize(NormalSize)
+  constexpr std::size_t GauquelinSize = 37;
+  constexpr std::size_t DefaultSize = 13;
+
+  (hsys != HouseSystem::Gauquelin) ? cusps.resize(DefaultSize)
                                    : cusps.resize(GauquelinSize);
-  swe_houses_ex(ut, static_cast<std::underlying_type_t<ZodiacType>>(ztype),
-                geodetic.lat, geodetic.lon,
-                static_cast<std::underlying_type_t<HouseSystem>>(hsys),
-                &cusps[0], reinterpret_cast<double *>(&ang));
+  swe_houses(ut, geodetic.lat, geodetic.lon,
+             static_cast<std::underlying_type_t<HouseSystem>>(hsys), &cusps[0],
+             reinterpret_cast<double *>(&ang));
 }
-} // namespace swe
+}; // namespace swe
 
-} // namespace core
+}; // namespace core
 }; // namespace specni
-
-    ; // namespace specni
-;     // namespace specni

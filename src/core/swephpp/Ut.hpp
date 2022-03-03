@@ -1,9 +1,8 @@
 #pragma once
 
+#include "Context.hpp"
 #include <array>
 #include <cstdint>
-
-#include "Context.hpp"
 
 namespace specni {
 namespace core {
@@ -18,7 +17,7 @@ struct GregorianTime {
   uint16_t sec;
 };
 
-class Ut {
+class Ut : ContextInit {
 public:
   Ut(Ut &&) = default;
   Ut(const GregorianTime &dt);

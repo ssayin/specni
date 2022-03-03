@@ -19,7 +19,8 @@ typedef struct {
   double coasc1; /* co-ascendant (W. Koch) */
   double coasc2; /* co-ascendant (M. Munkasey)*/
   double polasc; /* polar ascendant (M. Munkasey)*/
-  double res[2];
+  double res1;
+  double res2;
 } Angles;
 
 struct Coordinate {
@@ -27,14 +28,13 @@ struct Coordinate {
   double lon;
 };
 
-class House {
+class House : ContextInit {
 public:
-  House(const Ut &ut, ZodiacType ztype, const Coordinate &geodetic,
-        HouseSystem hsys);
+  House(const Ut &ut, ZodiacType ztype, Coordinate geodetic, HouseSystem hsys);
 
 private:
   std::vector<double> cusps;
-  Angles ang;
+  Angles ang{0};
 };
 
 }; // namespace swe
