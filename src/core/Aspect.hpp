@@ -37,7 +37,7 @@ enum class AspectType : uint8_t {
 
 enum class AspectDetail : uint8_t { Applying, Seperating, Count };
 
-constexpr std::array<uint16_t, // max = full circle
+constexpr std::array<uint8_t, // max = full circle / 2
                      static_cast<std::size_t>(
                          detail::HarmonicType::HarmonicCount)>
     Harmonics{0, 60, 90, 120, 180};
