@@ -3,6 +3,7 @@
 #include "core/AbsHelper.hpp"
 #include <core/swephpp.hpp>
 #include <functional>
+#include <limits>
 #include <optional>
 
 namespace specni {
@@ -80,48 +81,37 @@ auto GetMaxOrb(const swe::Planet &p1, const swe::Planet &p2) {
 template <class OrbConfig>
 std::optional<AspectRetType> HarmonicAspectBetween(const swe::Planet &p1,
                                                    const swe::Planet &p2) {
-  auto max_orb = GetMaxOrb<OrbConfig>(p1, p2);
-  auto &a = p1.Lon();
-  auto &b = p2.Lon();
+  std::cout.precision(std::numeric_limits<double>::max_digits10);
 
-  for (int i = 0; i < Harmonics.size(); ++i) {
-    if (a.IsWithinOrbOf(static_cast<double>(b) + Harmonics[i], max_orb) ||
-        a.IsWithinOrbOf(static_cast<double>(b) - Harmonics[i], max_orb)) {
-      auto asp_orb = static_cast<EclipticLongitude>(Harmonics[i]);
-      auto [now, next] =
-          std::pair{Min(AddSub(p1.Lon(), p2.Lon(), asp_orb)),
-                    Min(AddSub(p1.FutureLon(), p2.FutureLon(), asp_orb))};
+  double max_orb = GetMaxOrb<OrbConfig>(p1, p2);
+  double diff = static_cast<double>(Min(ArcPair(p1.Lon(), p2.Lon())));
+  auto p = std::lower_bound(Harmonics.begin(), Harmonics.end(),
+                            diff + std::numeric_limits<double>::epsilon());
 
-      return AspectRetType{static_cast<AspectType>(i),
-                           now > next ? AspectDetail::Applying
-                                      : AspectDetail::Seperating,
-                           static_cast<double>(now)};
-    }
-  }
+  auto ref_it = p;
+  if ((diff + max_orb) > *p) {
+  } else if ((diff - max_orb) < *std::next(p, -1)) {
+    ref_it = std::next(p, -1);
+  } else
+    return std::nullopt;
 
-  return std::nullopt;
+  auto dist = std::distance(Harmonics.begin(), ref_it);
+
+  double diff_2 =
+      static_cast<double>(Min(ArcPair(p1.FutureLon(), p2.FutureLon())));
+
+  auto asd = std::fabs((*ref_it) - diff);
+  auto basd = std::fabs((*ref_it) - diff_2);
+  return AspectRetType{
+      static_cast<AspectType>(dist),
+      (asd > basd) ? AspectDetail::Applying : AspectDetail::Seperating, asd};
 }
 
 template <class OrbConfig>
 std::optional<AspectRetType> DeclineAspectBetween(const swe::Planet &p1,
                                                   const swe::Planet &p2) {
-  /*  auto [a, b] = AddSubFabs(p1.Lat(), p2.Lat());
-    if (std::min(a, b) < MaxOrb<Config>(p1, p2)) {
-      return std::make_tuple(A::Contraparallel, a,
-                             a <= std::fabs(p1.SpdLat() + p2.SpdLat())
-                                 ? A::Applying
-                                 : A::Seperating);
-    }
-    if (std::max(a, b) < MaxOrb<Config>(p1, p2)) {
-      return std::make_tuple(A::Contraparallel, b,
-                             b <= std::fabs(p1.SpdLat() + p2.SpdLat())
-                                 ? A::Applying
-                                 : A::Seperating);
-    }
-  */
   return std::nullopt;
 }
 
 }; // namespace core
-
 }; // namespace specni

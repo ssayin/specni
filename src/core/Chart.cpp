@@ -40,7 +40,7 @@ Chart::Chart(const swe::Ut &ut, const swe::Coordinate &geodetic,
 
     if (asp.has_value()) {
       std::cout << p1.Name() << " " << p2.Name() << " "
-                << static_cast<int>(asp->type) << " "
+                << static_cast<int>(asp->type) * 60 << " "
                 << ((asp->detail == AspectDetail::Applying) ? 'A' : 'S') << " "
                 << asp->orb << std::endl;
     }

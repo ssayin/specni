@@ -2,32 +2,35 @@
 
 #include <algorithm>
 #include <cmath>
+#include <functional>
 #include <iostream>
+#include <numeric>
 #include <ranges>
 #include <type_traits>
 
 namespace specni {
 namespace core {
 
-template <typename T, typename U>
+template <typename T, typename U = T>
 constexpr auto AddSub(T x, U y) -> std::tuple<T, T> {
-  return {x + y, x - y};
+  return std::make_pair<T, T>(x + y, -x - y);
 }
 
 template <typename T, typename U = T, typename V = T>
-constexpr auto AddSub(T x, U y, V z) -> auto {
-  return std::tuple_cat(AddSub(y - x, z), std::move(AddSub(x - y, z)));
-}
-
-template <typename T, typename U>
-constexpr auto AddSubFabs(T x, U y) -> std::tuple<T, T> {
-  return {std::fabs(x + y), std::fabs(x - y)};
+constexpr auto AddSub(T x, U y, V z) -> std::tuple<T, T, T, T> {
+  return std::tuple_cat(AddSub(x + y, z), std::move(AddSub(y - x, z)));
 }
 
 // initializer_list copies, don't feed large objs
 template <class C> auto Min(C &&c) {
   return std::apply([](auto &&...args) { return std::min({args...}); },
                     std::forward<C>(c));
+}
+
+template <class Ch, class Tr, class... Args>
+auto &operator<<(std::basic_ostream<Ch, Tr> &os, std::tuple<Args...> const &t) {
+  std::apply([&os](auto &&...args) { ((os << args << " "), ...); }, t);
+  return os;
 }
 
 }; // namespace core

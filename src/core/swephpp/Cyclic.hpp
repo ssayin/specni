@@ -9,7 +9,8 @@
 #include <string>
 
 namespace specni {
-template <typename T, int MIN, int MAX> class Cyclic {
+template <std::floating_point T, int MIN, int MAX> class Cyclic {
+
 private:
   constexpr void ensure_within_range_max();
   constexpr void ensure_within_range_min();
@@ -24,47 +25,47 @@ public:
   explicit constexpr operator double() const { return this->m; }
   constexpr auto operator+=(const Cyclic &rhs) -> Cyclic &;
   constexpr auto operator-=(const Cyclic &rhs) -> Cyclic &;
+  constexpr auto operator*=(const Cyclic &rhs) -> Cyclic &;
+  constexpr auto operator-() -> Cyclic;
 
-  template <typename U, int Mn, int Mx>
+  template <std::floating_point U, int Mn, int Mx>
   constexpr friend auto operator+(Cyclic lhs, const Cyclic &rhs) -> Cyclic;
 
-  template <typename U, int Mn, int Mx>
+  template <std::floating_point U, int Mn, int Mx>
   constexpr friend auto operator-(Cyclic lhs, const Cyclic &rhs) -> Cyclic;
+
+  template <std::floating_point U, int Mn, int Mx>
+  constexpr friend auto operator*(Cyclic lhs, const Cyclic &rhs) -> Cyclic;
+
   constexpr auto operator<=>(const Cyclic &) const = default;
 
-  template <typename U, int Mn, int Mx>
-  constexpr friend auto operator<<(std::ostream &os, const Cyclic &obj)
-      -> std::ostream &;
+  template <std::floating_point U, int Mn, int Mx>
+  constexpr friend std::tuple<Cyclic, Cyclic> ArcPair(Cyclic lhs, Cyclic rhs);
 
-  constexpr auto IsWithinOrbOf(const Cyclic &a, double orb) const -> bool;
+  template <std::floating_point U, int Mn, int Mx>
+  constexpr friend auto operator<<(std::ostream &os,
+                                   const Cyclic<U, Mn, Mx> &obj)
+      -> std::ostream &;
 };
 
-template <typename T, int MIN, int MAX>
+template <std::floating_point T, int MIN, int MAX>
 constexpr auto operator<<(std::ostream &os, const Cyclic<T, MIN, MAX> &obj)
     -> std::ostream & {
   os << std::to_string(obj.m);
   return os;
 }
 
-template <typename T, int MIN, int MAX>
-constexpr auto Cyclic<T, MIN, MAX>::IsWithinOrbOf(const Cyclic &a,
-                                                  double orb) const -> bool {
-  return ((a - *this) <= orb) || ((*this - a) <= orb);
-}
-
-template <typename T, int MIN, int MAX>
+template <std::floating_point T, int MIN, int MAX>
 constexpr void Cyclic<T, MIN, MAX>::ensure_within_range_max() {
-  while (this->m > MAX)
-    this->m -= MAX;
+  this->m = std::fmod(this->m, MAX);
 }
 
-template <typename T, int MIN, int MAX>
+template <std::floating_point T, int MIN, int MAX>
 constexpr void Cyclic<T, MIN, MAX>::ensure_within_range_min() {
-  while (this->m < MIN)
-    this->m += MAX;
+  this->m = std::fmod(std::fabs(MIN - this->m), MAX);
 }
 
-template <typename T, int MIN, int MAX>
+template <std::floating_point T, int MIN, int MAX>
 constexpr auto Cyclic<T, MIN, MAX>::operator+=(const Cyclic &rhs)
     -> Cyclic<T, MIN, MAX> & {
   this->m += rhs.m;
@@ -72,7 +73,7 @@ constexpr auto Cyclic<T, MIN, MAX>::operator+=(const Cyclic &rhs)
   return *this;
 }
 
-template <typename T, int MIN, int MAX>
+template <std::floating_point T, int MIN, int MAX>
 constexpr auto Cyclic<T, MIN, MAX>::operator-=(const Cyclic &rhs)
     -> Cyclic<T, MIN, MAX> & {
   this->m -= rhs.m;
@@ -80,7 +81,21 @@ constexpr auto Cyclic<T, MIN, MAX>::operator-=(const Cyclic &rhs)
   return *this;
 }
 
-template <typename T, int MIN, int MAX>
+template <std::floating_point T, int MIN, int MAX>
+constexpr auto Cyclic<T, MIN, MAX>::operator*=(const Cyclic &rhs)
+    -> Cyclic<T, MIN, MAX> & {
+  this->m *= rhs.m;
+  ensure_within_range_max();
+  ensure_within_range_min();
+  return *this;
+}
+
+template <std::floating_point T, int MIN, int MAX>
+constexpr auto Cyclic<T, MIN, MAX>::operator-() -> Cyclic<T, MIN, MAX> {
+  return Cyclic<T, MIN, MAX>(-(this->m)); // idk
+}
+
+template <std::floating_point T, int MIN, int MAX>
 constexpr auto operator+(Cyclic<T, MIN, MAX> lhs,
                          const Cyclic<T, MIN, MAX> &rhs)
     -> Cyclic<T, MIN, MAX> {
@@ -88,7 +103,7 @@ constexpr auto operator+(Cyclic<T, MIN, MAX> lhs,
   return lhs;
 }
 
-template <typename T, int MIN, int MAX>
+template <std::floating_point T, int MIN, int MAX>
 constexpr auto operator-(Cyclic<T, MIN, MAX> lhs,
                          const Cyclic<T, MIN, MAX> &rhs)
     -> Cyclic<T, MIN, MAX> {
@@ -96,11 +111,27 @@ constexpr auto operator-(Cyclic<T, MIN, MAX> lhs,
   return lhs;
 }
 
-template <typename T, int MIN, int MAX>
+template <std::floating_point T, int MIN, int MAX>
+constexpr auto operator*(Cyclic<T, MIN, MAX> lhs,
+                         const Cyclic<T, MIN, MAX> &rhs)
+    -> Cyclic<T, MIN, MAX> {
+  lhs *= rhs;
+  return lhs;
+}
+
+template <std::floating_point T, int MIN, int MAX>
 constexpr Cyclic<T, MIN, MAX>::Cyclic(const double o) {
   this->m = o;
-  ensure_within_range_min();
   ensure_within_range_max();
+  ensure_within_range_min();
+}
+
+template <std::floating_point T, int MIN, int MAX>
+constexpr std::tuple<Cyclic<T, MIN, MAX>, Cyclic<T, MIN, MAX>>
+ArcPair(Cyclic<T, MIN, MAX> lhs, Cyclic<T, MIN, MAX> rhs) {
+  constexpr T epsilon = std::numeric_limits<T>::epsilon() * 1000;
+  Cyclic<T, MIN, MAX> sub = lhs - rhs;
+  return {sub, Cyclic<T, MIN, MAX>(360.0 - static_cast<T>(sub))};
 }
 
 using EclipticLongitude = Cyclic<double, 0, 360>;
