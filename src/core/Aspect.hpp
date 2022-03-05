@@ -1,6 +1,6 @@
 #pragma once
 
-#include "core/AbsHelper.hpp"
+#include <core/Util.hpp>
 #include <core/swephpp.hpp>
 #include <functional>
 #include <limits>
@@ -68,45 +68,53 @@ auto GetMaxOrb(const swe::Planet &p1, const swe::Planet &p2) {
   return std::max(OrbConfig::Get(p1.Id()), OrbConfig::Get(p2.Id()));
 }
 
+inline std::optional<decltype(Harmonics.begin())>
+GetClosestBoundary(double maxAllowedOrb, double shortestArc) {
+  auto it =
+      std::lower_bound(Harmonics.begin(), Harmonics.end(),
+                       shortestArc + std::numeric_limits<double>::epsilon());
+  if ((shortestArc + maxAllowedOrb) > *it) {
+    return it;
+  } else if ((shortestArc - maxAllowedOrb) < *std::next(it, -1)) {
+    return std::next(it, -1);
+  } else {
+    return std::nullopt;
+  }
+}
+
 template <class OrbConfig>
 std::optional<AspectRetType> HarmonicAspectBetween(const swe::Planet &p1,
                                                    const swe::Planet &p2) {
-  double max_orb = GetMaxOrb<OrbConfig>(p1, p2);
-  double diff = static_cast<double>(Min(ArcPair(p1.Lon(), p2.Lon())));
-  auto p = std::lower_bound(Harmonics.begin(), Harmonics.end(),
-                            diff + std::numeric_limits<double>::epsilon());
+  double maxAllowed = GetMaxOrb<OrbConfig>(p1, p2);
+  double actualArc = static_cast<double>(Min(ArcPair(p1.Lon(), p2.Lon())));
+  auto optIt = GetClosestBoundary(maxAllowed, actualArc);
 
-  auto ref_it = p;
-  if ((diff + max_orb) > *p) {
-  } else if ((diff - max_orb) < *std::next(p, -1)) {
-    ref_it = std::next(p, -1);
-  } else
+  if (!optIt.has_value())
     return std::nullopt;
 
-  auto dist = std::distance(Harmonics.begin(), ref_it);
-
-  double diff_2 =
+  double futureArc =
       static_cast<double>(Min(ArcPair(p1.FutureLon(), p2.FutureLon())));
 
-  auto asd = std::fabs((*ref_it) - diff);
-  auto basd = std::fabs((*ref_it) - diff_2);
-  return AspectRetType{
-      static_cast<AspectType>(dist),
-      (asd > basd) ? AspectDetail::Applying : AspectDetail::Seperating, asd};
-}
-template <std::equality_comparable T> bool IsInBetween(T a, T b, T val) {
-  return (a < val) && (val < b) || (a > val) && (val > b);
+  auto distToExact = std::fabs((*optIt.value()) - actualArc);
+  auto futureDistToExact = std::fabs((*optIt.value()) - futureArc);
+
+  auto index = std::distance(Harmonics.begin(), optIt.value());
+  return AspectRetType{static_cast<AspectType>(index),
+                       (distToExact > futureDistToExact)
+                           ? AspectDetail::Applying
+                           : AspectDetail::Seperating,
+                       distToExact};
 }
 
 template <class OrbConfig>
 std::optional<AspectRetType> DeclineAspectBetween(const swe::Planet &p1,
                                                   const swe::Planet &p2) {
-  double max_orb = GetMaxOrb<OrbConfig>(p1, p2);
-  auto [add, sub] = AddSub(p1.Lat(), p2.Lat());
+  double maxAllowed = GetMaxOrb<OrbConfig>(p1, p2);
+  auto [sum, sub] = AddSub(p1.Lat(), p2.Lat());
   AspectType type;
-  if (IsInBetween(0 - max_orb, 0 + max_orb, add)) {
+  if (IsInBetween(0 - maxAllowed, 0 + maxAllowed, sum)) {
     type = AspectType::Parallel;
-  } else if (IsInBetween(0 - max_orb, 0 + max_orb, sub)) {
+  } else if (IsInBetween(0 - maxAllowed, 0 + maxAllowed, sub)) {
     type = AspectType::Contraparallel;
   } else {
     return std::nullopt;
