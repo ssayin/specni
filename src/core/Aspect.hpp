@@ -10,36 +10,26 @@ namespace specni {
 namespace core {
 
 namespace detail {
+constexpr uint8_t DeclinationOffset = 0xF;
+}; // namespace detail
 
-enum class HarmonicType : uint8_t {
+enum class AspectType : uint8_t {
   Conjunction,
   Sextile,
   Square,
   Trine,
   Opposition,
   HarmonicCount,
-};
-
-enum class DeclinationType : uint8_t {
-  Parallel,
+  Parallel = detail::DeclinationOffset,
   Contraparallel,
   DeclinationCount
-};
 
-constexpr uint8_t DeclinationOffset = 0x10;
-
-}; // namespace detail
-
-enum class AspectType : uint8_t {
-  HarmonicType = 0x0,
-  DeclinationType = detail::DeclinationOffset,
 };
 
 enum class AspectDetail : uint8_t { Applying, Seperating, Count };
 
 constexpr std::array<uint8_t, // max = full circle / 2
-                     static_cast<std::size_t>(
-                         detail::HarmonicType::HarmonicCount)>
+                     static_cast<std::size_t>(AspectType::HarmonicCount)>
     Harmonics{0, 60, 90, 120, 180};
 
 struct AspectRetType {
@@ -81,8 +71,6 @@ auto GetMaxOrb(const swe::Planet &p1, const swe::Planet &p2) {
 template <class OrbConfig>
 std::optional<AspectRetType> HarmonicAspectBetween(const swe::Planet &p1,
                                                    const swe::Planet &p2) {
-  std::cout.precision(std::numeric_limits<double>::max_digits10);
-
   double max_orb = GetMaxOrb<OrbConfig>(p1, p2);
   double diff = static_cast<double>(Min(ArcPair(p1.Lon(), p2.Lon())));
   auto p = std::lower_bound(Harmonics.begin(), Harmonics.end(),
@@ -106,12 +94,24 @@ std::optional<AspectRetType> HarmonicAspectBetween(const swe::Planet &p1,
       static_cast<AspectType>(dist),
       (asd > basd) ? AspectDetail::Applying : AspectDetail::Seperating, asd};
 }
+template <std::equality_comparable T> bool IsInBetween(T a, T b, T val) {
+  return (a < val) && (val < b) || (a > val) && (val > b);
+}
 
 template <class OrbConfig>
 std::optional<AspectRetType> DeclineAspectBetween(const swe::Planet &p1,
                                                   const swe::Planet &p2) {
-  return std::nullopt;
+  double max_orb = GetMaxOrb<OrbConfig>(p1, p2);
+  auto [add, sub] = AddSub(p1.Lat(), p2.Lat());
+  AspectType type;
+  if (IsInBetween(0 - max_orb, 0 + max_orb, add)) {
+    type = AspectType::Parallel;
+  } else if (IsInBetween(0 - max_orb, 0 + max_orb, sub)) {
+    type = AspectType::Contraparallel;
+  } else {
+    return std::nullopt;
+  }
+  return AspectRetType{type, AspectDetail::Seperating, 10};
 }
-
 }; // namespace core
 }; // namespace specni

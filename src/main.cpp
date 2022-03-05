@@ -15,7 +15,8 @@ auto main(int, char **) -> int {
                             HouseSystem::Equal,
                             {swe::Ipl::Sun, swe::Ipl::Moon, swe::Ipl::Mercury,
                              swe::Ipl::Venus, swe::Ipl::Mars, swe::Ipl::Jupiter,
-                             swe::Ipl::Saturn}};
+                             swe::Ipl::Saturn, swe::Ipl::Neptune,
+                             swe::Ipl::Pluto, swe::Ipl::Uranus}};
 
   return 0;
 }

@@ -131,7 +131,7 @@ constexpr std::tuple<Cyclic<T, MIN, MAX>, Cyclic<T, MIN, MAX>>
 ArcPair(Cyclic<T, MIN, MAX> lhs, Cyclic<T, MIN, MAX> rhs) {
   constexpr T epsilon = std::numeric_limits<T>::epsilon() * 1000;
   Cyclic<T, MIN, MAX> sub = lhs - rhs;
-  return {sub, Cyclic<T, MIN, MAX>(360.0 - static_cast<T>(sub))};
+  return {sub, Cyclic<T, MIN, MAX>(MAX - static_cast<T>(sub))};
 }
 
 using EclipticLongitude = Cyclic<double, 0, 360>;

@@ -44,6 +44,17 @@ Chart::Chart(const swe::Ut &ut, const swe::Coordinate &geodetic,
                 << ((asp->detail == AspectDetail::Applying) ? 'A' : 'S') << " "
                 << asp->orb << std::endl;
     }
+
+    auto asp2 = DeclineAspectBetween<OrbPartileConfig>(
+        planets.m.at(planets.v[xasd.first]),
+        planets.m.at(planets.v[xasd.second]));
+
+    if (asp2.has_value()) {
+      std::cout << p1.Name() << " " << p2.Name() << " "
+                << static_cast<int>(asp2->type) << " "
+                << ((asp2->detail == AspectDetail::Applying) ? 'A' : 'S') << " "
+                << asp2->orb << std::endl;
+    }
   }
 }
 
