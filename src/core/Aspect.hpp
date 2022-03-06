@@ -9,6 +9,7 @@
 namespace specni {
 namespace core {
 namespace aspect {
+
 namespace detail {
 constexpr uint8_t DeclinationOffset = 0xF;
 }; // namespace detail
@@ -68,8 +69,9 @@ auto GetMaxOrb(const swe::Planet &p1, const swe::Planet &p2) {
   return std::max(OrbConfig::Get(p1.Id()), OrbConfig::Get(p2.Id()));
 }
 
+namespace detail {
 inline std::optional<decltype(Harmonics.begin())>
-GetClosestBoundary(double maxAllowedOrb, double shortestArc) {
+ClosestBoundary(double maxAllowedOrb, double shortestArc) {
   auto it =
       std::lower_bound(Harmonics.begin(), Harmonics.end(),
                        shortestArc + std::numeric_limits<double>::epsilon());
@@ -81,13 +83,14 @@ GetClosestBoundary(double maxAllowedOrb, double shortestArc) {
     return std::nullopt;
   }
 }
+}; // namespace detail
 
 template <class OrbConfig>
-std::optional<RetType> HarmonicAspectBetween(const swe::Planet &p1,
-                                             const swe::Planet &p2) {
+std::optional<RetType> HarmonicBetween(const swe::Planet &p1,
+                                       const swe::Planet &p2) {
   double maxAllowed = GetMaxOrb<OrbConfig>(p1, p2);
   double actualArc = Min(ArcPair(p1.Lon(), p2.Lon()));
-  auto optIt = GetClosestBoundary(maxAllowed, actualArc);
+  auto optIt = detail::ClosestBoundary(maxAllowed, actualArc);
 
   if (!optIt.has_value()) // FIXME: second check is unnecessary
     return std::nullopt;
@@ -105,8 +108,8 @@ std::optional<RetType> HarmonicAspectBetween(const swe::Planet &p1,
 }
 
 template <class OrbConfig>
-std::optional<RetType> DeclineAspectBetween(const swe::Planet &p1,
-                                            const swe::Planet &p2) {
+std::optional<RetType> DeclineBetween(const swe::Planet &p1,
+                                      const swe::Planet &p2) {
   double maxAllowed = GetMaxOrb<OrbConfig>(p1, p2);
   auto [sum, sub] = AddSub(p1.Lat(), p2.Lat());
   Type type;

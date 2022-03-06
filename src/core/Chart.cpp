@@ -34,7 +34,7 @@ Chart::Chart(const swe::Ut &ut, const swe::Coordinate &geodetic,
     const swe::Planet &p1 = planets.m.at(planets.v[xasd.first]);
     const swe::Planet &p2 = planets.m.at(planets.v[xasd.second]);
 
-    auto asp = aspect::HarmonicAspectBetween<aspect::DefaultOrbConfig>(
+    auto asp = aspect::HarmonicBetween<aspect::DefaultOrbConfig>(
         planets.m.at(planets.v[xasd.first]),
         planets.m.at(planets.v[xasd.second]));
 
@@ -45,7 +45,7 @@ Chart::Chart(const swe::Ut &ut, const swe::Coordinate &geodetic,
                 << " " << asp->orb << std::endl;
     }
 
-    auto asp2 = aspect::DeclineAspectBetween<aspect::OrbPartileConfig>(
+    auto asp2 = aspect::DeclineBetween<aspect::OrbPartileConfig>(
         planets.m.at(planets.v[xasd.first]),
         planets.m.at(planets.v[xasd.second]));
 
