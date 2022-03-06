@@ -34,26 +34,26 @@ Chart::Chart(const swe::Ut &ut, const swe::Coordinate &geodetic,
     const swe::Planet &p1 = planets.m.at(planets.v[xasd.first]);
     const swe::Planet &p2 = planets.m.at(planets.v[xasd.second]);
 
-    auto asp = HarmonicAspectBetween<DefaultOrbConfig>(
+    auto asp = aspect::HarmonicAspectBetween<aspect::DefaultOrbConfig>(
         planets.m.at(planets.v[xasd.first]),
         planets.m.at(planets.v[xasd.second]));
 
     if (asp.has_value()) {
       std::cout << p1.Name() << " " << p2.Name() << " "
                 << static_cast<int>(asp->type) * 60 << " "
-                << ((asp->detail == AspectDetail::Applying) ? 'A' : 'S') << " "
-                << asp->orb << std::endl;
+                << ((asp->detail == aspect::Detail::Applying) ? 'A' : 'S')
+                << " " << asp->orb << std::endl;
     }
 
-    auto asp2 = DeclineAspectBetween<OrbPartileConfig>(
+    auto asp2 = aspect::DeclineAspectBetween<aspect::OrbPartileConfig>(
         planets.m.at(planets.v[xasd.first]),
         planets.m.at(planets.v[xasd.second]));
 
     if (asp2.has_value()) {
       std::cout << p1.Name() << " " << p2.Name() << " "
                 << static_cast<int>(asp2->type) << " "
-                << ((asp2->detail == AspectDetail::Applying) ? 'A' : 'S') << " "
-                << asp2->orb << std::endl;
+                << ((asp2->detail == aspect::Detail::Applying) ? 'A' : 'S')
+                << " " << asp2->orb << std::endl;
     }
   }
 }

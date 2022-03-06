@@ -12,7 +12,7 @@ namespace specni {
 namespace core {
 
 template <std::equality_comparable T> bool IsInBetween(T a, T b, T val) {
-  return (a < val) && (val < b) || (a > val) && (val > b);
+  return ((a < val) && (val < b)) || ((a > val) && (val > b));
 }
 
 template <typename T, typename U = T>

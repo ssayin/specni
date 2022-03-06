@@ -8,12 +8,12 @@
 
 namespace specni {
 namespace core {
-
+namespace aspect {
 namespace detail {
 constexpr uint8_t DeclinationOffset = 0xF;
 }; // namespace detail
 
-enum class AspectType : uint8_t {
+enum class Type : uint8_t {
   Conjunction,
   Sextile,
   Square,
@@ -26,15 +26,15 @@ enum class AspectType : uint8_t {
 
 };
 
-enum class AspectDetail : uint8_t { Applying, Seperating, Count };
+enum class Detail : uint8_t { Applying, Seperating, Count };
 
 constexpr std::array<uint8_t, // max = full circle / 2
-                     static_cast<std::size_t>(AspectType::HarmonicCount)>
+                     static_cast<std::size_t>(Type::HarmonicCount)>
     Harmonics{0, 60, 90, 120, 180};
 
-struct AspectRetType {
-  AspectType type;
-  AspectDetail detail;
+struct RetType {
+  Type type;
+  Detail detail;
   double orb;
 };
 
@@ -83,8 +83,8 @@ GetClosestBoundary(double maxAllowedOrb, double shortestArc) {
 }
 
 template <class OrbConfig>
-std::optional<AspectRetType> HarmonicAspectBetween(const swe::Planet &p1,
-                                                   const swe::Planet &p2) {
+std::optional<RetType> HarmonicAspectBetween(const swe::Planet &p1,
+                                             const swe::Planet &p2) {
   double maxAllowed = GetMaxOrb<OrbConfig>(p1, p2);
   double actualArc = Min(ArcPair(p1.Lon(), p2.Lon()));
   auto optIt = GetClosestBoundary(maxAllowed, actualArc);
@@ -98,27 +98,28 @@ std::optional<AspectRetType> HarmonicAspectBetween(const swe::Planet &p1,
   auto futureDistToExact = std::fabs((*optIt.value()) - futureArc);
 
   auto index = std::distance(Harmonics.begin(), optIt.value());
-  return AspectRetType{static_cast<AspectType>(index),
-                       (distToExact > futureDistToExact)
-                           ? AspectDetail::Applying
-                           : AspectDetail::Seperating,
-                       distToExact};
+  return RetType{static_cast<Type>(index),
+                 (distToExact > futureDistToExact) ? Detail::Applying
+                                                   : Detail::Seperating,
+                 distToExact};
 }
 
 template <class OrbConfig>
-std::optional<AspectRetType> DeclineAspectBetween(const swe::Planet &p1,
-                                                  const swe::Planet &p2) {
+std::optional<RetType> DeclineAspectBetween(const swe::Planet &p1,
+                                            const swe::Planet &p2) {
   double maxAllowed = GetMaxOrb<OrbConfig>(p1, p2);
   auto [sum, sub] = AddSub(p1.Lat(), p2.Lat());
-  AspectType type;
+  Type type;
   if (IsInBetween(0 - maxAllowed, 0 + maxAllowed, sum)) {
-    type = AspectType::Parallel;
+    type = Type::Parallel;
   } else if (IsInBetween(0 - maxAllowed, 0 + maxAllowed, sub)) {
-    type = AspectType::Contraparallel;
+    type = Type::Contraparallel;
   } else {
     return std::nullopt;
   }
-  return AspectRetType{type, AspectDetail::Seperating, 10};
+  return RetType{type, Detail::Seperating, 10};
 }
+
+}; // namespace aspect
 }; // namespace core
 }; // namespace specni
