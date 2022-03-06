@@ -86,14 +86,13 @@ template <class OrbConfig>
 std::optional<AspectRetType> HarmonicAspectBetween(const swe::Planet &p1,
                                                    const swe::Planet &p2) {
   double maxAllowed = GetMaxOrb<OrbConfig>(p1, p2);
-  double actualArc = static_cast<double>(Min(ArcPair(p1.Lon(), p2.Lon())));
+  double actualArc = Min(ArcPair(p1.Lon(), p2.Lon()));
   auto optIt = GetClosestBoundary(maxAllowed, actualArc);
 
   if (!optIt.has_value()) // FIXME: second check is unnecessary
     return std::nullopt;
 
-  double futureArc =
-      static_cast<double>(Min(ArcPair(p1.FutureLon(), p2.FutureLon())));
+  double futureArc = Min(ArcPair(p1.FutureLon(), p2.FutureLon()));
 
   auto distToExact = std::fabs((*optIt.value()) - actualArc);
   auto futureDistToExact = std::fabs((*optIt.value()) - futureArc);
