@@ -22,7 +22,7 @@ public:
   constexpr Cyclic(const Cyclic &o) = default;
 
   constexpr Cyclic(const double o);
-  explicit constexpr operator double() const { return this->m; }
+  /*explicit*/ constexpr operator double() const { return this->m; }
   constexpr auto operator+=(const Cyclic &rhs) -> Cyclic &;
   constexpr auto operator-=(const Cyclic &rhs) -> Cyclic &;
   constexpr auto operator*=(const Cyclic &rhs) -> Cyclic &;

@@ -89,7 +89,7 @@ std::optional<AspectRetType> HarmonicAspectBetween(const swe::Planet &p1,
   double actualArc = static_cast<double>(Min(ArcPair(p1.Lon(), p2.Lon())));
   auto optIt = GetClosestBoundary(maxAllowed, actualArc);
 
-  if (!optIt.has_value())
+  if (!optIt.has_value()) // FIXME: second check is unnecessary
     return std::nullopt;
 
   double futureArc =
