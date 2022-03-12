@@ -19,3 +19,6 @@ build
 .project
 .ninja_deps
 .ninja_log
+.idea/
+.cmake/
+.build.ninja
