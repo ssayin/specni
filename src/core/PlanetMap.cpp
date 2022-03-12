@@ -1,19 +1,18 @@
 #include "PlanetMap.hpp"
 
-#include "Aspect.hpp"
+#include <utility>
 
-namespace specni {
-namespace core {
+namespace specni::core {
 
-PlanetMap::PlanetMap(const swe::Ut &ut, const std::vector<swe::Ipl> &vIpl)
-    : v(vIpl) {
-  constexpr swe::EphFlag flag =
-      swe::EphFlag::SwissEph | swe::EphFlag::Speed | swe::EphFlag::Equatorial;
+PlanetMap::PlanetMap(const swe::Ut& ut, std::vector<swe::Ipl> vIpl)
+		:v(std::move(vIpl))
+{
+	constexpr
+	swe::EphFlag flag = swe::EphFlag::SwissEph | swe::EphFlag::Speed;
 
-  for (auto e : this->v) {
-    m.insert({e, swe::Planet{e, ut, flag}});
-  }
+	for (auto e : this->v) {
+		m.insert({e, swe::Planet{e, ut, flag}});
+	}
 }
 
-}; // namespace core
-}; // namespace specni
+} // namespace specni

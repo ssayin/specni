@@ -2,14 +2,13 @@
 
 #include <core/swephpp.hpp>
 
-namespace specni {
+namespace specni::core {
 
-namespace core {
+class PlanetMap {
+public:
+	PlanetMap(const swe::Ut& ut, std::vector<swe::Ipl> vIpl);
 
-struct PlanetMap {
-  PlanetMap(const swe::Ut &ut, const std::vector<swe::Ipl> &vIpl);
-  std::unordered_map<swe::Ipl, swe::Planet> m;
-  std::vector<swe::Ipl> v;
+	std::unordered_map<swe::Ipl, swe::Planet> m;
+	std::vector<swe::Ipl> v;
 };
-}; // namespace core
-}; // namespace specni
+} // namespace specni

@@ -1,61 +1,61 @@
 #pragma once
 
-#include <functional>
-
+#include "Base.hpp"
 #include "Context.hpp"
 #include "Cyclic.hpp"
 #include "Defs.hpp"
+#include "EphData.hpp"
 #include "Ut.hpp"
 
-namespace specni {
-namespace core {
-namespace swe {
+namespace specni::core::swe {
 
-struct PlanetEphData {
-  double lon;
-  double lat;
-  double dist;
-  double spdlon;
-  double spdlat;
-  double spddist;
-};
-
-class Planet;
-std::ostream &operator<<(std::ostream &out, Planet const &p);
-
-class Planet : ContextInit {
-  friend std::ostream &operator<<(std::ostream &out, Planet const &p);
+class Planet: ContextInit,
+			  public HasEcliptic,
+			  public HasDeclination {
+	friend std::ostream& operator<<(std::ostream& out, Planet const& p);
 
 public:
-  Planet(const Ipl &ipl, const Ut &ut, const EphFlag &flag);
-  Planet(Planet &&) = default;
+	Planet(const Ipl& ipl, const Ut& ut, const EphFlag& flag);
 
-  auto Id() const -> const Ipl { return ipl; };
-  auto Lon() const -> const EclipticLongitude { return x.lon; }
-  auto Lat() const -> const double { return x.lat; }
-  auto SpdLon() const -> const EclipticLongitude { return x.spdlon; }
-  auto SpdLat() const -> const double { return x.spdlat; }
-  auto FutureLon() const -> const EclipticLongitude {
-    return {x.lon + x.spdlon};
-  }
-  auto Name() const -> const std::string;
+	[[nodiscard]] auto id() const -> Ipl { return ipl; };
 
-  auto operator==(const Planet &o) const -> bool {
-    return (o.ipl == this->ipl);
-  }
+	[[nodiscard]] auto name() const -> std::string;
+
+	[[nodiscard]] auto longitude() const -> Longitude override { return Longitude{ecliptic[0]}; }
+
+	[[nodiscard]] auto latitude() const -> double override { return ecliptic[1]; }
+
+	[[nodiscard]] auto distance() const -> double { return ecliptic[2]; }
+
+	[[nodiscard]] auto speedLongitude() const -> Longitude { return Longitude{ecliptic[3]}; }
+
+	[[nodiscard]] auto speedLatitude() const -> double { return ecliptic[4]; }
+
+	[[nodiscard]] auto speedDistance() const -> double { return ecliptic[5]; }
+
+	[[nodiscard]] auto declination() const -> Declination override { return Declination{equatorial[1]}; }
+
+	auto operator==(const Planet& o) const -> bool
+	{
+		return (o.ipl==this->ipl);
+	}
 
 private:
-  Ipl ipl;
-  PlanetEphData x{0};
+	Ipl ipl;
+	EphData ecliptic{0};
+	EphData equatorial{0};
 };
-}; // namespace swe
-}; // namespace core
-}; // namespace specni
+
+std::ostream& operator<<(std::ostream& out, Planet const& p);
+
+} // namespace specni
 
 namespace std {
-template <> struct hash<specni::core::swe::Planet> {
-  auto operator()(const specni::core::swe::Planet &p) const -> std::size_t {
-    return std::hash<specni::core::swe::Ipl>()(p.Id());
-  }
+template<>
+struct hash<specni::core::swe::Planet> {
+	auto operator()(const specni::core::swe::Planet& p) const -> std::size_t
+	{
+		return std::hash<specni::core::swe::Ipl>()(p.id());
+	}
 };
 } // namespace std

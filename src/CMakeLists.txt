@@ -1,13 +1,13 @@
 add_executable(
-  specni
-  core/swephpp/Context.cpp
-  core/swephpp/Ut.cpp
-  core/swephpp/Planet.cpp
-  core/swephpp/House.cpp
-  core/PlanetMap.cpp
-  core/Chart.cpp
-  main.cpp
-)
+        specni
+        core/swephpp/Context.cpp
+        core/swephpp/Ut.cpp
+        core/swephpp/Planet.cpp
+        core/swephpp/House.cpp
+        core/PlanetMap.cpp
+        core/Chart.cpp
+        main.cpp
+        core/swephpp/FixedStar.cpp core/swephpp/FixedStar.hpp gui/Wheel.cpp gui/Wheel.h gui/ImGuiExt.hpp gui/GuiMain.cpp gui/ZodiacsFont.h gui/Math.h)
 
 set_property(TARGET specni PROPERTY C_STANDARD 17)
 set_property(TARGET specni PROPERTY CXX_STANDARD 20)

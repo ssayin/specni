@@ -2,19 +2,17 @@
 
 #include "swephpp.hpp"
 #include <core/PlanetMap.hpp>
-
-namespace specni {
-namespace core {
+#include <optional>
+namespace specni::core {
 
 class Chart {
 public:
-  Chart(const swe::Ut &ut, const swe::Coordinate &geodetic, swe::HouseSystem hs,
-        const std::vector<swe::Ipl> &vIpl);
+	Chart(const swe::Ut& ut, const swe::Coordinate& geodetic, swe::HouseSystem hs,
+			const std::vector<swe::Ipl>& vIpl);
+
+	swe::House houses;
+	PlanetMap planets;
 
 private:
-  swe::House houses;
-  PlanetMap planets;
 };
-}; // namespace core
-
-}; // namespace specni
+} // namespace specni

@@ -2,20 +2,18 @@
 
 #include <string>
 
-namespace specni {
-namespace core {
-namespace swe {
+namespace specni::core::swe {
 
 struct Context {
-  Context();
-  Context(std::string eph_path);
-  ~Context();
+	Context();
+
+	explicit Context(std::string eph_path);
+
+	~Context();
 };
 
 struct ContextInit {
-  ContextInit();
+	ContextInit();
 };
 
-}; // namespace swe
-}; // namespace core
-}; // namespace specni
+} // namespace specni

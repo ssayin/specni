@@ -16,3 +16,6 @@ build
 .cache
 *.ini
 *.tcl
+.project
+.ninja_deps
+.ninja_log
