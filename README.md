@@ -62,14 +62,12 @@ The application uses Moshier Ephemeris by default if there are no ephemeris file
 cd bin
 ./specni
 ```
+**Missing Font File**
 
-### Missing Font File
+Font file path is hardcoded as "../misc/fonts/zodiac_s.ttf", and the callee source is in the deps folder. Try running the executable from parent folder as follows:
 
-Font file path is hardcoded as "../misc/fonts/zodiac_s.ttf"
-Create dirs in the build directory
 ```sh
-cd specni/build
-mkdir -p misc/fonts
+./bin/specni
 ```
 
 ## Authors
