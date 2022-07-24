@@ -64,11 +64,12 @@ cd bin
 ```
 **Missing Font File**
 
-Font file path is hardcoded as "../misc/fonts/zodiac_s.ttf", and the callee source is in the deps folder. Try running the executable from parent folder as follows:
+Font file path is hardcoded as "../misc/fonts/zodiac_s.ttf". Try running the executable as follows:
 
 ```sh
 ./bin/specni
 ```
+Moving the misc/fonts directory to the build directory is an alternative.
 
 ## Authors
 
