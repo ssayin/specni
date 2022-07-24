@@ -27,14 +27,14 @@ cd build
 ```
 ## Building
 
-## w/ Ninja
+### w/ Ninja
 
 ```sh
 cmake -GNinja ..
 ninja
 ```
 
-## w/ GNU Makefiles
+### w/ GNU Makefiles
 
 ```sh
 cmake -G"Unix Makefiles" ..
