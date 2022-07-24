@@ -63,6 +63,15 @@ cd bin
 ./specni
 ```
 
+### Missing Font File
+
+Font file path is hardcoded as "../misc/fonts/zodiac_s.ttf"
+Create dirs in the build directory
+```sh
+cd specni/build
+mkdir -p misc/fonts
+```
+
 ## Authors
 
 * **Serdar Sayın** - *Initial work* - [GitHub](https://github.com/ssayin)
