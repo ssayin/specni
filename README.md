@@ -17,7 +17,51 @@ An application which implements William Lilly Dignity/Debility point-scoring sys
 * GCC >= 11 *or* clang >= 12
 * SDL2 binaries
 
+## Cloning and Preparing
 
+```sh
+git clone --recurse-submodules https://github.com/ssayin/specni.git
+cd specni
+mkdir build
+cd build
+```
+
+## Building \w Ninja
+
+```sh
+cmake -GNinja ..
+ninja
+```
+
+## Building \w GNU Makefiles
+
+```sh
+cmake -G"Unix Makefiles" ..
+make
+```
+
+***Important***
+The application uses Moshier Ephemeris by default if there are no ephemeris files present in the binary directory. Download the required ephemeris files from [this address](https://www.astro.com/ftp/swisseph/) and place them in the same directory as the binary executable if you want a more accurate ephemeris that includes asteroids and fixed stars.
+
+***Example Binary Directory Structure***
+
+.
+|-- bin
+|   |-- ephe
+|   |   |-- seasm114.se1
+|   |   |-- seasm24.se1
+|   |   |-- seasm60.se1
+|   |   `-- sefstars.txt
+|   `-- specni
+
+*Note:* The required files are not represented by the file names listed above. Here will be updated with a list of the exact file names needed for the application to function properly.
+
+## Running
+
+```sh
+cd bin
+./specni
+```
 
 ## Authors
 
