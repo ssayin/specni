@@ -40,19 +40,19 @@ cmake -G"Unix Makefiles" ..
 make
 ```
 
-***Important***
+***Important:***\
 The application uses Moshier Ephemeris by default if there are no ephemeris files present in the binary directory. Download the required ephemeris files from [this address](https://www.astro.com/ftp/swisseph/) and place them in the same directory as the binary executable if you want a more accurate ephemeris that includes asteroids and fixed stars.
 
 ***Example Binary Directory Structure***
 
-.
-|-- bin
-|   |-- ephe
-|   |   |-- seasm114.se1
-|   |   |-- seasm24.se1
-|   |   |-- seasm60.se1
-|   |   `-- sefstars.txt
-|   `-- specni
+.\
+|-- bin\
+|&emsp;|-- ephe\
+|&emsp;|&emsp;|-- seasm114.se1\
+|&emsp;|&emsp;|-- seasm24.se1\
+|&emsp;|&emsp;|-- seasm60.se1\
+|&emsp;|&emsp;\`-- sefstars.txt\
+|&emsp;\`-- specni
 
 *Note:* The required files are not represented by the file names listed above. Here will be updated with a list of the exact file names needed for the application to function properly.
 
