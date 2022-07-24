@@ -25,22 +25,23 @@ cd specni
 mkdir build
 cd build
 ```
+## Building
 
-## Building \w Ninja
+## w/ Ninja
 
 ```sh
 cmake -GNinja ..
 ninja
 ```
 
-## Building \w GNU Makefiles
+## w/ GNU Makefiles
 
 ```sh
 cmake -G"Unix Makefiles" ..
 make
 ```
-
-***Important:***\
+## Ephemeris Files
+***Important***\
 The application uses Moshier Ephemeris by default if there are no ephemeris files present in the binary directory. Download the required ephemeris files from [this address](https://www.astro.com/ftp/swisseph/) and place them in the same directory as the binary executable if you want a more accurate ephemeris that includes asteroids and fixed stars.
 
 ***Example Binary Directory Structure***
