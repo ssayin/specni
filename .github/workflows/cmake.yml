@@ -63,13 +63,12 @@ jobs:
           echo "$HOME/.sonar/build-wrapper-linux-x86" >> $GITHUB_PATH
     - name: Run build-wrapper
       run: |
-          build-wrapper-linux-x86-64 --out-dir ${{ env.BUILD_WRAPPER_OUT_DIR }} cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+          build-wrapper-linux-x86-64 --out-dir ${{ env.BUILD_WRAPPER_OUT_DIR }}
     - name: Run sonar-scanner
       env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       run: |
-          mkdir build
           cmake -S . -B build
           sonar-scanner --define sonar.host.url="${{ env.SONAR_HOST_URL }}" --define sonar.cfamily.compile-commands=build/compile_commands.json
 
