@@ -60,7 +60,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           # Set the property "sonar.cfamily.compile-commands" to the compilation database file
-          sonar-scanner --define sonar.host.url="${{ env.SONAR_HOST_URL }}" --define sonar.cfamily.compile-commands=build/compile_commands.json
+          sonar-scanner --define sonar.host.url="${{ env.SONAR_HOST_URL }}"
       - name: Test
         working-directory: ${{github.workspace}}/build
         # Execute tests defined by the CMake configuration.  
