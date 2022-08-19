@@ -51,6 +51,9 @@ jobs:
         run: |
           mkdir build
           cmake -S . -B build
+          cd build
+          make
+          cd ..
       - name: Run sonar-scanner
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
