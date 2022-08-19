@@ -54,7 +54,6 @@ jobs:
           cd build
           make
           cd ..
-          pwd
       - name: Run sonar-scanner
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
