@@ -1,7 +1,6 @@
-auto gui(int argc, char** argv) -> void;
+auto gui(int argc, char **argv) -> void;
 
-auto main(int argc, char** argv) -> int
-{
-	gui(argc, argv);
-	return 0;
+auto main(int argc, char **argv) -> int {
+  gui(argc, argv);
+  return 0;
 }
