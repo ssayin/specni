@@ -69,7 +69,7 @@ constexpr auto exaltations = std::to_array<std::pair<swe::Ipl, double>>({
 
 // Upper-bound
 using TermsPentad = std::array<std::pair<swe::Ipl, double>, 5>;
-static auto terms = std::to_array<TermsPentad>({
+constexpr auto terms = std::to_array<TermsPentad>({
     {
         std::make_pair(swe::Ipl::Jupiter, 6.0),
         std::make_pair(swe::Ipl::Venus, 14.0),
@@ -197,41 +197,42 @@ enum class DigDeb {
 
 constexpr std::string_view to_string(DigDeb dd) {
   switch (dd) {
-  case DigDeb::Swift:
+    using enum DigDeb;
+  case Swift:
     return "Swift";
-  case DigDeb::Slow:
+  case Slow:
     return "Slow";
-  case DigDeb::Retrograde:
+  case Retrograde:
     return "Retrograde";
-  case DigDeb::Direct:
+  case Direct:
     return "Direct";
-  case DigDeb::Oriental:
+  case Oriental:
     return "Oriental";
-  case DigDeb::Occidental:
+  case Occidental:
     return "Occidental";
-  case DigDeb::UnderSunBeams:
+  case UnderSunBeams:
     return "UnderSunBeams";
-  case DigDeb::Combust:
+  case Combust:
     return "Combust";
-  case DigDeb::Cazimi:
+  case Cazimi:
     return "Cazimi";
-  case DigDeb::FreeFromSunBeams:
+  case FreeFromSunBeams:
     return "FreeFromSunBeams";
-  case DigDeb::Domicile:
+  case Domicile:
     return "Domicile";
-  case DigDeb::Detriment:
+  case Detriment:
     return "Detriment";
-  case DigDeb::InOwnTriplicity:
+  case InOwnTriplicity:
     return "InOwnTriplicity";
-  case DigDeb::InOwnFace:
+  case InOwnFace:
     return "InOwnFace";
-  case DigDeb::InOwnTerm:
+  case InOwnTerm:
     return "InOwnTerm";
-  case DigDeb::Exalted:
+  case Exalted:
     return "Exalted";
-  case DigDeb::Fallen:
+  case Fallen:
     return "Fallen";
-  case DigDeb::Peregrine:
+  case Peregrine:
     return "Peregrine";
   default:
     throw std::invalid_argument("invalid DigDeb for to_string(...)");
@@ -295,8 +296,8 @@ const auto digDebCallTable = std::to_array<DigDebCb>({
      [](const auto &pl) {
        const auto d = std::fmod(pl.ecliptic().at(0), 30);
        const TermsPentad &sign = terms.at(pl.ecliptic().at(0) / 30);
-       return std::adjacent_find(
-                  sign.begin(), sign.end(), [&](const auto &x, const auto &y) {
+       return std::ranges::adjacent_find(
+                  sign, [&](const auto &x, const auto &y) {
                     return d >= x.second && d < y.second && y.first == pl.id();
                   }) != sign.end();
      }},
@@ -545,27 +546,26 @@ void ShowChart(core::Chart &model, std::array<ImFont *, 2> &fonts) {
 
     ImGui::TableHeadersRow();
 
-    std::for_each(
-        std::begin(model.planets), std::end(model.planets), [&](const auto &p) {
-          ImGui::TableNextRow();
-          ImGui::TableNextColumn();
+    std::ranges::for_each(model.planets, [&](const auto &p) {
+      ImGui::TableNextRow();
+      ImGui::TableNextColumn();
 
-          ImGuiExtra::Text("{}", p.name().data());
-          ImGui::TableNextColumn();
+      ImGuiExtra::Text("{}", p.name().data());
+      ImGui::TableNextColumn();
 
-          ImGui::Text("%lf", p.ecliptic().at(0));
-          ImGui::TableNextColumn();
+      ImGui::Text("%lf", p.ecliptic().at(0));
+      ImGui::TableNextColumn();
 
-          ImGui::Text("%lf", p.ecliptic().at(3));
-          ImGui::TableNextColumn();
+      ImGui::Text("%lf", p.ecliptic().at(3));
+      ImGui::TableNextColumn();
 
-          ImGui::Text("%d", static_cast<unsigned>(
-                                std::trunc(model.houses.housePos(p))));
-          ImGui::TableNextColumn();
+      ImGui::Text("%d",
+                  static_cast<unsigned>(std::trunc(model.houses.housePos(p))));
+      ImGui::TableNextColumn();
 
-          ImGui::Text("%lf", p.equatorial().at(1));
-          ImGui::TableNextColumn();
-        });
+      ImGui::Text("%lf", p.equatorial().at(1));
+      ImGui::TableNextColumn();
+    });
 
     ImGui::EndTable();
   }
@@ -635,34 +635,31 @@ void ShowChart(core::Chart &model, std::array<ImFont *, 2> &fonts) {
 
   ImGui::Begin("Scores");
 
-  auto sun = std::find_if(
-      std::begin(model.planets), std::end(model.planets),
-      [](const auto &pl) { return pl.id() == core::swe::Ipl::Sun; });
+  auto sun = std::ranges::find_if(model.planets, [](const auto &pl) {
+    return pl.id() == core::swe::Ipl::Sun;
+  });
 
-  std::for_each(
-      std::cbegin(model.planets), std::cend(model.planets),
-      [&](const core::swe::Planet &pl) {
-        if (ImGui::TreeNode(pl.name().c_str())) {
-          std::for_each(std::cbegin(core::digDebCallTable),
-                        std::cend(core::digDebCallTable), [&](const auto &x) {
-                          if (x.second(pl))
-                            ImGuiExtra::Text("{}", to_string(x.first));
-                        });
-          if (sun != std::cend(model.planets)) {
-            auto isNight = [](const core::swe::Planet &sun, double ac) {
-              return swe_difdeg2n(sun.ecliptic().at(0), ac) >= 0;
-            }(*sun, model.houses.ang.at(0));
-
-            if (core::isInOwnTriplicity(isNight, pl)) {
-              ImGuiExtra::Text("{}", to_string(core::DigDeb::InOwnTriplicity));
-            }
-
-            ImGuiExtra::Text("{}", to_string(core::sunAccDeb(*sun, pl)));
-            ImGuiExtra::Text("{}", to_string(core::sunPlanetRise(model, pl)));
-          }
-          ImGui::TreePop();
-        }
+  std::ranges::for_each(model.planets, [&](const core::swe::Planet &pl) {
+    if (ImGui::TreeNode(pl.name().c_str())) {
+      std::ranges::for_each(core::digDebCallTable, [&](const auto &x) {
+        if (x.second(pl))
+          ImGuiExtra::Text("{}", to_string(x.first));
       });
+      if (sun != std::cend(model.planets)) {
+        auto isNight = [](const core::swe::Planet &sun, double ac) {
+          return swe_difdeg2n(sun.ecliptic().at(0), ac) >= 0;
+        }(*sun, model.houses.ang.at(0));
+
+        if (core::isInOwnTriplicity(isNight, pl)) {
+          ImGuiExtra::Text("{}", to_string(core::DigDeb::InOwnTriplicity));
+        }
+
+        ImGuiExtra::Text("{}", to_string(core::sunAccDeb(*sun, pl)));
+        ImGuiExtra::Text("{}", to_string(core::sunPlanetRise(model, pl)));
+      }
+      ImGui::TreePop();
+    }
+  });
 
   ImGui::End();
 
@@ -745,22 +742,19 @@ void ShowChart(core::Chart &model, std::array<ImFont *, 2> &fonts) {
   }
 
   ImVec2 r_planets(0, window_size.y * 0.38f);
-  std::for_each(
-      std::cbegin(model.planets), std::cend(model.planets),
-      [&](const auto &pl) {
-        constexpr auto m =
-            FastMap<core::swe::Ipl, std::pair<std::string_view, ImVec4>,
-                    PlanetGlyphMap.size()>{{PlanetGlyphMap}};
+  std::ranges::for_each(model.planets, [&](const auto &pl) {
+    constexpr auto m =
+        FastMap<core::swe::Ipl, std::pair<std::string_view, ImVec4>,
+                PlanetGlyphMap.size()>{{PlanetGlyphMap}};
 
-        auto val = m.at(pl.id());
-        if (val.has_value()) {
-          auto angle = translate - deg2rad(pl.ecliptic().at(0));
-          draw_list->AddText(window_center + ImRotate(r_planets,
-                                                      std::cos(angle),
-                                                      std::sin(angle)),
-                             ImColor(val->second), val->first.data());
-        }
-      });
+    auto val = m.at(pl.id());
+    if (val.has_value()) {
+      auto angle = translate - deg2rad(pl.ecliptic().at(0));
+      draw_list->AddText(
+          window_center + ImRotate(r_planets, std::cos(angle), std::sin(angle)),
+          ImColor(val->second), val->first.data());
+    }
+  });
 
   constexpr std::array<std::string_view, 2> lglyph = {"K", "L"};
   auto draw_angle = [&](double deg, std::size_t glyph_ind) {

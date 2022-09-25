@@ -52,9 +52,6 @@ public:
   void update(const swe::Ut &ut, const swe::Coordinate &geodetic,
               swe::HouseSystem hs);
 
-  const auto planetsBegin() { return planets.cbegin(); }
-  const auto planetsEnd() { return planets.cend(); }
-
   swe::House houses;
   std::vector<swe::Planet> planets;
   swe::Coordinate coord;
