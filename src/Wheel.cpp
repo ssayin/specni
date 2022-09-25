@@ -252,10 +252,6 @@ auto fastMapCmp(swe::Ipl ipl, double x, Comp cmp) {
   }
 }
 
-struct cmp_fall {
-  bool operator()(double a, double d) { return swe_difdegn(a, d) == 180.0; }
-};
-
 using DigDebCb =
     std::pair<DigDeb, std::function<std::size_t(const swe::Planet &)>>;
 using DigDebCbBinary =
@@ -316,7 +312,8 @@ const auto digDebCallTable = std::to_array<DigDebCb>({
     {DigDeb::Fallen,
      [](const auto &pl) {
        return fastMapCmp<decltype(core::exaltations), core::exaltations>(
-           pl.id(), pl.ecliptic().at(0), cmp_fall{});
+           pl.id(), swe_degnorm(pl.ecliptic().at(0) + 180.0),
+           std::equal_to<>{});
      }},
 });
 
