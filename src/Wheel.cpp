@@ -252,11 +252,7 @@ auto fastMapCmp(swe::Ipl ipl, double x, Comp cmp) {
   }
 }
 
-using DigDebCb =
-    std::pair<DigDeb, std::function<std::size_t(const swe::Planet &)>>;
-using DigDebCbBinary =
-    std::pair<DigDeb,
-              std::function<bool(const swe::Planet &, const swe::Planet &)>>;
+using DigDebCb = std::pair<DigDeb, std::function<bool(const swe::Planet &)>>;
 
 const auto digDebCallTable = std::to_array<DigDebCb>({
     {DigDeb::Swift,
