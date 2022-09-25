@@ -13,8 +13,8 @@ An application which implements William Lilly Dignity/Debility point-scoring sys
 * [SDL](https://github.com/libsdl-org/SDL) - A cross-platform development library designed to provide low level access to audio, keyboard, mouse, joystick, and graphics hardware via OpenGL and Direct3D.
 
 ## Build Requirements
-* CMake >= 3.21
-* GCC >= 11 *or* clang >= 12
+* CMake >= 3.9
+* GCC >= 12.2
 * SDL2 binaries
 
 ## Cloning and Preparing
