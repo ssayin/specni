@@ -155,14 +155,21 @@ struct Context {
 struct ContextInit {
   ContextInit() { static Context ctx; }
 };
+
 namespace detail {
 static constexpr uint8_t EphDataSize = 6;
 }
 
 using EphData = std::array<double, detail::EphDataSize>;
 
-using GregorianTime = std::array<uint16_t, 6>;
-enum class GregorianTimeD { Year, Month, Day, Hour, Min, Sec };
+struct DateTime {
+  int Year;
+  unsigned Month;
+  unsigned Day;
+  unsigned Hours;
+  unsigned Minutes;
+  unsigned Seconds;
+};
 
 class Ut : ContextInit {
   static constexpr int GregorianFlag = 1;
@@ -171,9 +178,9 @@ class Ut : ContextInit {
 public:
   Ut(Ut &&) = default;
 
-  Ut(const GregorianTime &dt) {
-    assert(swe_call(swe_utc_to_jd, dt[0], dt[1], dt[2], dt[3], dt[4], dt[5],
-                    GregorianFlag, dret.data()) == OK);
+  Ut(const DateTime &dt) {
+    assert(swe_call(swe_utc_to_jd, dt.Year, dt.Month, dt.Day, dt.Hours,
+                    dt.Minutes, dt.Seconds, GregorianFlag, dret.data()) == OK);
   }
 
   operator double() const { return dret[UT1]; }
@@ -182,13 +189,28 @@ private:
   std::array<double, 2> dret{};
 };
 
+template <typename T>
+concept HasEcliptic = requires(T t) {
+  t.ecliptic();
+};
+
+template <typename T>
+concept HasEquatorial = requires(T t) {
+  t.equatorial();
+};
+
 class House : ContextInit {
 public:
   House(const Ut &ut, Coordinate geodetic, HouseSystem hsys)
       : geodetic{geodetic}, hsys{hsys} {
+    update(ut, geodetic, hsys);
+  }
 
+  void update(const Ut &ut, Coordinate geodetic, HouseSystem hsys) {
     static constexpr std::size_t GauquelinSize = 37;
     static constexpr std::size_t DefaultSize = 13;
+
+    this->hsys = hsys;
 
     hsys == HouseSystem::Gauquelin ? cusps.resize(GauquelinSize)
                                    : cusps.resize(DefaultSize);
@@ -198,21 +220,24 @@ public:
                static_cast<std::underlying_type_t<HouseSystem>>(hsys),
                &cusps[0], reinterpret_cast<double *>(&ang));
 
-    nutationInObliquity = [&]() {
+    cusps.shrink_to_fit();
+
+    nutation = [&]() {
       EphData data;
       swe_call(swe_calc_ut, ut, SE_ECL_NUT,
                static_cast<std::underlying_type_t<EphFlag>>(EphFlag::SwissEph),
                data.data());
-      return data.at(3);
+      return data.at(0);
     }();
   }
 
-  double entityPos(Coordinate &coord) const {
-    return swe_call(swe_house_pos, ang.at(ArmC),
-                    geodetic.at(static_cast<std::size_t>(Coord::Latitude)),
-                    nutationInObliquity,
-                    static_cast<std::underlying_type_t<HouseSystem>>(hsys),
-                    static_cast<double *>(&coord[0]));
+  template <HasEcliptic EC> double housePos(const EC &ec) const {
+    return swe_call(
+        swe_house_pos, ang.at(ArmC),
+        geodetic.at(static_cast<std::size_t>(Coord::Latitude)), nutation,
+        static_cast<std::underlying_type_t<HouseSystem>>(hsys),
+        std::to_array<double>({ec.ecliptic().at(0), ec.ecliptic().at(1)})
+            .data());
   }
 
   Angles ang{0};
@@ -221,8 +246,7 @@ public:
 private:
   Coordinate geodetic;
   HouseSystem hsys;
-
-  double nutationInObliquity;
+  double nutation;
 };
 
 class Planet : ContextInit {
@@ -231,16 +255,8 @@ public:
   Planet(Ipl ipl, const Ut &ut, EphFlag flag) : ipl(ipl) {
     nm.resize(SE_MAX_STNAME);
     swe_get_planet_name(static_cast<std::underlying_type_t<Ipl>>(ipl), &nm[0]);
-    nm.resize(strnlen(nm.data(), SE_MAX_STNAME));
-
-    auto init_data = [&](EphFlag fl, std::size_t index) {
-      swe_call(swe_calc_ut, ut, static_cast<std::underlying_type_t<Ipl>>(ipl),
-               static_cast<std::underlying_type_t<EphFlag>>(fl),
-               eph.at(index).data());
-    };
-
-    init_data(flag, 0);
-    init_data(flag | EphFlag::Equatorial, 1);
+    nm.shrink_to_fit();
+    update(ut, flag);
   }
 
   auto id() const -> Ipl { return ipl; };
@@ -251,6 +267,17 @@ public:
   const auto &ecliptic() const { return eph.at(0); }
   const auto &equatorial() const { return eph.at(1); }
 
+  void update(const Ut &ut, EphFlag flag) {
+    auto init_data = [&](EphFlag fl, std::size_t index) {
+      swe_call(swe_calc_ut, ut, static_cast<std::underlying_type_t<Ipl>>(ipl),
+               static_cast<std::underlying_type_t<EphFlag>>(fl),
+               eph.at(index).data());
+    };
+
+    init_data(flag, 0);
+    init_data(flag | EphFlag::Equatorial, 1);
+  }
+
 private:
   Ipl ipl;
   std::array<EphData, 2> eph;
@@ -259,7 +286,11 @@ private:
 
 class FixedStar : ContextInit {
 public:
-  FixedStar(std::string id, const Ut &ut, EphFlag flag) {
+  FixedStar(std::string id, const Ut &ut, EphFlag flag) : id(std::move(id)) {
+    update(ut, flag);
+  }
+
+  void update(const Ut &ut, EphFlag flag) {
     swe_call(swe_fixstar_ut, id.data(), static_cast<double>(ut),
              static_cast<std::underlying_type_t<EphFlag>>(flag),
              ecliptic.data());

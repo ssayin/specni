@@ -29,6 +29,9 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
   endif()
 endif()
 
+set(CMAKE_CXX_FLAGS_DEBUG "-fno-omit-frame-pointer")
+set(CMAKE_C_FLAGS_DEBUG "-fno-omit-frame-pointer")
+
 set(OpenGL_GL_PREFERENCE GLVND)
 find_package(SDL2 REQUIRED)
 find_package(OpenGL REQUIRED)

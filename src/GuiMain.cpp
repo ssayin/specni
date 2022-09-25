@@ -16,7 +16,9 @@
 #include <SDL_opengl.h>
 #endif
 
-#include "Wheel.h"
+namespace specni::gui {
+void ShowChart(core::Chart &model, std::array<ImFont *, 2> &fonts);
+};
 
 // Main code
 int gui(int, char **) {
@@ -106,19 +108,24 @@ int gui(int, char **) {
   // - Remember that in C/C++ if you want to include a backslash \ in a string
   // literal you need to write a double backslash \\ !
 
+  auto add_monospaced = [&](float size) -> ImFont * {
+    ImFontConfig cfg{};
+    cfg.GlyphMinAdvanceX = size;
+    return io.Fonts->AddFontFromFileTTF("../misc/fonts/zodiac_s.ttf", size,
+                                        &cfg);
+  };
+
+  auto add_centered = [&](float size) -> ImFont * {
+    ImFontConfig cfg;
+    cfg.GlyphOffset.x = -(size / 2.0);
+    cfg.GlyphOffset.y = -(size / 2.0);
+    return io.Fonts->AddFontFromFileTTF("../misc/fonts/zodiac_s.ttf", size,
+                                        &cfg);
+  };
+
   io.Fonts->AddFontDefault();
 
-  ImFontConfig cfg;
-  cfg.GlyphMinAdvanceX = 13.0f;
-  ImFont *monospace_zodiac =
-      io.Fonts->AddFontFromFileTTF("../misc/fonts/zodiac_s.ttf", 13.0f, &cfg);
-
-  cfg = {};
-  cfg.GlyphOffset.x = -(16.0f / 2.0);
-  cfg.GlyphOffset.y = -(16.0f / 2.0);
-  ImFont *font =
-      io.Fonts->AddFontFromFileTTF("../misc/fonts/zodiac_s.ttf", 16.0f, &cfg);
-
+  auto fonts = std::to_array({add_centered(13.0f), add_centered(16.0f)});
   io.Fonts->Build();
   // io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf", 15.0f);
   // io.Fonts->AddFontFromFileTTF("../../misc/fonts/DroidSans.ttf", 16.0f);
@@ -128,10 +135,10 @@ int gui(int, char **) {
   // NULL, io.Fonts->GetGlyphRangesJapanese()); IM_ASSERT(font != NULL);
 
   // FIXME: Init your models here
-  specni::core::swe::GregorianTime g{2022, 8, 28, 15, 39, 16};
+  specni::core::swe::DateTime dt{2022, 8, 28, 15, 39, 16};
 
   specni::core::Chart model{
-      g,
+      dt,
       specni::core::swe::Coordinate{30, -30},
       specni::core::swe::HouseSystem::Equal,
       {specni::core::swe::Ipl::Sun, specni::core::swe::Ipl::Moon,
@@ -139,9 +146,6 @@ int gui(int, char **) {
        specni::core::swe::Ipl::Mars, specni::core::swe::Ipl::Jupiter,
        specni::core::swe::Ipl::Saturn, specni::core::swe::Ipl::Neptune,
        specni::core::swe::Ipl::Pluto, specni::core::swe::Ipl::Uranus}};
-
-  specni::gui::ChartSettings settings(font);
-  specni::gui::Wheel chart(settings, model);
 
   // Our state
   auto clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
@@ -174,11 +178,10 @@ int gui(int, char **) {
     ImGui_ImplSDL2_NewFrame();
     ImGui::NewFrame();
 
+    ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
     ImGui::ShowDemoWindow();
 
-    // FIXME: Send your vertices from here.
-
-    chart.Show();
+    specni::gui::ShowChart(model, fonts);
 
     // Rendering
     ImGui::Render();

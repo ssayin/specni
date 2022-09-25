@@ -1,42 +1,399 @@
-#include "Wheel.h"
-#include "ImGuiExt.hpp"
-#include "ZodiacsFont.h"
+#ifndef IMGUI_DEFINE_MATH_OPERATORS
+#define IMGUI_DEFINE_MATH_OPERATORS
+#endif
+#include <imgui.h>
+#include <imgui_internal.h>
+
+#include <Chart.hpp>
+#include <Combinations.hpp>
 #include <FastMap.hpp>
+#include <SwEphpp.hpp>
+#include <ZFont.hpp>
 #include <algorithm>
+#include <array>
+#include <chrono>
+#include <fmt/core.h>
 #include <imgui.h>
 #include <numbers>
 #include <numeric>
-#include <swephpp.hpp>
+#include <string_view>
 #include <tuple>
 #include <type_traits>
 #include <utility>
 #include <valarray>
 
-namespace specni::gui::degree {
+namespace specni::gui {
+static constexpr std::size_t ColorCount = 5;
+using ColorPalette = std::array<ImColor, ColorCount>;
+}; // namespace specni::gui
 
+namespace specni::core {
+
+// Aries - Mars, Taurus - Venus and so on.
+constexpr std::array<swe::Ipl, 12> houseOrder /* domicile */ {
+    swe::Ipl::Mars,    swe::Ipl::Venus,   swe::Ipl::Mercury, swe::Ipl::Moon,
+    swe::Ipl::Sun,     swe::Ipl::Mercury, swe::Ipl::Venus,   swe::Ipl::Mars,
+    swe::Ipl::Jupiter, swe::Ipl::Saturn,  swe::Ipl::Saturn,  swe::Ipl::Jupiter};
+
+// The faces follow the pattern below
+constexpr std::array<swe::Ipl, 7> faceOrder{
+    swe::Ipl::Mars, swe::Ipl::Sun,    swe::Ipl::Venus,  swe::Ipl::Mercury,
+    swe::Ipl::Moon, swe::Ipl::Saturn, swe::Ipl::Jupiter};
+
+// Starting from the sign of Aries, Day / Night triplicity rulers
+constexpr std::array<std::pair<swe::Ipl, swe::Ipl>, 12> triplicityRulers{
+    std::make_pair(swe::Ipl::Sun, swe::Ipl::Jupiter),
+    std::make_pair(swe::Ipl::Venus, swe::Ipl::Moon),
+    std::make_pair(swe::Ipl::Saturn, swe::Ipl::Mercury),
+    std::make_pair(swe::Ipl::Mars, swe::Ipl::Mars),
+    std::make_pair(swe::Ipl::Sun, swe::Ipl::Jupiter),
+    std::make_pair(swe::Ipl::Venus, swe::Ipl::Moon),
+    std::make_pair(swe::Ipl::Saturn, swe::Ipl::Mercury),
+    std::make_pair(swe::Ipl::Mars, swe::Ipl::Mars),
+    std::make_pair(swe::Ipl::Sun, swe::Ipl::Jupiter),
+    std::make_pair(swe::Ipl::Venus, swe::Ipl::Moon),
+    std::make_pair(swe::Ipl::Saturn, swe::Ipl::Mercury),
+    std::make_pair(swe::Ipl::Mars, swe::Ipl::Mars),
+};
+
+// Exact degree
+constexpr auto exaltations = std::to_array<std::pair<swe::Ipl, double>>({
+    {swe::Ipl::Moon, 33.0},     // Taurus 3
+    {swe::Ipl::TrueNode, 63.0}, // Gemini 3
+    {swe::Ipl::Jupiter, 105.0}, // Cancer 15
+    {swe::Ipl::Mercury, 195.0}, // Virgo 15
+    {swe::Ipl::Saturn, 231.0},  // Libra 21
+    {swe::Ipl::Mars, 298.0},    // Aquarius 28
+    {swe::Ipl::Venus, 357.0},   // Pisces 27
+});
+
+// Upper-bound
+using TermsPentad = std::array<std::pair<swe::Ipl, double>, 5>;
+static auto terms = std::to_array<TermsPentad>({
+    {
+        std::make_pair(swe::Ipl::Jupiter, 6.0),
+        std::make_pair(swe::Ipl::Venus, 14.0),
+        std::make_pair(swe::Ipl::Mercury, 21.0),
+        std::make_pair(swe::Ipl::Mars, 26.0),
+        std::make_pair(swe::Ipl::Saturn, 30.0),
+    },
+    {
+        std::make_pair(swe::Ipl::Venus, 8.0),
+        std::make_pair(swe::Ipl::Mercury, 15.0),
+        std::make_pair(swe::Ipl::Jupiter, 22.0),
+        std::make_pair(swe::Ipl::Saturn, 26.0),
+        std::make_pair(swe::Ipl::Mars, 30.0),
+    },
+    {
+        std::make_pair(swe::Ipl::Mercury, 7.0),
+        std::make_pair(swe::Ipl::Jupiter, 14.0),
+        std::make_pair(swe::Ipl::Venus, 21.0),
+        std::make_pair(swe::Ipl::Saturn, 25.0),
+        std::make_pair(swe::Ipl::Mars, 30.0),
+    },
+    {
+        std::make_pair(swe::Ipl::Mars, 6.0),
+        std::make_pair(swe::Ipl::Jupiter, 13.0),
+        std::make_pair(swe::Ipl::Mercury, 20.0),
+        std::make_pair(swe::Ipl::Venus, 27.0),
+        std::make_pair(swe::Ipl::Saturn, 30.0),
+    },
+    {
+        std::make_pair(swe::Ipl::Saturn, 6.0),
+        std::make_pair(swe::Ipl::Mercury, 13.0),
+        std::make_pair(swe::Ipl::Venus, 19.0),
+        std::make_pair(swe::Ipl::Jupiter, 25.0),
+        std::make_pair(swe::Ipl::Mars, 30.0),
+    },
+    {
+        std::make_pair(swe::Ipl::Mercury, 7.0),
+        std::make_pair(swe::Ipl::Venus, 13.0),
+        std::make_pair(swe::Ipl::Jupiter, 18.0),
+        std::make_pair(swe::Ipl::Saturn, 24.0),
+        std::make_pair(swe::Ipl::Mars, 30.0),
+    },
+    {
+        std::make_pair(swe::Ipl::Saturn, 7.0),
+        std::make_pair(swe::Ipl::Venus, 13.0),
+        std::make_pair(swe::Ipl::Jupiter, 18.0),
+        std::make_pair(swe::Ipl::Mercury, 24.0),
+        std::make_pair(swe::Ipl::Mars, 30.0),
+    },
+    {
+        std::make_pair(swe::Ipl::Mars, 6.0),
+        std::make_pair(swe::Ipl::Jupiter, 14.0),
+        std::make_pair(swe::Ipl::Venus, 21.0),
+        std::make_pair(swe::Ipl::Mercury, 27.0),
+        std::make_pair(swe::Ipl::Saturn, 30.0),
+    },
+    {
+        std::make_pair(swe::Ipl::Jupiter, 8.0),
+        std::make_pair(swe::Ipl::Venus, 14.0),
+        std::make_pair(swe::Ipl::Mercury, 19.0),
+        std::make_pair(swe::Ipl::Saturn, 25.0),
+        std::make_pair(swe::Ipl::Mars, 30.0),
+    },
+    {
+        std::make_pair(swe::Ipl::Venus, 6.0),
+        std::make_pair(swe::Ipl::Mercury, 12.0),
+        std::make_pair(swe::Ipl::Jupiter, 19.0),
+        std::make_pair(swe::Ipl::Mars, 25.0),
+        std::make_pair(swe::Ipl::Saturn, 30.0),
+    },
+    {
+        std::make_pair(swe::Ipl::Saturn, 6.0),
+        std::make_pair(swe::Ipl::Mercury, 12.0),
+        std::make_pair(swe::Ipl::Venus, 20.0),
+        std::make_pair(swe::Ipl::Jupiter, 25.0),
+        std::make_pair(swe::Ipl::Mars, 30.0),
+    },
+    {
+        std::make_pair(swe::Ipl::Venus, 8.0),
+        std::make_pair(swe::Ipl::Jupiter, 14.0),
+        std::make_pair(swe::Ipl::Mercury, 20.0),
+        std::make_pair(swe::Ipl::Mars, 26.0),
+        std::make_pair(swe::Ipl::Saturn, 30.0),
+    },
+});
+
+constexpr auto slowUB = std::to_array<std::pair<swe::Ipl, double>>({
+    {swe::Ipl::Moon, 12.30},
+    {swe::Ipl::Mercury, 1.00},
+    {swe::Ipl::Venus, 0.50},
+    {swe::Ipl::Mars, 0.30},
+    {swe::Ipl::Jupiter, 0.05},
+    {swe::Ipl::Saturn, 0.02},
+});
+
+constexpr auto swiftLB = std::to_array<std::pair<swe::Ipl, double>>({
+    {swe::Ipl::Moon, 13.30},
+    {swe::Ipl::Mercury, 1.38},
+    {swe::Ipl::Venus, 1.20},
+    {swe::Ipl::Mars, 0.40},
+    {swe::Ipl::Jupiter, 0.10},
+    {swe::Ipl::Saturn, 0.05},
+});
+
+enum class DigDeb {
+  Swift,
+  Slow,
+  Retrograde,
+  Direct,
+  Oriental,
+  Occidental,
+  UnderSunBeams,
+  Combust,
+  Cazimi,
+  FreeFromSunBeams,
+  Domicile,
+  Detriment,
+  InOwnTriplicity,
+  InOwnFace,
+  InOwnTerm,
+  Exalted,
+  Fallen,
+  Peregrine
+};
+
+constexpr std::string_view to_string(DigDeb dd) {
+  switch (dd) {
+  case DigDeb::Swift:
+    return "Swift";
+  case DigDeb::Slow:
+    return "Slow";
+  case DigDeb::Retrograde:
+    return "Retrograde";
+  case DigDeb::Direct:
+    return "Direct";
+  case DigDeb::Oriental:
+    return "Oriental";
+  case DigDeb::Occidental:
+    return "Occidental";
+  case DigDeb::UnderSunBeams:
+    return "UnderSunBeams";
+  case DigDeb::Combust:
+    return "Combust";
+  case DigDeb::Cazimi:
+    return "Cazimi";
+  case DigDeb::FreeFromSunBeams:
+    return "FreeFromSunBeams";
+  case DigDeb::Domicile:
+    return "Domicile";
+  case DigDeb::Detriment:
+    return "Detriment";
+  case DigDeb::InOwnTriplicity:
+    return "InOwnTriplicity";
+  case DigDeb::InOwnFace:
+    return "InOwnFace";
+  case DigDeb::InOwnTerm:
+    return "InOwnTerm";
+  case DigDeb::Exalted:
+    return "Exalted";
+  case DigDeb::Fallen:
+    return "Fallen";
+  case DigDeb::Peregrine:
+    return "Peregrine";
+  default:
+    throw std::invalid_argument("invalid DigDeb for to_string(...)");
+  }
+}
+
+template <core::swe::HasEcliptic EC> auto vlon(const EC &ec) {
+  return ec.ecliptic().at(3);
+}
+
+template <typename T, T t, typename Comp>
+auto fastMapCmp(swe::Ipl ipl, double x, Comp cmp) {
+  static constexpr auto map = FastMap<swe::Ipl, double, t.size()>{{t}};
+  if (auto found = map.at(ipl)) {
+    return cmp(x, *found);
+  } else {
+    return false;
+  }
+}
+
+struct cmp_fall {
+  bool operator()(double a, double d) { return swe_difdegn(a, d) == 180.0; }
+};
+
+using DigDebCb =
+    std::pair<DigDeb, std::function<std::size_t(const swe::Planet &)>>;
+using DigDebCbBinary =
+    std::pair<DigDeb,
+              std::function<bool(const swe::Planet &, const swe::Planet &)>>;
+
+const auto digDebCallTable = std::to_array<DigDebCb>({
+    {DigDeb::Swift,
+     [](const auto &pl) {
+       return fastMapCmp<decltype(swiftLB), swiftLB>(
+           pl.id(), pl.ecliptic().at(3), std::greater_equal<>{});
+     }},
+    {DigDeb::Slow,
+     [](const auto &pl) {
+       return fastMapCmp<decltype(slowUB), slowUB>(pl.id(), pl.ecliptic().at(3),
+                                                   std::less_equal<>{});
+     }},
+    {DigDeb::Retrograde,
+     [](const auto &pl) {
+       return pl.id() != swe::Ipl::Sun && pl.id() != swe::Ipl::Moon &&
+              vlon(pl) < 0.0;
+     }},
+    {DigDeb::Direct,
+     [](const auto &pl) {
+       return pl.id() != swe::Ipl::Sun && pl.id() != swe::Ipl::Moon &&
+              vlon(pl) > 0.0;
+     }},
+    {DigDeb::Domicile,
+     [](const auto &pl) {
+       return pl.id() == houseOrder.at(pl.ecliptic().at(0) / 30);
+     }},
+    {DigDeb::Detriment,
+     [](const auto &pl) {
+       return pl.id() ==
+              houseOrder.at((static_cast<int>(pl.ecliptic().at(0) / 30) + 6) %
+                            12);
+     }},
+    {DigDeb::InOwnFace,
+     [](const auto &pl) {
+       return pl.id() ==
+              core::faceOrder.at(
+                  static_cast<std::size_t>(pl.ecliptic().at(0) / 10.0) % 7);
+     }},
+    {DigDeb::InOwnTerm,
+     [](const auto &pl) {
+       const auto d = std::fmod(pl.ecliptic().at(0), 30);
+       const TermsPentad &sign = terms.at(pl.ecliptic().at(0) / 30);
+       return std::adjacent_find(
+                  sign.begin(), sign.end(), [&](const auto &x, const auto &y) {
+                    return d >= x.second && d < y.second && y.first == pl.id();
+                  }) != sign.end();
+     }},
+    {DigDeb::Exalted,
+     [](const auto &pl) {
+       return fastMapCmp<decltype(core::exaltations), core::exaltations>(
+           pl.id(), pl.ecliptic().at(0), std::equal_to<>{});
+     }},
+    {DigDeb::Fallen,
+     [](const auto &pl) {
+       return fastMapCmp<decltype(core::exaltations), core::exaltations>(
+           pl.id(), pl.ecliptic().at(0), cmp_fall{});
+     }},
+});
+
+consteval auto dms2double(double degs, double mins, double secs) {
+  return degs + mins / 60.0 + secs / 3600.0;
+}
+
+constexpr auto orbAbs(const auto &a, const auto &b) {
+  return std::abs(swe_difdeg2n(a.ecliptic().at(0), b.ecliptic().at(0)));
+}
+
+DigDeb sunAccDeb(const auto &sun, const auto &a) {
+  constinit static auto orbCombust = dms2double(8, 30, 0);
+  constinit static auto orbUnderSunBeams = dms2double(17, 0, 0);
+  constinit static auto orbCazimi = dms2double(0, 17, 0);
+  const auto orb = orbAbs(sun, a);
+  if (orb > orbUnderSunBeams)
+    return DigDeb::FreeFromSunBeams;
+  if (orb <= orbCazimi)
+    return DigDeb::Cazimi;
+  if (orb <= orbCombust)
+    return DigDeb::Combust;
+
+  return DigDeb::UnderSunBeams;
+}
+
+auto houseScore(std::size_t house_num) {
+  constinit static auto _ =
+      std::to_array<char>({0, 5, 3, 1, 4, 3, -2, 4, -2, 2, 5, 4, -5});
+  assert(house_num >= 0 && house_num <= 12);
+  return _.at(house_num);
+}
+
+auto sunPlanetRise(const Chart &c, const auto &a) {
+  double tret[3];
+  double tret2[3];
+
+  double geo[3] = {c.coord.at(0), c.coord.at(1), 0.0};
+
+  swe::swe_call(swe_rise_trans, c.ut,
+                static_cast<std::underlying_type_t<swe::Ipl>>(a.id()), nullptr,
+                0, SE_CALC_RISE, geo, 0, 0, tret);
+
+  swe::swe_call(swe_rise_trans, c.ut,
+                static_cast<std::underlying_type_t<swe::Ipl>>(swe::Ipl::Sun),
+                nullptr, 0, SE_CALC_RISE, geo, 0, 0, tret2);
+
+  return tret[0] < tret2[0] ? DigDeb::Oriental : DigDeb::Occidental;
+}
+
+auto isInOwnTriplicity(bool is_night, const auto &a) {
+  const auto &rulers = triplicityRulers.at(a.ecliptic().at(0) / 30);
+  return (is_night ? std::get<1>(rulers) : std::get<0>(rulers)) == a.id();
+}
+
+} // namespace specni::core
+
+namespace specni::gui {
 // not defined in std for some reason?
 template <typename T>
 concept arithmetic = std::is_arithmetic<T>::value;
-template <arithmetic T> constexpr double toRadians(T deg) {
+template <arithmetic T> constexpr double deg2rad(T deg) {
   return deg * (std::numbers::pi / 180.0);
 }
 
-template <arithmetic T> std::tuple<double, double> cosSin(T deg) {
-  return std::make_tuple(
-      cos(toRadians(-deg)),
-      sin(toRadians(-deg))); // we want to draw counter-clockwise
-}
-
 template <arithmetic T>
-std::tuple<std::valarray<T>, std::valarray<T>> cosSin2(std::valarray<T> &x) {
-  return std::make_tuple(std::cos(x), std::sin(x));
+std::tuple<std::valarray<T>, std::valarray<T>> cosSin(std::valarray<T> &x) {
+  return std::make_pair(std::cos(x), std::sin(x));
 }
+} // namespace specni::gui
 
-std::tuple<double, double> cosSinFixAt(double deg, double asc) {
-  return cosSin(deg - asc - 90);
+namespace ImGuiExtra {
+template <typename... Args>
+constexpr void Text(fmt::format_string<Args...> f, Args &&...args) {
+  ImGui::TextUnformatted(fmt::format(f, std::forward<Args>(args)...).c_str());
 }
-
-} // namespace specni::gui::degree
+} // namespace ImGuiExtra
 
 namespace specni::gui {
 
@@ -53,7 +410,268 @@ constexpr void ring_adjacency(It first, It last, BinaryFunction func) {
   func(*first2, *first);
 }
 
-void Wheel::Show() const {
+void ShowChart(core::Chart &model, std::array<ImFont *, 2> &fonts) {
+  ColorPalette colors{ImColor(0.5f, 0.5f, 0.5f), ImColor(0.2f, 0.2f, 0.5f)};
+  enum Ratio {
+    Innermost,
+    SignInner,
+    SignOuter,
+    CuspText,
+    CircleHouseNumbers,
+    Count
+  };
+
+  static constexpr std::array<double, Count> CirclesRadii = {
+      0.25f, 0.40f, 0.45f, 0.40f, 0.28f};
+
+  static constexpr float Thickness = 1.0f;
+
+  const int PlanetWidgetTableFlags =
+      ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable |
+      ImGuiTableFlags_Hideable | ImGuiTableFlags_BordersOuter |
+      ImGuiTableFlags_BordersV | ImGuiTableFlags_RowBg;
+
+  static constexpr std::string_view str =
+      "Equal\0Alcabitius\0Campanus\0EqualMC\0Carter\0Gauquelin\0Azimuth\0Sunshi"
+      "ne\0SunshineAlt\0Koch\0PullenSDelta\0Morinus\0WholeSign\0Porphyry\0Placi"
+      "dus\0PullenSRatio\0Regiomontanus\0Sripati\0PolichPage\0KrusinskiPisaGoel"
+      "zer\0EqualVehlow\0EqualWholeSign\0ARSMeridian\0APC\0";
+
+  auto hsys_from_index = [](std::size_t x) {
+    return static_cast<core::swe::HouseSystem>(
+        (char)((x > 3) ? (66 + x) : (65 + x)));
+  };
+
+  ImGui::Begin("Controls");
+
+  bool changeFlag = false;
+
+  static double latitude, longitude;
+
+  auto now = std::chrono::system_clock::now();
+  const auto ymd =
+      std::chrono::year_month_day{std::chrono::floor<std::chrono::days>(now)};
+
+  const auto hms = std::chrono::hh_mm_ss{
+      now.time_since_epoch() -
+      static_cast<std::chrono::sys_days>(ymd).time_since_epoch()};
+
+  static specni::core::swe::DateTime dt{
+      static_cast<int>(ymd.year()),
+      static_cast<unsigned int>(ymd.month()),
+      static_cast<unsigned int>(ymd.day()),
+      static_cast<unsigned int>(hms.hours().count()),
+      static_cast<unsigned int>(hms.minutes().count()),
+      static_cast<unsigned int>(hms.seconds().count())};
+
+  ImGui::PushItemWidth(-1);
+
+  float Avail = ImGui::CalcItemWidth();
+  float LabelW = ImGui::CalcTextSize("Month").x;
+  ImGui::PopItemWidth();
+  ImGui::PushItemWidth((Avail / 3) - LabelW -
+                       ImGui::GetStyle().ItemInnerSpacing.x);
+  ImGui::DragInt("Year", &dt.Year);
+  changeFlag |= ImGui::IsItemEdited();
+
+  ImGui::SameLine();
+
+  static constexpr unsigned int Min = 1;
+  static constexpr unsigned int MaxMonth = 12;
+  static constexpr unsigned int MaxMinSec = 59;
+  static constexpr unsigned int MaxHours = 23;
+
+  ImGui::DragScalar("Month", ImGuiDataType_U32, &dt.Month, 1.0f, &Min,
+                    &MaxMonth, "%u", ImGuiSliderFlags_AlwaysClamp);
+  changeFlag |= ImGui::IsItemEdited();
+
+  auto dayMax = static_cast<unsigned int>(std::chrono::year_month_day_last{
+      std::chrono::year(dt.Year) / std::chrono::month(dt.Month) /
+      std::chrono::last}
+                                              .day());
+  if (dt.Day > dayMax) {
+    dt.Day = dayMax;
+  }
+
+  ImGui::SameLine();
+
+  ImGui::DragScalar("Day", ImGuiDataType_U32, &dt.Day, 1.0f, &Min, &dayMax,
+                    "%u", ImGuiSliderFlags_AlwaysClamp);
+  changeFlag |= ImGui::IsItemEdited();
+
+  ImGui::DragScalar("Hours", ImGuiDataType_U32, &dt.Hours, 1.0f, &Min,
+                    &MaxHours, "%u", ImGuiSliderFlags_AlwaysClamp);
+
+  changeFlag |= ImGui::IsItemEdited();
+
+  ImGui::SameLine();
+
+  ImGui::DragScalar("Mins", ImGuiDataType_U32, &dt.Minutes, 1.0f, &Min,
+                    &MaxMinSec, "%u", ImGuiSliderFlags_AlwaysClamp);
+
+  changeFlag |= ImGui::IsItemEdited();
+
+  ImGui::SameLine();
+
+  ImGui::DragScalar("Secs", ImGuiDataType_U32, &dt.Seconds, 1.0f, &Min,
+                    &MaxMinSec, "%u", ImGuiSliderFlags_AlwaysClamp);
+
+  changeFlag |= ImGui::IsItemEdited();
+
+  ImGui::PopItemWidth();
+
+  ImGui::PushItemWidth(-1);
+  Avail = ImGui::CalcItemWidth();
+  LabelW = ImGui::CalcTextSize("Longitude").x;
+  ImGui::PopItemWidth();
+  ImGui::PushItemWidth((Avail / 2) - LabelW -
+                       ImGui::GetStyle().ItemInnerSpacing.x);
+
+  ImGui::InputDouble("Latitude", &latitude);
+  changeFlag |= ImGui::IsItemEdited();
+
+  ImGui::SameLine();
+
+  ImGui::InputDouble("Longitude", &longitude);
+  changeFlag |= ImGui::IsItemEdited();
+
+  ImGui::PopItemWidth();
+
+  static int houseSel = 0;
+  ImGui::Combo("House System", &houseSel, str.data());
+
+  model.update(dt, {longitude, latitude}, hsys_from_index(houseSel));
+
+  ImGui::End();
+
+  ImGui::Begin("Planets");
+  if (ImGui::BeginTable("split2", 5, PlanetWidgetTableFlags)) {
+    for (auto x : {"Body", "Location", "Velocity", "House", "Decl"}) {
+      ImGui::TableSetupColumn(x);
+    }
+
+    ImGui::TableHeadersRow();
+
+    std::for_each(
+        std::begin(model.planets), std::end(model.planets), [&](const auto &p) {
+          ImGui::TableNextRow();
+          ImGui::TableNextColumn();
+
+          ImGuiExtra::Text("{}", p.name().data());
+          ImGui::TableNextColumn();
+
+          ImGui::Text("%lf", p.ecliptic().at(0));
+          ImGui::TableNextColumn();
+
+          ImGui::Text("%lf", p.ecliptic().at(3));
+          ImGui::TableNextColumn();
+
+          ImGui::Text("%d", static_cast<unsigned>(
+                                std::trunc(model.houses.housePos(p))));
+          ImGui::TableNextColumn();
+
+          ImGui::Text("%lf", p.equatorial().at(1));
+          ImGui::TableNextColumn();
+        });
+
+    ImGui::EndTable();
+  }
+
+  ImGui::End();
+
+  ImGui::Begin("Aspects");
+
+  if (ImGui::BeginTable("aspects", 3, PlanetWidgetTableFlags)) {
+    for_each_combination(
+        std::begin(model.planets), std::next(std::begin(model.planets), 2),
+        std::end(model.planets),
+        [](const auto &x, const auto &y) {
+          if (auto it = specni::core::maybe_aspect(*x, *std::next(x))) {
+            ImGui::TableNextRow();
+            ImGui::TableNextColumn();
+            ImGui::Text("%s", x->name().data());
+
+            ImGui::TableNextColumn();
+            ImGui::Text("%d", *it);
+
+            ImGui::TableNextColumn();
+            ImGui::Text("%s", std::next(x)->name().data());
+          }
+
+          return false;
+        }
+
+    );
+
+    ImGui::EndTable();
+  }
+
+  ImGui::End();
+
+  ImGui::Begin("Houses");
+
+  if (ImGui::BeginTable("houses_table", 2, PlanetWidgetTableFlags)) {
+    ImGui::TableSetupColumn("House");
+    ImGui::TableSetupColumn("Sign/DMS");
+    ImGui::TableHeadersRow();
+    std::for_each(std::begin(model.houses.cusps) + 1,
+                  std::end(model.houses.cusps), [i = 0](auto cusp) mutable {
+                    ImGui::TableNextRow();
+                    ImGui::TableNextColumn();
+                    ImGui::Text("House %d", (++i));
+                    ImGui::TableNextColumn();
+                    ImGui::Text("%lf", cusp);
+                  });
+
+    ImGui::TableNextRow();
+    ImGui::TableNextColumn();
+    ImGui::Text("Asc");
+    ImGui::TableNextColumn();
+    ImGui::Text("%lf", model.houses.ang.at(core::swe::AC));
+
+    ImGui::TableNextRow();
+    ImGui::TableNextColumn();
+    ImGui::Text("Mc");
+    ImGui::TableNextColumn();
+    ImGui::Text("%lf", model.houses.ang.at(core::swe::MC));
+
+    ImGui::EndTable();
+  }
+
+  ImGui::End();
+
+  ImGui::Begin("Scores");
+
+  auto sun = std::find_if(
+      std::begin(model.planets), std::end(model.planets),
+      [](const auto &pl) { return pl.id() == core::swe::Ipl::Sun; });
+
+  std::for_each(
+      std::cbegin(model.planets), std::cend(model.planets),
+      [&](const core::swe::Planet &pl) {
+        if (ImGui::TreeNode(pl.name().c_str())) {
+          std::for_each(std::cbegin(core::digDebCallTable),
+                        std::cend(core::digDebCallTable), [&](const auto &x) {
+                          if (x.second(pl))
+                            ImGuiExtra::Text("{}", to_string(x.first));
+                        });
+          if (sun != std::cend(model.planets)) {
+            auto isNight = [](const core::swe::Planet &sun, double ac) {
+              return swe_difdeg2n(sun.ecliptic().at(0), ac) >= 0;
+            }(*sun, model.houses.ang.at(0));
+
+            if (core::isInOwnTriplicity(isNight, pl)) {
+              ImGuiExtra::Text("{}", to_string(core::DigDeb::InOwnTriplicity));
+            }
+
+            ImGuiExtra::Text("{}", to_string(core::sunAccDeb(*sun, pl)));
+            ImGuiExtra::Text("{}", to_string(core::sunPlanetRise(model, pl)));
+          }
+          ImGui::TreePop();
+        }
+      });
+
+  ImGui::End();
 
   ImGui::SetNextWindowSizeConstraints(
       ImVec2(600, 600), ImVec2(800, 800), [](ImGuiSizeCallbackData *data) {
@@ -72,9 +690,9 @@ void Wheel::Show() const {
                                 window_pos.y + window_size.y * half);
 
   const auto regions = [&]() {
-    std::array<ImVec2, ChartSettings::Count> regions;
-    std::transform(std::cbegin(settings.CirclesRadii),
-                   std::cend(settings.CirclesRadii), regions.begin(),
+    std::array<ImVec2, Count> regions;
+    std::transform(std::cbegin(CirclesRadii), std::cend(CirclesRadii),
+                   regions.begin(),
                    [&](auto x) { return ImVec2(0, window_size.y * x); });
     return regions;
   }();
@@ -83,40 +701,29 @@ void Wheel::Show() const {
     return (a + b) / 2.0;
   };
 
-  ImVec2 RAscMc(center(regions[ChartSettings::CuspText],
-                       regions[ChartSettings::SignOuter]));
+  ImVec2 RAscMc(center(regions[CuspText], regions[SignOuter]));
 
-  ImVec2 RHouseNumber(center(regions[ChartSettings::Innermost],
-                             regions[ChartSettings::CircleHouseNumbers]));
+  ImVec2 RHouseNumber(center(regions[Innermost], regions[CircleHouseNumbers]));
 
-  ImVec2 RSign(center(regions[ChartSettings::SignInner],
-                      regions[ChartSettings::SignOuter]));
-
-  const auto fromCenter = [&](const ImVec2 &r /* radius, or region */,
-                              double cosA, double sinA) {
-    return window_center + ImRotate(r, cosA, sinA);
-  };
+  ImVec2 RSign(center(regions[SignInner], regions[SignOuter]));
 
   // Draw circles
   std::for_each_n(regions.begin(), 5, [&](auto x) {
-    draw_list->AddCircle(window_center, x.y, settings.colors[1], 0,
-                         settings.Thickness);
+    draw_list->AddCircle(window_center, x.y, colors[1], 0, Thickness);
   });
-
-  ImGui::PushFont(settings.font);
 
   constexpr int SignCount = 12;
   constexpr int SignSpanDegrees = 30;
-  constexpr double HalfSignSpanRad = degree::toRadians(SignSpanDegrees / 2);
+  constexpr double HalfSignSpanRad = deg2rad(SignSpanDegrees / 2);
 
   std::valarray<double> sc(SignCount * 2);
 
-  std::generate(std::begin(sc), std::end(sc),
-                [rad = degree::toRadians(
-                     model.houses.ang.at(core::swe::Angle::AC) +
-                     90)]() mutable { return rad -= HalfSignSpanRad; });
+  auto translate = deg2rad(model.houses.ang.at(core::swe::Angle::AC) + 90.0);
 
-  auto [vcos, vsin] = degree::cosSin2(sc);
+  std::generate(std::begin(sc), std::end(sc),
+                [rad = translate]() mutable { return rad -= HalfSignSpanRad; });
+
+  auto [vcos, vsin] = cosSin(sc);
 
   static constexpr std::array<std::string_view, SignCount> glyphs = {
       "a"sv, "b"sv, "c"sv, "d"sv, "e"sv, "f"sv,
@@ -125,102 +732,86 @@ void Wheel::Show() const {
   auto line_r = [](int i) { return i * 2 + 1; };
   auto glyph_r = [](int i) { return i * 2; };
 
+  auto cos_sin = [&](double deg) {
+    auto rad = translate - deg2rad(deg);
+    return std::make_pair(std::cos(rad), std::sin(rad));
+  };
+
+  ImGui::PushFont(fonts[1]);
   for (int i = 0; i < SignCount; i++) {
     draw_list->AddLine(
-        window_center + ImRotate(regions[ChartSettings::SignInner],
-                                 vcos[line_r(i)], vsin[line_r(i)]),
-        window_center + ImRotate(regions[ChartSettings::SignOuter],
-                                 vcos[line_r(i)], vsin[line_r(i)]),
-        settings.colors[1], settings.Thickness);
+        window_center +
+            ImRotate(regions[SignInner], vcos[line_r(i)], vsin[line_r(i)]),
+        window_center +
+            ImRotate(regions[SignOuter], vcos[line_r(i)], vsin[line_r(i)]),
+        colors[1], Thickness);
 
     draw_list->AddText(window_center +
                            ImRotate(RSign, vcos[glyph_r(i)], vsin[glyph_r(i)]),
-                       settings.colors[1], glyphs[i].data());
+                       colors[1], glyphs[i].data());
   }
 
-  ImVec2 mid2 = ImVec2(0, window_size.y * 0.32f);
+  ImVec2 r_planets(0, window_size.y * 0.38f);
   std::for_each(
       std::cbegin(model.planets), std::cend(model.planets),
       [&](const auto &pl) {
         constexpr auto m =
             FastMap<core::swe::Ipl, std::pair<std::string_view, ImVec4>,
-                    PlanetCharMap.size()>{{PlanetCharMap}};
+                    PlanetGlyphMap.size()>{{PlanetGlyphMap}};
 
         auto val = m.at(pl.id());
         if (val.has_value()) {
-          auto [CosA, SinA] = degree::cosSinFixAt(
-              pl.ecliptic().at(0), model.houses.ang.at(core::swe::Angle::AC));
-          draw_list->AddText(window_center + ImRotate(mid2, CosA, SinA),
+          auto angle = translate - deg2rad(pl.ecliptic().at(0));
+          draw_list->AddText(window_center + ImRotate(r_planets,
+                                                      std::cos(angle),
+                                                      std::sin(angle)),
                              ImColor(val->second), val->first.data());
         }
       });
 
   constexpr std::array<std::string_view, 2> lglyph = {"K", "L"};
+  auto draw_angle = [&](double deg, std::size_t glyph_ind) {
+    auto [CosA, SinA] = cos_sin(deg);
+    draw_list->AddLine(window_center + ImRotate(regions[SignOuter], CosA, SinA),
+                       window_center + ImRotate(regions[Innermost], CosA, SinA),
+                       colors[0], Thickness);
 
-  std::valarray<double> angles = {model.houses.ang.at(core::swe::Angle::AC),
-                                  model.houses.ang.at(core::swe::Angle::MC)};
+    draw_list->AddText(window_center + ImRotate(RAscMc, CosA, SinA), colors[0],
+                       lglyph[glyph_ind].data());
+  };
 
-  auto [CosA, SinA] =
-      degree::cosSinFixAt(model.houses.ang.at(core::swe::Angle::AC),
-                          model.houses.ang.at(core::swe::Angle::AC));
+  draw_angle(model.houses.ang.at(core::swe::AC), 0);
+  draw_angle(model.houses.ang.at(core::swe::MC), 1);
 
-  draw_list->AddLine(
-      fromCenter(regions[ChartSettings::SignOuter], CosA, SinA),
-      window_center + ImRotate(regions[ChartSettings::Innermost], CosA, SinA),
-      settings.colors[0], settings.Thickness);
-
-  draw_list->AddText(window_center + ImRotate(RAscMc, CosA, SinA),
-                     settings.colors[0], lglyph[0].data());
-
-  std::tie(CosA, SinA) =
-      degree::cosSinFixAt(model.houses.ang.at(core::swe::Angle::MC),
-                          model.houses.ang.at(core::swe::Angle::AC));
-
-  draw_list->AddLine(
-      window_center + ImRotate(regions[ChartSettings::SignOuter], CosA, SinA),
-      window_center + ImRotate(regions[ChartSettings::Innermost], CosA, SinA),
-      settings.colors[0], settings.Thickness);
-
-  draw_list->AddText(window_center + ImRotate(RAscMc, CosA, SinA),
-                     settings.colors[0], lglyph[1].data());
-
-  std::vector<ImVec2> vMidpoints;
-
-  std::for_each(
-      model.houses.cusps.cbegin() + 1, model.houses.cusps.cend(),
-      [&](float cuspStart) {
-        auto [CosA, SinA] = degree::cosSinFixAt(
-            cuspStart, model.houses.ang.at(core::swe::Angle::AC));
-        draw_list->AddLine(
-            window_center +
-                ImRotate(regions[ChartSettings::Innermost], CosA, SinA),
-            window_center +
-                ImRotate(regions[ChartSettings::SignInner], CosA, SinA),
-            settings.colors[0], settings.Thickness);
-
-        vMidpoints.push_back(window_center +
-                             ImRotate(RHouseNumber, CosA, SinA));
-      });
-
-  static constexpr std::array<std::string_view, 37> house_num_glyph = {
-      "1"sv,  "2"sv,  "3"sv,  "4"sv,  "5"sv,  "6"sv,  "7"sv,  "8"sv,
-      "9"sv,  "10"sv, "11"sv, "12"sv, "13"sv, "14"sv, "15"sv, "16"sv,
-      "17"sv, "18"sv, "19"sv, "20"sv, "21"sv, "22"sv, "23"sv, "24"sv,
-      "25"sv, "26"sv, "27"sv, "28"sv, "29"sv, "30"sv, "31"sv, "32"sv,
-      "33"sv, "34"sv, "35"sv, "36"sv, "37"sv};
-
-  ring_adjacency(std::cbegin(vMidpoints), std::cend(vMidpoints),
-                 [&, i = 0](const auto &x, const auto &y) mutable {
-                   draw_list->AddText(center(x, y), settings.colors[0],
-                                      house_num_glyph[i++].data());
-                 });
+  std::for_each(model.houses.cusps.cbegin() + 1, model.houses.cusps.cend(),
+                [&](float cuspStart) {
+                  auto [CosA, SinA] = cos_sin(cuspStart);
+                  draw_list->AddLine(
+                      window_center + ImRotate(regions[Innermost], CosA, SinA),
+                      window_center + ImRotate(regions[SignInner], CosA, SinA),
+                      colors[0], Thickness);
+                });
 
   ImGui::PopFont();
-  // draw aspects here
+
+  // For printing house number glyphs
+  static constexpr auto house_num_glyph = std::to_array<std::string_view>(
+      {"1"sv,  "2"sv,  "3"sv,  "4"sv,  "5"sv,  "6"sv,  "7"sv,  "8"sv,
+       "9"sv,  "10"sv, "11"sv, "12"sv, "13"sv, "14"sv, "15"sv, "16"sv,
+       "17"sv, "18"sv, "19"sv, "20"sv, "21"sv, "22"sv, "23"sv, "24"sv,
+       "25"sv, "26"sv, "27"sv, "28"sv, "29"sv, "30"sv, "31"sv, "32"sv,
+       "33"sv, "34"sv, "35"sv, "36"sv, "37"sv});
+
+  ImGui::PushFont(fonts[0]);
+  ring_adjacency(
+      std::cbegin(model.houses.cusps) + 1, std::cend(model.houses.cusps),
+      [&, i = 0](const auto &x, const auto &y) mutable {
+        auto [CosA, SinA] = cos_sin(swe_deg_midp(x, y));
+        draw_list->AddText(window_center + ImRotate(RHouseNumber, CosA, SinA),
+                           colors[0], house_num_glyph[i++].data());
+      });
+  ImGui::PopFont();
+
   ImGui::End();
 }
-
-Wheel::Wheel(ChartSettings settings, core::Chart &model)
-    : settings(settings), model(model) {}
-
 } // namespace specni::gui
