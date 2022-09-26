@@ -243,7 +243,8 @@ template <core::swe::HasEcliptic EC> auto vlon(const EC &ec) {
   return ec.ecliptic().at(3);
 }
 
-template <typename T, T t, typename Comp>
+// template <typename T, T t, typename Comp>
+template <auto t, typename Comp>
 auto fastMapCmp(swe::Ipl ipl, double x, Comp cmp) {
   static constexpr auto map = FastMap<swe::Ipl, double, t.size()>{{t}};
   if (auto found = map.at(ipl)) {
@@ -258,13 +259,13 @@ using DigDebCb = std::pair<DigDeb, std::function<bool(const swe::Planet &)>>;
 const auto digDebCallTable = std::to_array<DigDebCb>({
     {DigDeb::Swift,
      [](const auto &pl) {
-       return fastMapCmp<decltype(swiftLB), swiftLB>(
-           pl.id(), pl.ecliptic().at(3), std::greater_equal<>{});
+       return fastMapCmp<swiftLB>(pl.id(), pl.ecliptic().at(3),
+                                  std::greater_equal<>{});
      }},
     {DigDeb::Slow,
      [](const auto &pl) {
-       return fastMapCmp<decltype(slowUB), slowUB>(pl.id(), pl.ecliptic().at(3),
-                                                   std::less_equal<>{});
+       return fastMapCmp<slowUB>(pl.id(), pl.ecliptic().at(3),
+                                 std::less_equal<>{});
      }},
     {DigDeb::Retrograde,
      [](const auto &pl) {
@@ -303,12 +304,12 @@ const auto digDebCallTable = std::to_array<DigDebCb>({
      }},
     {DigDeb::Exalted,
      [](const auto &pl) {
-       return fastMapCmp<decltype(core::exaltations), core::exaltations>(
-           pl.id(), pl.ecliptic().at(0), std::equal_to<>{});
+       return fastMapCmp<core::exaltations>(pl.id(), pl.ecliptic().at(0),
+                                            std::equal_to<>{});
      }},
     {DigDeb::Fallen,
      [](const auto &pl) {
-       return fastMapCmp<decltype(core::exaltations), core::exaltations>(
+       return fastMapCmp<core::exaltations>(
            pl.id(), swe_degnorm(pl.ecliptic().at(0) + 180.0),
            std::equal_to<>{});
      }},
@@ -438,9 +439,8 @@ void ShowChart(core::Chart &model, std::array<ImFont *, 2> &fonts) {
 
   ImGui::Begin("Controls");
 
-  bool changeFlag = false;
-
-  static double latitude, longitude;
+  static double latitude;
+  static double longitude;
 
   auto now = std::chrono::system_clock::now();
   const auto ymd =
@@ -466,7 +466,6 @@ void ShowChart(core::Chart &model, std::array<ImFont *, 2> &fonts) {
   ImGui::PushItemWidth((Avail / 3) - LabelW -
                        ImGui::GetStyle().ItemInnerSpacing.x);
   ImGui::DragInt("Year", &dt.Year);
-  changeFlag |= ImGui::IsItemEdited();
 
   ImGui::SameLine();
 
@@ -477,7 +476,6 @@ void ShowChart(core::Chart &model, std::array<ImFont *, 2> &fonts) {
 
   ImGui::DragScalar("Month", ImGuiDataType_U32, &dt.Month, 1.0f, &Min,
                     &MaxMonth, "%u", ImGuiSliderFlags_AlwaysClamp);
-  changeFlag |= ImGui::IsItemEdited();
 
   auto dayMax = static_cast<unsigned int>(std::chrono::year_month_day_last{
       std::chrono::year(dt.Year) / std::chrono::month(dt.Month) /
@@ -491,26 +489,19 @@ void ShowChart(core::Chart &model, std::array<ImFont *, 2> &fonts) {
 
   ImGui::DragScalar("Day", ImGuiDataType_U32, &dt.Day, 1.0f, &Min, &dayMax,
                     "%u", ImGuiSliderFlags_AlwaysClamp);
-  changeFlag |= ImGui::IsItemEdited();
 
   ImGui::DragScalar("Hours", ImGuiDataType_U32, &dt.Hours, 1.0f, &Min,
                     &MaxHours, "%u", ImGuiSliderFlags_AlwaysClamp);
-
-  changeFlag |= ImGui::IsItemEdited();
 
   ImGui::SameLine();
 
   ImGui::DragScalar("Mins", ImGuiDataType_U32, &dt.Minutes, 1.0f, &Min,
                     &MaxMinSec, "%u", ImGuiSliderFlags_AlwaysClamp);
 
-  changeFlag |= ImGui::IsItemEdited();
-
   ImGui::SameLine();
 
   ImGui::DragScalar("Secs", ImGuiDataType_U32, &dt.Seconds, 1.0f, &Min,
                     &MaxMinSec, "%u", ImGuiSliderFlags_AlwaysClamp);
-
-  changeFlag |= ImGui::IsItemEdited();
 
   ImGui::PopItemWidth();
 
@@ -522,12 +513,10 @@ void ShowChart(core::Chart &model, std::array<ImFont *, 2> &fonts) {
                        ImGui::GetStyle().ItemInnerSpacing.x);
 
   ImGui::InputDouble("Latitude", &latitude);
-  changeFlag |= ImGui::IsItemEdited();
 
   ImGui::SameLine();
 
   ImGui::InputDouble("Longitude", &longitude);
-  changeFlag |= ImGui::IsItemEdited();
 
   ImGui::PopItemWidth();
 
@@ -645,12 +634,12 @@ void ShowChart(core::Chart &model, std::array<ImFont *, 2> &fonts) {
         if (x.second(pl))
           ImGuiExtra::Text("{}", to_string(x.first));
       });
-      if (sun != std::cend(model.planets)) {
-        auto isNight = [](const core::swe::Planet &sun, double ac) {
-          return swe_difdeg2n(sun.ecliptic().at(0), ac) >= 0;
-        }(*sun, model.houses.ang.at(0));
-
-        if (core::isInOwnTriplicity(isNight, pl)) {
+      if (sun != std::cend(model.planets) && sun->id() != pl.id()) {
+        if (auto is_night =
+                [](const auto &sun, auto ac) {
+                  return swe_difdeg2n(sun.ecliptic().at(0), ac) >= 0;
+                }(*sun, model.houses.ang.at(0));
+            core::isInOwnTriplicity(is_night, pl)) {
           ImGuiExtra::Text("{}", to_string(core::DigDeb::InOwnTriplicity));
         }
 
@@ -681,9 +670,9 @@ void ShowChart(core::Chart &model, std::array<ImFont *, 2> &fonts) {
 
   const auto regions = [&]() {
     std::array<ImVec2, Count> regions;
-    std::transform(std::cbegin(CirclesRadii), std::cend(CirclesRadii),
-                   regions.begin(),
-                   [&](auto x) { return ImVec2(0, window_size.y * x); });
+    std::ranges::transform(CirclesRadii, regions.begin(), [&](auto x) {
+      return ImVec2(0, window_size.y * x);
+    });
     return regions;
   }();
 

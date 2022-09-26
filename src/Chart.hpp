@@ -2,6 +2,7 @@
 
 #include <SwEphpp.hpp>
 #include <optional>
+#include <ranges>
 #include <vector>
 
 namespace specni::core {
@@ -16,8 +17,8 @@ std::optional<uint8_t> maybe_aspect(const EC &ec1, const EC &ec2) {
 
   auto is_aspect = [&](auto x) { return std::abs(x - dif) <= 10; };
 
-  auto it = std::find_if(std::cbegin(aspects), std::cend(aspects), is_aspect);
-  if (it != std::cend(aspects)) {
+  if (auto it = std::ranges::find_if(aspects, is_aspect);
+      it != std::cend(aspects)) {
     return *it;
   } else {
     return std::nullopt;

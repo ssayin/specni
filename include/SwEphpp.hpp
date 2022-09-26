@@ -292,13 +292,14 @@ public:
 
   void update(const Ut &ut, EphFlag flag) {
     swe_call(swe_fixstar_ut, id.data(), static_cast<double>(ut),
-             static_cast<std::underlying_type_t<EphFlag>>(flag),
-             ecliptic.data());
+             static_cast<std::underlying_type_t<EphFlag>>(flag), ecl.data());
   }
+
+  const auto &ecliptic() { return ecl; }
 
 private:
   std::string id;
-  EphData ecliptic{0};
+  EphData ecl{0};
 };
 
 }; // namespace specni::core::swe
