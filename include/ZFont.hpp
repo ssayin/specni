@@ -8,11 +8,11 @@
 namespace specni {
 using namespace std::literals::string_view_literals;
 
-static constexpr ImVec4 Color1 = {0.984, 0.650, 0, 1.0};
-static constexpr ImVec4 Color2 = {0.858, 0.972, 1, 1.0};
-static constexpr ImVec4 Color3 = {0.941, 0.678, 0.439, 1.0};
-static constexpr ImVec4 Color4 = {0.596, 0.062, 0.835, 1.0};
-static constexpr ImVec4 Color5 = {1, 0.019, 0.078, 1.0};
+static constexpr ImVec4 Color1 = {0.984f, 0.650f, 0, 1.0};
+static constexpr ImVec4 Color2 = {0.858f, 0.972f, 1, 1.0};
+static constexpr ImVec4 Color3 = {0.941f, 0.678f, 0.439f, 1.0};
+static constexpr ImVec4 Color4 = {0.596f, 0.062f, 0.835f, 1.0};
+static constexpr ImVec4 Color5 = {1, 0.019f, 0.078f, 1.0};
 
 using ColorGlyphPair = std::pair<std::string_view, ImVec4>;
 using IplDataPair = std::pair<specni::core::swe::Ipl, ColorGlyphPair>;

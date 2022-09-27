@@ -149,6 +149,10 @@ template <typename T, typename... Ts> decltype(auto) swe_call(T t, Ts &&...ts) {
 struct Context {
   Context() { swe_set_ephe_path(const_cast<char *>("ephe")); }
   explicit Context(std::string eph_path) { swe_set_ephe_path(eph_path.data()); }
+  Context(Context &) = delete;
+  Context &operator=(const Context &) = delete;
+  Context const &operator=(Context &&) = delete;
+  Context(Context &&) = delete;
   ~Context() { swe_close(); }
 };
 
@@ -295,7 +299,7 @@ public:
              static_cast<std::underlying_type_t<EphFlag>>(flag), ecl.data());
   }
 
-  const auto &ecliptic() { return ecl; }
+  const auto &ecliptic() const { return ecl; }
 
 private:
   std::string id;

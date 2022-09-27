@@ -239,7 +239,11 @@ constexpr std::string_view to_string(DigDeb dd) {
   }
 }
 
-template <core::swe::HasEcliptic EC> auto vlon(const EC &ec) {
+template <core::swe::HasEcliptic EC> constexpr auto lon(const EC &ec) {
+  return ec.ecliptic().at(0);
+}
+
+template <core::swe::HasEcliptic EC> constexpr auto vlon(const EC &ec) {
   return ec.ecliptic().at(3);
 }
 
@@ -254,49 +258,50 @@ auto fastMapCmp(swe::Ipl ipl, double x, Comp cmp) {
   }
 }
 
+std::size_t to_sign_index(double lon) {
+  return static_cast<std::size_t>(lon / 30);
+}
+
+constexpr static double Zero = 0.0;
+
 using DigDebCb = std::pair<DigDeb, std::function<bool(const swe::Planet &)>>;
 
 const auto digDebCallTable = std::to_array<DigDebCb>({
     {DigDeb::Swift,
      [](const auto &pl) {
-       return fastMapCmp<swiftLB>(pl.id(), pl.ecliptic().at(3),
-                                  std::greater_equal<>{});
+       return fastMapCmp<swiftLB>(pl.id(), vlon(pl), std::greater_equal<>{});
      }},
     {DigDeb::Slow,
      [](const auto &pl) {
-       return fastMapCmp<slowUB>(pl.id(), pl.ecliptic().at(3),
-                                 std::less_equal<>{});
+       return fastMapCmp<slowUB>(pl.id(), vlon(pl), std::less_equal<>{});
      }},
     {DigDeb::Retrograde,
      [](const auto &pl) {
        return pl.id() != swe::Ipl::Sun && pl.id() != swe::Ipl::Moon &&
-              vlon(pl) < 0.0;
+              vlon(pl) < Zero;
      }},
     {DigDeb::Direct,
      [](const auto &pl) {
        return pl.id() != swe::Ipl::Sun && pl.id() != swe::Ipl::Moon &&
-              vlon(pl) > 0.0;
+              vlon(pl) > Zero;
      }},
     {DigDeb::Domicile,
      [](const auto &pl) {
-       return pl.id() == houseOrder.at(pl.ecliptic().at(0) / 30);
+       return pl.id() == houseOrder.at(to_sign_index(lon(pl)));
      }},
     {DigDeb::Detriment,
      [](const auto &pl) {
-       return pl.id() ==
-              houseOrder.at((static_cast<int>(pl.ecliptic().at(0) / 30) + 6) %
-                            12);
+       return pl.id() == houseOrder.at((to_sign_index(lon(pl)) + 6) % 12);
      }},
     {DigDeb::InOwnFace,
      [](const auto &pl) {
        return pl.id() ==
-              core::faceOrder.at(
-                  static_cast<std::size_t>(pl.ecliptic().at(0) / 10.0) % 7);
+              core::faceOrder.at(static_cast<std::size_t>(lon(pl) / 10.0) % 7);
      }},
     {DigDeb::InOwnTerm,
      [](const auto &pl) {
        const auto d = std::fmod(pl.ecliptic().at(0), 30);
-       const TermsPentad &sign = terms.at(pl.ecliptic().at(0) / 30);
+       const TermsPentad &sign = terms.at(to_sign_index(lon(pl)));
        return std::ranges::adjacent_find(
                   sign, [&](const auto &x, const auto &y) {
                     return d >= x.second && d < y.second && y.first == pl.id();
@@ -304,14 +309,13 @@ const auto digDebCallTable = std::to_array<DigDebCb>({
      }},
     {DigDeb::Exalted,
      [](const auto &pl) {
-       return fastMapCmp<core::exaltations>(pl.id(), pl.ecliptic().at(0),
+       return fastMapCmp<core::exaltations>(pl.id(), lon(pl),
                                             std::equal_to<>{});
      }},
     {DigDeb::Fallen,
      [](const auto &pl) {
        return fastMapCmp<core::exaltations>(
-           pl.id(), swe_degnorm(pl.ecliptic().at(0) + 180.0),
-           std::equal_to<>{});
+           pl.id(), swe_degnorm(lon(pl) + 180.0), std::equal_to<>{});
      }},
 });
 
@@ -320,7 +324,7 @@ consteval auto dms2double(double degs, double mins, double secs) {
 }
 
 constexpr auto orbAbs(const auto &a, const auto &b) {
-  return std::abs(swe_difdeg2n(a.ecliptic().at(0), b.ecliptic().at(0)));
+  return std::abs(swe_difdeg2n(lon(a), lon(b)));
 }
 
 DigDeb sunAccDeb(const auto &sun, const auto &a) {
@@ -363,7 +367,7 @@ auto sunPlanetRise(const Chart &c, const auto &a) {
 }
 
 auto isInOwnTriplicity(bool is_night, const auto &a) {
-  const auto &rulers = triplicityRulers.at(a.ecliptic().at(0) / 30);
+  const auto &rulers = triplicityRulers.at(to_sign_index(lon(a)));
   return (is_night ? std::get<1>(rulers) : std::get<0>(rulers)) == a.id();
 }
 
@@ -405,27 +409,39 @@ constexpr void ring_adjacency(It first, It last, BinaryFunction func) {
   func(*first2, *first);
 }
 
-void ShowChart(core::Chart &model, std::array<ImFont *, 2> &fonts) {
-  ColorPalette colors{ImColor(0.5f, 0.5f, 0.5f), ImColor(0.2f, 0.2f, 0.5f)};
-  enum Ratio {
-    Innermost,
-    SignInner,
-    SignOuter,
-    CuspText,
-    CircleHouseNumbers,
-    Count
-  };
+void ShowScores(core::Chart &model, std::array<ImFont *, 2> &fonts) {
+  ImGui::Begin("Scores");
 
-  static constexpr std::array<double, Count> CirclesRadii = {
-      0.25f, 0.40f, 0.45f, 0.40f, 0.28f};
+  auto sun = std::ranges::find_if(model.planets, [](const auto &pl) {
+    return pl.id() == core::swe::Ipl::Sun;
+  });
 
-  static constexpr float Thickness = 1.0f;
+  std::ranges::for_each(model.planets, [&](const core::swe::Planet &pl) {
+    if (ImGui::TreeNode(pl.name().c_str())) {
+      std::ranges::for_each(core::digDebCallTable, [&](const auto &x) {
+        if (x.second(pl))
+          ImGuiExtra::Text("{}", to_string(x.first));
+      });
+      if (sun != std::cend(model.planets) && sun->id() != pl.id()) {
+        if (auto is_night =
+                [](const auto &sun, auto ac) {
+                  return swe_difdeg2n(sun.ecliptic().at(0), ac) >= 0;
+                }(*sun, model.houses.ang.at(0));
+            core::isInOwnTriplicity(is_night, pl)) {
+          ImGuiExtra::Text("{}", to_string(core::DigDeb::InOwnTriplicity));
+        }
 
-  const int PlanetWidgetTableFlags =
-      ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable |
-      ImGuiTableFlags_Hideable | ImGuiTableFlags_BordersOuter |
-      ImGuiTableFlags_BordersV | ImGuiTableFlags_RowBg;
+        ImGuiExtra::Text("{}", to_string(core::sunAccDeb(*sun, pl)));
+        ImGuiExtra::Text("{}", to_string(core::sunPlanetRise(model, pl)));
+      }
+      ImGui::TreePop();
+    }
+  });
 
+  ImGui::End();
+}
+
+void ShowControls(core::Chart &model, std::array<ImFont *, 2> &fonts) {
   static constexpr std::string_view str =
       "Equal\0Alcabitius\0Campanus\0EqualMC\0Carter\0Gauquelin\0Azimuth\0Sunshi"
       "ne\0SunshineAlt\0Koch\0PullenSDelta\0Morinus\0WholeSign\0Porphyry\0Placi"
@@ -526,6 +542,33 @@ void ShowChart(core::Chart &model, std::array<ImFont *, 2> &fonts) {
   model.update(dt, {longitude, latitude}, hsys_from_index(houseSel));
 
   ImGui::End();
+}
+
+void ShowChart(core::Chart &model, std::array<ImFont *, 2> &fonts) {
+
+  ShowControls(model, fonts);
+
+  ShowScores(model, fonts);
+
+  ColorPalette colors{ImColor(0.5f, 0.5f, 0.5f), ImColor(0.2f, 0.2f, 0.5f)};
+  enum Ratio {
+    Innermost,
+    SignInner,
+    SignOuter,
+    CuspText,
+    CircleHouseNumbers,
+    Count
+  };
+
+  static constexpr std::array<double, Count> CirclesRadii = {
+      0.25f, 0.40f, 0.45f, 0.40f, 0.28f};
+
+  static constexpr float Thickness = 1.0f;
+
+  const int PlanetWidgetTableFlags =
+      ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable |
+      ImGuiTableFlags_Hideable | ImGuiTableFlags_BordersOuter |
+      ImGuiTableFlags_BordersV | ImGuiTableFlags_RowBg;
 
   ImGui::Begin("Planets");
   if (ImGui::BeginTable("split2", 5, PlanetWidgetTableFlags)) {
@@ -622,36 +665,6 @@ void ShowChart(core::Chart &model, std::array<ImFont *, 2> &fonts) {
 
   ImGui::End();
 
-  ImGui::Begin("Scores");
-
-  auto sun = std::ranges::find_if(model.planets, [](const auto &pl) {
-    return pl.id() == core::swe::Ipl::Sun;
-  });
-
-  std::ranges::for_each(model.planets, [&](const core::swe::Planet &pl) {
-    if (ImGui::TreeNode(pl.name().c_str())) {
-      std::ranges::for_each(core::digDebCallTable, [&](const auto &x) {
-        if (x.second(pl))
-          ImGuiExtra::Text("{}", to_string(x.first));
-      });
-      if (sun != std::cend(model.planets) && sun->id() != pl.id()) {
-        if (auto is_night =
-                [](const auto &sun, auto ac) {
-                  return swe_difdeg2n(sun.ecliptic().at(0), ac) >= 0;
-                }(*sun, model.houses.ang.at(0));
-            core::isInOwnTriplicity(is_night, pl)) {
-          ImGuiExtra::Text("{}", to_string(core::DigDeb::InOwnTriplicity));
-        }
-
-        ImGuiExtra::Text("{}", to_string(core::sunAccDeb(*sun, pl)));
-        ImGuiExtra::Text("{}", to_string(core::sunPlanetRise(model, pl)));
-      }
-      ImGui::TreePop();
-    }
-  });
-
-  ImGui::End();
-
   ImGui::SetNextWindowSizeConstraints(
       ImVec2(600, 600), ImVec2(800, 800), [](ImGuiSizeCallbackData *data) {
         auto max = std::max(data->DesiredSize.x, data->DesiredSize.y);
@@ -699,8 +712,8 @@ void ShowChart(core::Chart &model, std::array<ImFont *, 2> &fonts) {
 
   auto translate = deg2rad(model.houses.ang.at(core::swe::Angle::AC) + 90.0);
 
-  std::generate(std::begin(sc), std::end(sc),
-                [rad = translate]() mutable { return rad -= HalfSignSpanRad; });
+  std::ranges::generate(
+      sc, [rad = translate]() mutable { return rad -= HalfSignSpanRad; });
 
   auto [vcos, vsin] = cosSin(sc);
 
@@ -736,8 +749,7 @@ void ShowChart(core::Chart &model, std::array<ImFont *, 2> &fonts) {
         FastMap<core::swe::Ipl, std::pair<std::string_view, ImVec4>,
                 PlanetGlyphMap.size()>{{PlanetGlyphMap}};
 
-    auto val = m.at(pl.id());
-    if (val.has_value()) {
+    if (auto val = m.at(pl.id()); val.has_value()) {
       auto angle = translate - deg2rad(pl.ecliptic().at(0));
       draw_list->AddText(
           window_center + ImRotate(r_planets, std::cos(angle), std::sin(angle)),
