@@ -17,7 +17,7 @@
 #endif
 
 namespace specni::gui {
-void ShowChart(core::Chart &model, std::array<ImFont *, 2> &fonts);
+void ShowChart(core::Chart &model, const std::array<ImFont *, 2> &fonts);
 };
 
 // Main code

@@ -20,7 +20,6 @@
 #include <tuple>
 #include <type_traits>
 #include <utility>
-#include <valarray>
 
 namespace specni::gui {
 static constexpr std::size_t ColorCount = 5;
@@ -380,11 +379,6 @@ concept arithmetic = std::is_arithmetic<T>::value;
 template <arithmetic T> constexpr double deg2rad(T deg) {
   return deg * (std::numbers::pi / 180.0);
 }
-
-template <arithmetic T>
-std::tuple<std::valarray<T>, std::valarray<T>> cosSin(std::valarray<T> &x) {
-  return std::make_pair(std::cos(x), std::sin(x));
-}
 } // namespace specni::gui
 
 namespace ImGuiExtra {
@@ -409,7 +403,7 @@ constexpr void ring_adjacency(It first, It last, BinaryFunction func) {
   func(*first2, *first);
 }
 
-void ShowScores(core::Chart &model, std::array<ImFont *, 2> &fonts) {
+void ShowScores(core::Chart &model, const std::array<ImFont *, 2> &fonts) {
   ImGui::Begin("Scores");
 
   auto sun = std::ranges::find_if(model.planets, [](const auto &pl) {
@@ -441,7 +435,7 @@ void ShowScores(core::Chart &model, std::array<ImFont *, 2> &fonts) {
   ImGui::End();
 }
 
-void ShowControls(core::Chart &model, std::array<ImFont *, 2> &fonts) {
+void ShowControls(core::Chart &model, const std::array<ImFont *, 2> &fonts) {
   static constexpr std::string_view str =
       "Equal\0Alcabitius\0Campanus\0EqualMC\0Carter\0Gauquelin\0Azimuth\0Sunshi"
       "ne\0SunshineAlt\0Koch\0PullenSDelta\0Morinus\0WholeSign\0Porphyry\0Placi"
@@ -544,24 +538,13 @@ void ShowControls(core::Chart &model, std::array<ImFont *, 2> &fonts) {
   ImGui::End();
 }
 
-void ShowChart(core::Chart &model, std::array<ImFont *, 2> &fonts) {
+void ShowChart(core::Chart &model, const std::array<ImFont *, 2> &fonts) {
 
   ShowControls(model, fonts);
 
   ShowScores(model, fonts);
 
   ColorPalette colors{ImColor(0.5f, 0.5f, 0.5f), ImColor(0.2f, 0.2f, 0.5f)};
-  enum Ratio {
-    Innermost,
-    SignInner,
-    SignOuter,
-    CuspText,
-    CircleHouseNumbers,
-    Count
-  };
-
-  static constexpr std::array<double, Count> CirclesRadii = {
-      0.25f, 0.40f, 0.45f, 0.40f, 0.28f};
 
   static constexpr float Thickness = 1.0f;
 
@@ -681,26 +664,12 @@ void ShowChart(core::Chart &model, std::array<ImFont *, 2> &fonts) {
   ImVec2 window_center = ImVec2(window_pos.x + window_size.x * half,
                                 window_pos.y + window_size.y * half);
 
-  const auto regions = [&]() {
-    std::array<ImVec2, Count> regions;
-    std::ranges::transform(CirclesRadii, regions.begin(), [&](auto x) {
-      return ImVec2(0, window_size.y * x);
-    });
-    return regions;
-  }();
-
-  const auto center = [](const ImVec2 &a, const ImVec2 &b) {
-    return (a + b) / 2.0;
-  };
-
-  ImVec2 RAscMc(center(regions[CuspText], regions[SignOuter]));
-
-  ImVec2 RHouseNumber(center(regions[Innermost], regions[CircleHouseNumbers]));
-
-  ImVec2 RSign(center(regions[SignInner], regions[SignOuter]));
+  const auto CirclesRadii = std::to_array<ImVec2>(
+      {ImVec2(0, 0.25f * window_size.y), ImVec2(0, 0.40f * window_size.y),
+       ImVec2(0, 0.45f * window_size.y), ImVec2(0, 0.28f * window_size.y)});
 
   // Draw circles
-  std::for_each_n(regions.begin(), 5, [&](auto x) {
+  std::ranges::for_each(CirclesRadii, [&](const auto &x) {
     draw_list->AddCircle(window_center, x.y, colors[1], 0, Thickness);
   });
 
@@ -708,14 +677,7 @@ void ShowChart(core::Chart &model, std::array<ImFont *, 2> &fonts) {
   constexpr int SignSpanDegrees = 30;
   constexpr double HalfSignSpanRad = deg2rad(SignSpanDegrees / 2);
 
-  std::valarray<double> sc(SignCount * 2);
-
   auto translate = deg2rad(model.houses.ang.at(core::swe::Angle::AC) + 90.0);
-
-  std::ranges::generate(
-      sc, [rad = translate]() mutable { return rad -= HalfSignSpanRad; });
-
-  auto [vcos, vsin] = cosSin(sc);
 
   static constexpr std::array<std::string_view, SignCount> glyphs = {
       "a"sv, "b"sv, "c"sv, "d"sv, "e"sv, "f"sv,
@@ -730,17 +692,19 @@ void ShowChart(core::Chart &model, std::array<ImFont *, 2> &fonts) {
   };
 
   ImGui::PushFont(fonts[1]);
-  for (int i = 0; i < SignCount; i++) {
-    draw_list->AddLine(
-        window_center +
-            ImRotate(regions[SignInner], vcos[line_r(i)], vsin[line_r(i)]),
-        window_center +
-            ImRotate(regions[SignOuter], vcos[line_r(i)], vsin[line_r(i)]),
-        colors[1], Thickness);
 
-    draw_list->AddText(window_center +
-                           ImRotate(RSign, vcos[glyph_r(i)], vsin[glyph_r(i)]),
-                       colors[1], glyphs[i].data());
+  for (int i = 0; i < SignCount; i++) {
+
+    auto [CosA, SinA] = cos_sin((i + 1) * 30);
+    auto [CosA2, SinA2] = cos_sin(30 * i + 15);
+    draw_list->AddLine(window_center + ImRotate(CirclesRadii[1], CosA, SinA),
+                       window_center + ImRotate(CirclesRadii[2], CosA, SinA),
+                       colors[1], Thickness);
+
+    draw_list->AddText(
+        window_center +
+            ImRotate((CirclesRadii[1] + CirclesRadii[2]) / 2, CosA2, SinA2),
+        colors[1], glyphs[i].data());
   }
 
   ImVec2 r_planets(0, window_size.y * 0.38f);
@@ -756,16 +720,15 @@ void ShowChart(core::Chart &model, std::array<ImFont *, 2> &fonts) {
           ImColor(val->second), val->first.data());
     }
   });
-
   constexpr std::array<std::string_view, 2> lglyph = {"K", "L"};
   auto draw_angle = [&](double deg, std::size_t glyph_ind) {
     auto [CosA, SinA] = cos_sin(deg);
-    draw_list->AddLine(window_center + ImRotate(regions[SignOuter], CosA, SinA),
-                       window_center + ImRotate(regions[Innermost], CosA, SinA),
+    draw_list->AddLine(window_center + ImRotate(CirclesRadii[0], CosA, SinA),
+                       window_center + ImRotate(CirclesRadii[2], CosA, SinA),
                        colors[0], Thickness);
 
-    draw_list->AddText(window_center + ImRotate(RAscMc, CosA, SinA), colors[0],
-                       lglyph[glyph_ind].data());
+    draw_list->AddText(window_center + ImRotate(CirclesRadii[2], CosA, SinA),
+                       colors[0], lglyph[glyph_ind].data());
   };
 
   draw_angle(model.houses.ang.at(core::swe::AC), 0);
@@ -775,8 +738,8 @@ void ShowChart(core::Chart &model, std::array<ImFont *, 2> &fonts) {
                 [&](float cuspStart) {
                   auto [CosA, SinA] = cos_sin(cuspStart);
                   draw_list->AddLine(
-                      window_center + ImRotate(regions[Innermost], CosA, SinA),
-                      window_center + ImRotate(regions[SignInner], CosA, SinA),
+                      window_center + ImRotate(CirclesRadii[0], CosA, SinA),
+                      window_center + ImRotate(CirclesRadii[1], CosA, SinA),
                       colors[0], Thickness);
                 });
 
@@ -795,8 +758,10 @@ void ShowChart(core::Chart &model, std::array<ImFont *, 2> &fonts) {
       std::cbegin(model.houses.cusps) + 1, std::cend(model.houses.cusps),
       [&, i = 0](const auto &x, const auto &y) mutable {
         auto [CosA, SinA] = cos_sin(swe_deg_midp(x, y));
-        draw_list->AddText(window_center + ImRotate(RHouseNumber, CosA, SinA),
-                           colors[0], house_num_glyph[i++].data());
+        draw_list->AddText(
+            window_center +
+                ImRotate((CirclesRadii[0] + CirclesRadii[3]) / 2, CosA, SinA),
+            colors[0], house_num_glyph[i++].data());
       });
   ImGui::PopFont();
 

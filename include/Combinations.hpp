@@ -39,21 +39,6 @@ void rotate_discontinuous(
   }
 }
 
-// A binder for binding arguments to call permute
-template <class Function, class It> class call_permute {
-  typedef typename std::iterator_traits<It>::difference_type D;
-  Function f_;
-  It first_;
-  It last_;
-  D d_;
-
-public:
-  call_permute(Function f, It first, It last, D d)
-      : f_(f), first_(first), last_(last), d_(d) {}
-
-  bool operator()() { return permute(first_, last_, d_, f_); }
-};
-
 template <class BidirIter, class Function>
 bool combine_discontinuous(
     BidirIter first1, BidirIter last1,
@@ -61,7 +46,7 @@ bool combine_discontinuous(
     BidirIter first2, BidirIter last2,
     typename std::iterator_traits<BidirIter>::difference_type d2, Function &f,
     typename std::iterator_traits<BidirIter>::difference_type d = 0) {
-  typedef typename std::iterator_traits<BidirIter>::difference_type D;
+  using D = typename std::iterator_traits<BidirIter>::difference_type;
   using std::swap;
   if (d1 == 0 || d2 == 0)
     return f();
@@ -88,30 +73,6 @@ bool combine_discontinuous(
     rotate_discontinuous(first1, last1, d1, first2, last2, d2);
   return false;
 }
-
-// A binder for binding arguments to call combine_discontinuous
-template <class Function, class BidirIter> class call_combine_discontinuous {
-  typedef typename std::iterator_traits<BidirIter>::difference_type D;
-  Function f_;
-  BidirIter first1_;
-  BidirIter last1_;
-  D d1_;
-  BidirIter first2_;
-  BidirIter last2_;
-  D d2_;
-
-public:
-  call_combine_discontinuous(BidirIter first1, BidirIter last1, D d1,
-                             BidirIter first2, BidirIter last2, D d2,
-                             Function &f)
-      : f_(f), first1_(first1), last1_(last1), d1_(d1), first2_(first2),
-        last2_(last2), d2_(d2) {}
-
-  bool operator()() {
-    return combine_discontinuous(first1_, last1_, d1_, first2_, last2_, d2_,
-                                 f_);
-  }
-};
 
 } // namespace detail
 

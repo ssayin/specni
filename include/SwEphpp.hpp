@@ -138,11 +138,14 @@ using Coordinate = std::array<double, 2>;
 
 enum class Coord { Latitude = 0, Longitude };
 
-template <typename T, typename... Ts> decltype(auto) swe_call(T t, Ts &&...ts) {
+template <typename T, typename... Ts, bool Log = false>
+decltype(auto) swe_call(T t, Ts &&...ts) {
   using SweErrStr = std::array<char, 256>;
   SweErrStr serr;
   auto x = t(std::forward<Ts>(ts)..., serr.data());
-  std::cout << serr.data();
+  if constexpr (Log) {
+    std::cout << serr.data();
+  }
   return x;
 }
 
