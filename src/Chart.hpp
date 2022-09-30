@@ -5,6 +5,8 @@
 #include <ranges>
 #include <vector>
 
+#include "Combinations.hpp"
+
 namespace specni::core {
 
 template <swe::HasEcliptic EC>
@@ -40,6 +42,18 @@ std::optional<uint8_t> maybe_declination_aspect(const EQ &eq1, const EQ &eq2) {
   } else {
     return std::nullopt;
   }
+}
+
+template <std::ranges::range R, class Func>
+void for_each_aspect(R &&r, Func &&f) {
+  for_each_combination(
+      std::ranges::begin(r), std::ranges::next(std::ranges::begin(r), 2),
+      std::ranges::end(r), [&](const auto &x, const auto &y) {
+        if (auto it = specni::core::maybe_aspect(*x, *std::ranges::next(x))) {
+          f(*x, *std::ranges::next(x), *it);
+        }
+        return false;
+      });
 }
 
 class Chart {

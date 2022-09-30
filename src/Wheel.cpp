@@ -21,366 +21,6 @@
 #include <type_traits>
 #include <utility>
 
-namespace specni::gui {
-static constexpr std::size_t ColorCount = 5;
-using ColorPalette = std::array<ImColor, ColorCount>;
-}; // namespace specni::gui
-
-namespace specni::core {
-
-// Aries - Mars, Taurus - Venus and so on.
-constexpr std::array<swe::Ipl, 12> houseOrder /* domicile */ {
-    swe::Ipl::Mars,    swe::Ipl::Venus,   swe::Ipl::Mercury, swe::Ipl::Moon,
-    swe::Ipl::Sun,     swe::Ipl::Mercury, swe::Ipl::Venus,   swe::Ipl::Mars,
-    swe::Ipl::Jupiter, swe::Ipl::Saturn,  swe::Ipl::Saturn,  swe::Ipl::Jupiter};
-
-// The faces follow the pattern below
-constexpr std::array<swe::Ipl, 7> faceOrder{
-    swe::Ipl::Mars, swe::Ipl::Sun,    swe::Ipl::Venus,  swe::Ipl::Mercury,
-    swe::Ipl::Moon, swe::Ipl::Saturn, swe::Ipl::Jupiter};
-
-// Starting from the sign of Aries, Day / Night triplicity rulers
-constexpr std::array<std::pair<swe::Ipl, swe::Ipl>, 12> triplicityRulers{
-    std::make_pair(swe::Ipl::Sun, swe::Ipl::Jupiter),
-    std::make_pair(swe::Ipl::Venus, swe::Ipl::Moon),
-    std::make_pair(swe::Ipl::Saturn, swe::Ipl::Mercury),
-    std::make_pair(swe::Ipl::Mars, swe::Ipl::Mars),
-    std::make_pair(swe::Ipl::Sun, swe::Ipl::Jupiter),
-    std::make_pair(swe::Ipl::Venus, swe::Ipl::Moon),
-    std::make_pair(swe::Ipl::Saturn, swe::Ipl::Mercury),
-    std::make_pair(swe::Ipl::Mars, swe::Ipl::Mars),
-    std::make_pair(swe::Ipl::Sun, swe::Ipl::Jupiter),
-    std::make_pair(swe::Ipl::Venus, swe::Ipl::Moon),
-    std::make_pair(swe::Ipl::Saturn, swe::Ipl::Mercury),
-    std::make_pair(swe::Ipl::Mars, swe::Ipl::Mars),
-};
-
-// Exact degree
-constexpr auto exaltations = std::to_array<std::pair<swe::Ipl, double>>({
-    {swe::Ipl::Moon, 33.0},     // Taurus 3
-    {swe::Ipl::TrueNode, 63.0}, // Gemini 3
-    {swe::Ipl::Jupiter, 105.0}, // Cancer 15
-    {swe::Ipl::Mercury, 195.0}, // Virgo 15
-    {swe::Ipl::Saturn, 231.0},  // Libra 21
-    {swe::Ipl::Mars, 298.0},    // Aquarius 28
-    {swe::Ipl::Venus, 357.0},   // Pisces 27
-});
-
-// Upper-bound
-using TermsPentad = std::array<std::pair<swe::Ipl, double>, 5>;
-constexpr auto terms = std::to_array<TermsPentad>({
-    {
-        std::make_pair(swe::Ipl::Jupiter, 6.0),
-        std::make_pair(swe::Ipl::Venus, 14.0),
-        std::make_pair(swe::Ipl::Mercury, 21.0),
-        std::make_pair(swe::Ipl::Mars, 26.0),
-        std::make_pair(swe::Ipl::Saturn, 30.0),
-    },
-    {
-        std::make_pair(swe::Ipl::Venus, 8.0),
-        std::make_pair(swe::Ipl::Mercury, 15.0),
-        std::make_pair(swe::Ipl::Jupiter, 22.0),
-        std::make_pair(swe::Ipl::Saturn, 26.0),
-        std::make_pair(swe::Ipl::Mars, 30.0),
-    },
-    {
-        std::make_pair(swe::Ipl::Mercury, 7.0),
-        std::make_pair(swe::Ipl::Jupiter, 14.0),
-        std::make_pair(swe::Ipl::Venus, 21.0),
-        std::make_pair(swe::Ipl::Saturn, 25.0),
-        std::make_pair(swe::Ipl::Mars, 30.0),
-    },
-    {
-        std::make_pair(swe::Ipl::Mars, 6.0),
-        std::make_pair(swe::Ipl::Jupiter, 13.0),
-        std::make_pair(swe::Ipl::Mercury, 20.0),
-        std::make_pair(swe::Ipl::Venus, 27.0),
-        std::make_pair(swe::Ipl::Saturn, 30.0),
-    },
-    {
-        std::make_pair(swe::Ipl::Saturn, 6.0),
-        std::make_pair(swe::Ipl::Mercury, 13.0),
-        std::make_pair(swe::Ipl::Venus, 19.0),
-        std::make_pair(swe::Ipl::Jupiter, 25.0),
-        std::make_pair(swe::Ipl::Mars, 30.0),
-    },
-    {
-        std::make_pair(swe::Ipl::Mercury, 7.0),
-        std::make_pair(swe::Ipl::Venus, 13.0),
-        std::make_pair(swe::Ipl::Jupiter, 18.0),
-        std::make_pair(swe::Ipl::Saturn, 24.0),
-        std::make_pair(swe::Ipl::Mars, 30.0),
-    },
-    {
-        std::make_pair(swe::Ipl::Saturn, 7.0),
-        std::make_pair(swe::Ipl::Venus, 13.0),
-        std::make_pair(swe::Ipl::Jupiter, 18.0),
-        std::make_pair(swe::Ipl::Mercury, 24.0),
-        std::make_pair(swe::Ipl::Mars, 30.0),
-    },
-    {
-        std::make_pair(swe::Ipl::Mars, 6.0),
-        std::make_pair(swe::Ipl::Jupiter, 14.0),
-        std::make_pair(swe::Ipl::Venus, 21.0),
-        std::make_pair(swe::Ipl::Mercury, 27.0),
-        std::make_pair(swe::Ipl::Saturn, 30.0),
-    },
-    {
-        std::make_pair(swe::Ipl::Jupiter, 8.0),
-        std::make_pair(swe::Ipl::Venus, 14.0),
-        std::make_pair(swe::Ipl::Mercury, 19.0),
-        std::make_pair(swe::Ipl::Saturn, 25.0),
-        std::make_pair(swe::Ipl::Mars, 30.0),
-    },
-    {
-        std::make_pair(swe::Ipl::Venus, 6.0),
-        std::make_pair(swe::Ipl::Mercury, 12.0),
-        std::make_pair(swe::Ipl::Jupiter, 19.0),
-        std::make_pair(swe::Ipl::Mars, 25.0),
-        std::make_pair(swe::Ipl::Saturn, 30.0),
-    },
-    {
-        std::make_pair(swe::Ipl::Saturn, 6.0),
-        std::make_pair(swe::Ipl::Mercury, 12.0),
-        std::make_pair(swe::Ipl::Venus, 20.0),
-        std::make_pair(swe::Ipl::Jupiter, 25.0),
-        std::make_pair(swe::Ipl::Mars, 30.0),
-    },
-    {
-        std::make_pair(swe::Ipl::Venus, 8.0),
-        std::make_pair(swe::Ipl::Jupiter, 14.0),
-        std::make_pair(swe::Ipl::Mercury, 20.0),
-        std::make_pair(swe::Ipl::Mars, 26.0),
-        std::make_pair(swe::Ipl::Saturn, 30.0),
-    },
-});
-
-constexpr auto slowUB = std::to_array<std::pair<swe::Ipl, double>>({
-    {swe::Ipl::Moon, 12.30},
-    {swe::Ipl::Mercury, 1.00},
-    {swe::Ipl::Venus, 0.50},
-    {swe::Ipl::Mars, 0.30},
-    {swe::Ipl::Jupiter, 0.05},
-    {swe::Ipl::Saturn, 0.02},
-});
-
-constexpr auto swiftLB = std::to_array<std::pair<swe::Ipl, double>>({
-    {swe::Ipl::Moon, 13.30},
-    {swe::Ipl::Mercury, 1.38},
-    {swe::Ipl::Venus, 1.20},
-    {swe::Ipl::Mars, 0.40},
-    {swe::Ipl::Jupiter, 0.10},
-    {swe::Ipl::Saturn, 0.05},
-});
-
-enum class DigDeb {
-  Swift,
-  Slow,
-  Retrograde,
-  Direct,
-  Oriental,
-  Occidental,
-  UnderSunBeams,
-  Combust,
-  Cazimi,
-  FreeFromSunBeams,
-  Domicile,
-  Detriment,
-  InOwnTriplicity,
-  InOwnFace,
-  InOwnTerm,
-  Exalted,
-  Fallen,
-  Peregrine
-};
-
-constexpr std::string_view to_string(DigDeb dd) {
-  switch (dd) {
-    using enum DigDeb;
-  case Swift:
-    return "Swift";
-  case Slow:
-    return "Slow";
-  case Retrograde:
-    return "Retrograde";
-  case Direct:
-    return "Direct";
-  case Oriental:
-    return "Oriental";
-  case Occidental:
-    return "Occidental";
-  case UnderSunBeams:
-    return "UnderSunBeams";
-  case Combust:
-    return "Combust";
-  case Cazimi:
-    return "Cazimi";
-  case FreeFromSunBeams:
-    return "FreeFromSunBeams";
-  case Domicile:
-    return "Domicile";
-  case Detriment:
-    return "Detriment";
-  case InOwnTriplicity:
-    return "InOwnTriplicity";
-  case InOwnFace:
-    return "InOwnFace";
-  case InOwnTerm:
-    return "InOwnTerm";
-  case Exalted:
-    return "Exalted";
-  case Fallen:
-    return "Fallen";
-  case Peregrine:
-    return "Peregrine";
-  default:
-    throw std::invalid_argument("invalid DigDeb for to_string(...)");
-  }
-}
-
-template <core::swe::HasEcliptic EC> constexpr auto lon(const EC &ec) {
-  return ec.ecliptic().at(0);
-}
-
-template <core::swe::HasEcliptic EC> constexpr auto vlon(const EC &ec) {
-  return ec.ecliptic().at(3);
-}
-
-// template <typename T, T t, typename Comp>
-template <auto t, typename Comp>
-auto fastMapCmp(swe::Ipl ipl, double x, Comp cmp) {
-  static constexpr auto map = FastMap<swe::Ipl, double, t.size()>{{t}};
-  if (auto found = map.at(ipl)) {
-    return cmp(x, *found);
-  } else {
-    return false;
-  }
-}
-
-std::size_t to_sign_index(double lon) {
-  return static_cast<std::size_t>(lon / 30);
-}
-
-constexpr static double Zero = 0.0;
-
-using DigDebCb = std::pair<DigDeb, std::function<bool(const swe::Planet &)>>;
-
-const auto digDebCallTable = std::to_array<DigDebCb>({
-    {DigDeb::Swift,
-     [](const auto &pl) {
-       return fastMapCmp<swiftLB>(pl.id(), vlon(pl), std::greater_equal<>{});
-     }},
-    {DigDeb::Slow,
-     [](const auto &pl) {
-       return fastMapCmp<slowUB>(pl.id(), vlon(pl), std::less_equal<>{});
-     }},
-    {DigDeb::Retrograde,
-     [](const auto &pl) {
-       return pl.id() != swe::Ipl::Sun && pl.id() != swe::Ipl::Moon &&
-              vlon(pl) < Zero;
-     }},
-    {DigDeb::Direct,
-     [](const auto &pl) {
-       return pl.id() != swe::Ipl::Sun && pl.id() != swe::Ipl::Moon &&
-              vlon(pl) > Zero;
-     }},
-    {DigDeb::Domicile,
-     [](const auto &pl) {
-       return pl.id() == houseOrder.at(to_sign_index(lon(pl)));
-     }},
-    {DigDeb::Detriment,
-     [](const auto &pl) {
-       return pl.id() == houseOrder.at((to_sign_index(lon(pl)) + 6) % 12);
-     }},
-    {DigDeb::InOwnFace,
-     [](const auto &pl) {
-       return pl.id() ==
-              core::faceOrder.at(static_cast<std::size_t>(lon(pl) / 10.0) % 7);
-     }},
-    {DigDeb::InOwnTerm,
-     [](const auto &pl) {
-       const auto d = std::fmod(pl.ecliptic().at(0), 30);
-       const TermsPentad &sign = terms.at(to_sign_index(lon(pl)));
-       return std::ranges::adjacent_find(
-                  sign, [&](const auto &x, const auto &y) {
-                    return d >= x.second && d < y.second && y.first == pl.id();
-                  }) != sign.end();
-     }},
-    {DigDeb::Exalted,
-     [](const auto &pl) {
-       return fastMapCmp<core::exaltations>(pl.id(), lon(pl),
-                                            std::equal_to<>{});
-     }},
-    {DigDeb::Fallen,
-     [](const auto &pl) {
-       return fastMapCmp<core::exaltations>(
-           pl.id(), swe_degnorm(lon(pl) + 180.0), std::equal_to<>{});
-     }},
-});
-
-consteval auto dms2double(double degs, double mins, double secs) {
-  return degs + mins / 60.0 + secs / 3600.0;
-}
-
-constexpr auto orbAbs(const auto &a, const auto &b) {
-  return std::abs(swe_difdeg2n(lon(a), lon(b)));
-}
-
-DigDeb sunAccDeb(const auto &sun, const auto &a) {
-  constinit static auto orbCombust = dms2double(8, 30, 0);
-  constinit static auto orbUnderSunBeams = dms2double(17, 0, 0);
-  constinit static auto orbCazimi = dms2double(0, 17, 0);
-  const auto orb = orbAbs(sun, a);
-  if (orb > orbUnderSunBeams)
-    return DigDeb::FreeFromSunBeams;
-  if (orb <= orbCazimi)
-    return DigDeb::Cazimi;
-  if (orb <= orbCombust)
-    return DigDeb::Combust;
-
-  return DigDeb::UnderSunBeams;
-}
-
-auto houseScore(std::size_t house_num) {
-  constinit static auto _ =
-      std::to_array<char>({0, 5, 3, 1, 4, 3, -2, 4, -2, 2, 5, 4, -5});
-  assert(house_num >= 0 && house_num <= 12);
-  return _.at(house_num);
-}
-
-auto sunPlanetRise(const Chart &c, const auto &a) {
-  double tret[3];
-  double tret2[3];
-
-  double geo[3] = {c.coord.at(0), c.coord.at(1), 0.0};
-
-  swe::swe_call(swe_rise_trans, c.ut,
-                static_cast<std::underlying_type_t<swe::Ipl>>(a.id()), nullptr,
-                0, SE_CALC_RISE, geo, 0, 0, tret);
-
-  swe::swe_call(swe_rise_trans, c.ut,
-                static_cast<std::underlying_type_t<swe::Ipl>>(swe::Ipl::Sun),
-                nullptr, 0, SE_CALC_RISE, geo, 0, 0, tret2);
-
-  return tret[0] < tret2[0] ? DigDeb::Oriental : DigDeb::Occidental;
-}
-
-auto isInOwnTriplicity(bool is_night, const auto &a) {
-  const auto &rulers = triplicityRulers.at(to_sign_index(lon(a)));
-  return (is_night ? std::get<1>(rulers) : std::get<0>(rulers)) == a.id();
-}
-
-} // namespace specni::core
-
-namespace specni::gui {
-// not defined in std for some reason?
-template <typename T>
-concept arithmetic = std::is_arithmetic<T>::value;
-template <arithmetic T> constexpr double deg2rad(T deg) {
-  return deg * (std::numbers::pi / 180.0);
-}
-} // namespace specni::gui
-
 namespace ImGuiExtra {
 template <typename... Args>
 constexpr void Text(fmt::format_string<Args...> f, Args &&...args) {
@@ -389,6 +29,15 @@ constexpr void Text(fmt::format_string<Args...> f, Args &&...args) {
 } // namespace ImGuiExtra
 
 namespace specni::gui {
+static constexpr std::size_t ColorCount = 5;
+using ColorPalette = std::array<ImColor, ColorCount>;
+
+// not defined in std for some reason?
+template <typename T>
+concept arithmetic = std::is_arithmetic<T>::value;
+template <arithmetic T> constexpr double deg2rad(T deg) {
+  return deg * (std::numbers::pi / 180.0);
+}
 
 template <std::forward_iterator It, class BinaryFunction>
 constexpr void ring_adjacency(It first, It last, BinaryFunction func) {
@@ -406,35 +55,8 @@ constexpr void ring_adjacency(It first, It last, BinaryFunction func) {
 void ShowScores(core::Chart &model, const std::array<ImFont *, 2> &fonts) {
   ImGui::Begin("Scores");
 
-  auto sun = std::ranges::find_if(model.planets, [](const auto &pl) {
-    return pl.id() == core::swe::Ipl::Sun;
-  });
-
-  std::ranges::for_each(model.planets, [&](const core::swe::Planet &pl) {
-    if (ImGui::TreeNode(pl.name().c_str())) {
-      std::ranges::for_each(core::digDebCallTable, [&](const auto &x) {
-        if (x.second(pl))
-          ImGuiExtra::Text("{}", to_string(x.first));
-      });
-      if (sun != std::cend(model.planets) && sun->id() != pl.id()) {
-        if (auto is_night =
-                [](const auto &sun, auto ac) {
-                  return swe_difdeg2n(sun.ecliptic().at(0), ac) >= 0;
-                }(*sun, model.houses.ang.at(0));
-            core::isInOwnTriplicity(is_night, pl)) {
-          ImGuiExtra::Text("{}", to_string(core::DigDeb::InOwnTriplicity));
-        }
-
-        ImGuiExtra::Text("{}", to_string(core::sunAccDeb(*sun, pl)));
-        ImGuiExtra::Text("{}", to_string(core::sunPlanetRise(model, pl)));
-      }
-      ImGui::TreePop();
-    }
-  });
-
   ImGui::End();
-}
-
+} // namespace specni::gui
 void ShowControls(core::Chart &model, const std::array<ImFont *, 2> &fonts) {
   static constexpr std::string_view str =
       "Equal\0Alcabitius\0Campanus\0EqualMC\0Carter\0Gauquelin\0Azimuth\0Sunshi"
@@ -590,27 +212,6 @@ void ShowChart(core::Chart &model, const std::array<ImFont *, 2> &fonts) {
   ImGui::Begin("Aspects");
 
   if (ImGui::BeginTable("aspects", 3, PlanetWidgetTableFlags)) {
-    for_each_combination(
-        std::begin(model.planets), std::next(std::begin(model.planets), 2),
-        std::end(model.planets),
-        [](const auto &x, const auto &y) {
-          if (auto it = specni::core::maybe_aspect(*x, *std::next(x))) {
-            ImGui::TableNextRow();
-            ImGui::TableNextColumn();
-            ImGui::Text("%s", x->name().data());
-
-            ImGui::TableNextColumn();
-            ImGui::Text("%d", *it);
-
-            ImGui::TableNextColumn();
-            ImGui::Text("%s", std::next(x)->name().data());
-          }
-
-          return false;
-        }
-
-    );
-
     ImGui::EndTable();
   }
 
@@ -764,6 +365,16 @@ void ShowChart(core::Chart &model, const std::array<ImFont *, 2> &fonts) {
             colors[0], house_num_glyph[i++].data());
       });
   ImGui::PopFont();
+
+  core::for_each_aspect(model.planets, [&](const auto &p1, const auto &p2,
+                                           auto asp) {
+    auto [CosA, SinA] = cos_sin(p1.ecliptic().at(0));
+    auto [CosA2, SinA2] = cos_sin(p2.ecliptic().at(0));
+
+    draw_list->AddLine(window_center + ImRotate(CirclesRadii[0], CosA, SinA),
+                       window_center + ImRotate(CirclesRadii[0], CosA2, SinA2),
+                       colors[0], Thickness);
+  });
 
   ImGui::End();
 }
